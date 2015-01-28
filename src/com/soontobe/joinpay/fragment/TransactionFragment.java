@@ -12,6 +12,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -171,6 +173,51 @@ public abstract class TransactionFragment extends Fragment implements
 
 		mTotalAmount
 				.setOnFocusChangeListener(new OnTotalMoneyFocusChangeListener());
+
+		mTotalAmount
+		.addTextChangedListener(new TextWatcher() {
+			
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+			@Override
+			public void afterTextChanged(Editable s) {
+
+				float currentAmount = 0.0f;
+				try {
+					currentAmount = Float.valueOf(s.toString());
+				} catch (NumberFormatException e) {
+					;
+				}
+
+				ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
+				int size = targetUserIndex.size();
+				float splitAmount = (currentAmount) / (float) size;
+				for (Integer index : targetUserIndex) {
+					if (index == -1) {
+//						float oldUserAmount = myUserInfo.getAmountOfMoney();
+						myUserInfo.setAmountOfMoney(splitAmount);
+						mSelfBubble.setUserInfo(myUserInfo);
+					} else {
+//						float oldUserAmount = mUserInfoList.get(index).getAmountOfMoney();
+						mUserInfoList.get(index).setAmountOfMoney(splitAmount);
+						mUserBubbles.get(index).setUserInfo(
+								mUserInfoList.get(index));
+					}
+				}
+				
+			}
+		});
 
 		mGroupNote
 				.setOnFocusChangeListener(new OnGroupNoteFocusChangeListener());
