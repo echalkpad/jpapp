@@ -157,10 +157,11 @@ implements LoaderCallbacks<Void> {
 				String url = intent.getStringExtra("url");
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
+				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
+
 				try {
 					JSONObject obj = new JSONObject(response);
 					JSONArray arrIn = obj.getJSONArray("moneyIn");
-					ArrayList<JSONObject> list = new ArrayList<JSONObject>();
 					
 					for(int i = 0; i < arrIn.length(); i++) {
 						JSONObject obj1 = arrIn.getJSONObject(i);
@@ -168,26 +169,24 @@ implements LoaderCallbacks<Void> {
 					}
 
 
-					addTransaction(list);
-					
-					
 
 				} catch (JSONException e) {
 					Log.e("response", response);
 					Log.e("HistoryFragment REST", "Error parsing JSON response moneyIn");
 				}
 				
+				Log.d("mihirswrong", "now!");
+				
 				try {
 					JSONObject obj = new JSONObject(response);
 
 					JSONArray arrOut = obj.getJSONArray("moneyOut");
-					ArrayList<JSONObject> list = new ArrayList<JSONObject>();
-
+					
 					for(int i = 0; i < arrOut.length(); i++) {
 						JSONObject obj1 = arrOut.getJSONObject(i);
 						list.add(obj1);
 					}
-					addTransaction(list);
+					
 
 
 				} catch (JSONException e) {
@@ -196,7 +195,7 @@ implements LoaderCallbacks<Void> {
 					
 				}
 				
-				
+				addTransaction(list);
 			}
 		}
 	};

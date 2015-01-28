@@ -34,6 +34,7 @@
     <EditText
         android:id="@+id/editText_username"
         android:hint="username"
+        android:text="dshuffma"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10" >
@@ -44,6 +45,7 @@
     <EditText
         android:id="@+id/editText_password"
         android:hint="password"
+        android:text="dshuffma"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"

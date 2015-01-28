@@ -151,7 +151,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		Log.d("getView", obj.toString());
 //		personalNoteView.setText(obj.getString());
 
-		try {
+//		try {
 			String to = Constants.userName;
 			String from = Constants.userName;
 			
@@ -168,11 +168,19 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			payerView.setText(from);
 			payeeView.setText(to);
 			Log.d("getView", "Past payer, payee");
-			amountView.setText(obj.getString("amount"));
-
+			try {
+				amountView.setText(obj.getString("amount"));
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 			TableLayout tr = (TableLayout) rowView;
 			boolean hasPersonalNote = false;
-			boolean isPending = !obj.getBoolean("authorized");
+			boolean isPending = false;
+			try{
+				isPending = !obj.getBoolean("authorized");
+			} catch(Exception e) {
+				e.printStackTrace();
+			}
 	
 			if (isPending) {
 				TextView tv = (TextView) tr.findViewById(R.id.payment_status);
@@ -180,10 +188,10 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			}
 			
 			tr.requestLayout();
-		} catch (JSONException e) {
+//		} catch (JSONException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//			e.printStackTrace();
+//		}
 		Log.d("getView", "returning rowView");
 		return rowView;
 

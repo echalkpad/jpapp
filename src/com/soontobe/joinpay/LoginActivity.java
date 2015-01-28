@@ -50,7 +50,7 @@ public class LoginActivity extends Activity {
 				
 				try {
 					JSONObject obj = new JSONObject(response);
-					Constants.loginToken = obj.getString("sessionID");
+//					Constants.loginToken = obj.getString("sessionID");
 				} catch (JSONException e) {
 					Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT).show();
 					return;

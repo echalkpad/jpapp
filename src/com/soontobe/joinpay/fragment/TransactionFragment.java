@@ -6,6 +6,7 @@ import java.util.Random;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -24,6 +25,7 @@ import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
@@ -48,7 +50,7 @@ import com.soontobe.joinpay.widget.RadarUserView.OnLockButtonClickedListener;
 
 public abstract class TransactionFragment extends Fragment implements
 		LoaderCallbacks<Void> {
-
+	static Context mApplicationContext;
 	private OnFragmentInteractionListener mListener;
 	// private static final int contactListRequestCode = 1;
 
@@ -214,6 +216,10 @@ public abstract class TransactionFragment extends Fragment implements
 						mUserBubbles.get(index).setUserInfo(
 								mUserInfoList.get(index));
 					}
+				}
+				if(size == 0){
+					//Toast.makeText(getApplicationContext(), "PICK A GOD DAMN PERSON FIRST", Toast.LENGTH_SHORT).show();
+					Log.d("dumbuser", "Need to select a person first buddy");
 				}
 				
 			}

@@ -20,13 +20,15 @@ import android.content.Intent;
 import android.util.Log;
 
 public class RESTCalls extends IntentService {
-
+	static HttpClient httpClient;
+	
 	public RESTCalls(String name) {
 		super(name);
 	}
 
 	public RESTCalls() {
 		super("RESTCalls");
+		if(httpClient == null) httpClient = new DefaultHttpClient();
 	}
 
 	@Override
@@ -42,7 +44,7 @@ public class RESTCalls extends IntentService {
 		if(method.toLowerCase().equals("get")) {
 			try {
 				Log.d("url", url);
-				HttpClient httpClient = new DefaultHttpClient();
+				//HttpClient httpClient = new DefaultHttpClient();
 				HttpGet httpget = new HttpGet(url);
 				if(Constants.loginToken != null) {
 					httpget.addHeader("sessionID", Constants.loginToken);
@@ -72,7 +74,7 @@ public class RESTCalls extends IntentService {
 		} else if(method.toLowerCase().equals("post")) {
 			try {
 				Log.d("url", url);
-				HttpClient httpClient = new DefaultHttpClient();
+				//HttpClient httpClient = new DefaultHttpClient();
 				HttpPost post = new HttpPost(url);
 				if(Constants.loginToken != null) {
 					post.addHeader("sessionID", Constants.loginToken);
@@ -104,7 +106,7 @@ public class RESTCalls extends IntentService {
 		} else if(method.toLowerCase().equals("put")) {
 			try {
 				Log.d("url", url);
-				HttpClient httpClient = new DefaultHttpClient();
+				//HttpClient httpClient = new DefaultHttpClient();
 				HttpPut put = new HttpPut(url);
 				if(Constants.loginToken != null) {
 					put.addHeader("sessionID", Constants.loginToken);
