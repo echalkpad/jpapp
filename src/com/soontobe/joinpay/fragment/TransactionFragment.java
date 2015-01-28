@@ -221,7 +221,6 @@ public abstract class TransactionFragment extends Fragment implements
 					//Toast.makeText(getApplicationContext(), "PICK A GOD DAMN PERSON FIRST", Toast.LENGTH_SHORT).show();
 					Log.d("dumbuser", "Need to select a person first buddy");
 				}
-				
 			}
 		});
 

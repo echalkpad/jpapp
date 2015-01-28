@@ -1,5 +1,15 @@
 package com.soontobe.joinpay;
 
+import java.util.List;
+
+import bolts.Continuation;
+import bolts.Task;
+
+import com.ibm.mobile.services.core.IBMBluemix;
+import com.ibm.mobile.services.push.IBMPush;
+import com.ibm.mobile.services.push.IBMPushNotificationListener;
+import com.ibm.mobile.services.push.IBMSimplePushNotification;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -19,10 +29,16 @@ import android.view.Window;
  */
 public class MainActivity extends Activity {
 	private boolean mIsServiceStarted;
-
+	private IBMPush push = null;
+	private IBMPushNotificationListener notificationlistener = null;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		IBMBluemix.initialize(this, "bd885f97-e6e7-4f91-8365-98fc61162760", "25798ac2eb6b2d28f3fcee2f3795e4261d9591a0", "http://join-pay.mybluemix.net");
+		//setContentView(R.layout.activity_main);
+		
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_main);
 		
@@ -38,6 +54,98 @@ public class MainActivity extends Activity {
 */
 		
 		mIsServiceStarted = false;
+		
+		
+	
+		push = IBMPush.initializeService();
+		notificationlistener = new IBMPushNotificationListener() {
+
+			@Override
+			public void onReceive(final IBMSimplePushNotification message) {
+				Log.e("Message Received", "Push Notification Received" + message.toString());
+				
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						//status.setText(message.toString());
+						Log.d("push", "I GOT A FUCKING PUSH MESSAGE");
+						Log.d("push", message.getAlert());
+					}
+				});
+			}
+
+		}; 
+
+		push.register("dev4", Constants.userName).continueWith(new Continuation<String, Void>() {
+			@Override
+			public Void then(Task<String> task) throws Exception {
+				if(task.isFaulted()) {
+					//status.setText("Push Registration Failed");
+					Log.e("push", "failed to push list of subscriptions");
+					return null;
+				} else {
+					push.getSubscriptions().continueWith(new Continuation<List<String>, Void>()
+							{
+								public Void then(Task<List<String>> task1) throws Exception
+								{
+									if(task1.isFaulted()) {
+										//status.setText("Push List of Subscriptions failed");
+										Log.e("push", "failed to push list of subscriptions");
+									} else {
+										List<String> tags = task1.getResult();
+										if(tags.size() > 0) {
+											push.unsubscribe(tags.get(0)).continueWith(new Continuation<String, Void>() {
+
+												@Override
+												public Void then(
+														Task<String> task2)
+														throws Exception {
+													if(task2.isFaulted()) {
+														Log.e("push", "subscribe failed");
+													} else {
+														push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
+															public Void then(bolts.Task<String> task1) throws Exception {
+																if(task1.isFaulted()) {
+																	Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
+																} else {
+																	push.listen(notificationlistener);
+																	Log.d("push","Push Subscription Success");								
+																}
+																return null;
+															};
+														});
+													}
+													// TODO Auto-generated method stub
+													return null;
+												}
+											});
+										} else {
+											Log.d("push", "" + task1.getResult());
+											push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
+												public Void then(bolts.Task<String> task1) throws Exception {
+													if(task1.isFaulted()) {
+														Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
+													} else {
+														push.listen(notificationlistener);
+														Log.d("push","Push Subscription Success");								
+													}
+													return null;
+												};
+											});
+										}
+
+									}
+									return null;
+								}
+							});
+					
+					return null;
+				}
+			}
+		});
+		
+		
+		
 	}
 	/*
 	public String getUserNameByMacAddress(String address) {

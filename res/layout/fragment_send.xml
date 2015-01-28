@@ -151,11 +151,11 @@
                 android:layout_height="30dp"
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@+id/dollar_sign"
-                android:background="#ffffff"
                 android:gravity="center"
                 android:hint="Total"
                 android:enabled="false"
-                android:inputType="numberDecimal" />
+                android:inputType="numberDecimal"
+                android:background="@drawable/custom_button" />
 
             <RelativeLayout
                 android:layout_width="60dp"
