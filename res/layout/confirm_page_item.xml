@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="7dp"
+    android:paddingLeft="15dp"
+    android:paddingRight="15dp"
+    android:paddingTop="7dp"
+    android:stretchColumns="0" >
+
+    <TableRow>
+
+        <LinearLayout
+            android:id="@+id/activity_confirm_pay_item_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/activity_confirm_payer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Payer"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/activity_confirm_pay_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text=" Pays "
+                android:textColor="#5fc991"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/activity_confirm_payee"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Payee" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/amount_confirm"
+            android:text="Amount"
+            android:layout_gravity="right"
+            android:textSize="16dp"
+            android:textStyle="bold" />
+    </TableRow>
+
+    <TableRow android:id="@+id/confirm_item_second_row" >
+        <TextView
+            android:id="@+id/confirm_personal_note_normal"
+            android:textColor="#b3b3b3"
+            android:text="This is a personal note" />
+        
+        <TextView
+            android:id="@+id/payment_status"
+            android:textColor="#b3b3b3"
+            android:layout_gravity="right" />
+    </TableRow>
+
+</TableLayout>

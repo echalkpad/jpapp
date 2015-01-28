@@ -1,0 +1,80 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/send_confirm_activity"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#c2d42d"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/send_confirm_button_layout"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:id="@+id/head_send_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:padding="15dp" >
+
+            <TextView
+                android:id="@+id/title_transaction_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="Send"
+                android:textStyle="bold"
+                android:textColor="#ffffff"
+                android:textSize="24dp" />
+
+            <Button
+                android:id="@+id/send_edit_pencil"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toRightOf="@+id/title_transaction_confirm"
+                android:background="@drawable/pencil_white"
+                android:onClick="backToSendInfo" />
+        </RelativeLayout>
+
+        <ListView
+            android:id="@android:id/list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="#ffffff"
+            android:orientation="vertical"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp" >
+        </ListView>
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/send_confirm_button_layout"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="#5fc991"
+        android:paddingBottom="10dp"
+        android:paddingRight="10dp" >
+
+        <Button
+            android:id="@+id/transaction_confirm_button"
+            android:layout_width="85dp"
+            android:layout_height="30dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:background="@drawable/button_normal"
+            android:gravity="center"
+            android:onClick="proceedToConfirmSend"
+            android:text="Request" />
+    </RelativeLayout>
+
+</RelativeLayout>
