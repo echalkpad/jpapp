@@ -2,6 +2,9 @@ package com.soontobe.joinpay;
 
 import java.util.List;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import bolts.Continuation;
 import bolts.Task;
 
@@ -11,8 +14,13 @@ import com.ibm.mobile.services.push.IBMPushNotificationListener;
 import com.ibm.mobile.services.push.IBMSimplePushNotification;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
@@ -20,27 +28,28 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 /**
  * This class is the access point of the whole application. After the user hit the "JoinPay" button, it will jump to the radar view pane.
  *
  */
-public class MainActivity extends Activity {
+public class MainActivity extends Activity{
 	private boolean mIsServiceStarted;
 	private IBMPush push = null;
 	private IBMPushNotificationListener notificationlistener = null;
-	
+	public static Context context;// = this;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		IBMBluemix.initialize(this, "bd885f97-e6e7-4f91-8365-98fc61162760", "25798ac2eb6b2d28f3fcee2f3795e4261d9591a0", "http://join-pay.mybluemix.net");
-		//setContentView(R.layout.activity_main);
-		
-		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
+		super.onCreate(savedInstanceState);		
+		requestWindowFeature(Window.FEATURE_NO_TITLE);  					//No Title Bar
 		setContentView(R.layout.activity_main);
+		mIsServiceStarted = false;
 		
 /*		WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
 		WifiInfo info = manager.getConnectionInfo();
@@ -52,35 +61,65 @@ public class MainActivity extends Activity {
 		Log.d("MAC address", address);
 		Log.d("User name", Constants.userName);
 */
-		
-		mIsServiceStarted = false;
-		
-		
-	
+				
+		///////////////////////////////////////////////////
+		/////////////////  IBM Push Code  ///////////////// 
+		///////////////////////////////////////////////////
+		context = this;
+		IBMBluemix.initialize(this, Constants.appSecret, Constants.appKey, Constants.appRoute);			//init for IBM push
 		push = IBMPush.initializeService();
 		notificationlistener = new IBMPushNotificationListener() {
-
+		
 			@Override
-			public void onReceive(final IBMSimplePushNotification message) {
-				Log.e("Message Received", "Push Notification Received" + message.toString());
-				
+			public void onReceive(final IBMSimplePushNotification message) {				
 				runOnUiThread(new Runnable() {
+					
+					///////////////////////////////////////////////////
+					/////////////////  PUSH Received  /////////////////
+					///////////////////////////////////////////////////
 					@Override
 					public void run() {
-						//status.setText(message.toString());
-						Log.d("push", "I GOT A FUCKING PUSH MESSAGE");
+						Log.d("push", "I got a push message, man");
 						Log.d("push", message.getAlert());
+						
+						///////////////// Open Approve / Deny Dialog /////////////////
+						try{
+							final Dialog dialog = new Dialog(context);
+							dialog.setContentView(R.layout.dialog);
+							dialog.setTitle("New Message");
+							TextView text = (TextView) dialog.findViewById(R.id.text);
+							text.setText(message.getAlert());
+				 
+							Button dialogButtonPOS = (Button) dialog.findViewById(R.id.dialogButtonPOS);
+							dialogButtonPOS.setOnClickListener(new OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									Log.d("push", "user approved");
+									dialog.dismiss();
+									//pushAction(true);
+								}
+							});
+							dialog.show();
+						}
+						catch(Exception e){
+							Log.e("push","dialog error");
+							e.printStackTrace();
+						}
+						
 					}
+					
+					
+
+					
 				});
 			}
-
-		}; 
-
+		};
+		
+		///////////////// More Push Registration /////////////////
 		push.register("dev4", Constants.userName).continueWith(new Continuation<String, Void>() {
 			@Override
 			public Void then(Task<String> task) throws Exception {
 				if(task.isFaulted()) {
-					//status.setText("Push Registration Failed");
 					Log.e("push", "failed to push list of subscriptions");
 					return null;
 				} else {
@@ -89,7 +128,6 @@ public class MainActivity extends Activity {
 								public Void then(Task<List<String>> task1) throws Exception
 								{
 									if(task1.isFaulted()) {
-										//status.setText("Push List of Subscriptions failed");
 										Log.e("push", "failed to push list of subscriptions");
 									} else {
 										List<String> tags = task1.getResult();
@@ -143,10 +181,8 @@ public class MainActivity extends Activity {
 				}
 			}
 		});
-		
-		
-		
 	}
+	
 	/*
 	public String getUserNameByMacAddress(String address) {
 		String ret = "User";
@@ -157,7 +193,8 @@ public class MainActivity extends Activity {
 		}
 		return ret;
 	}
-*/
+	*/
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.

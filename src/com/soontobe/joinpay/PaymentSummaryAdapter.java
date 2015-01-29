@@ -6,17 +6,29 @@ import java.util.List;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import android.app.Dialog;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TableLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 
 /**
  * This class is an adapter for the layout of the transaction summary view or history view.
@@ -148,6 +160,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		TextView payerView = (TextView) rowView.findViewById(R.id.activity_confirm_payer);
 		TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
 		TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm);
+		TextView transcation = (TextView) rowView.findViewById(R.id.activity_confirm_transacation);
 		Log.d("getView", obj.toString());
 //		personalNoteView.setText(obj.getString());
 
@@ -164,6 +177,11 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 				from = obj.getString("from");
 			} catch(Exception e) {			
 				from = Constants.userName;
+			}
+			try {
+				transcation.setText(obj.getString("id"));
+			} catch (JSONException e1) {
+				e1.printStackTrace();
 			}
 			payerView.setText(from);
 			payeeView.setText(to);
@@ -188,6 +206,67 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			}
 			
 			tr.requestLayout();
+			
+			
+			rowView.setOnClickListener(new View.OnClickListener() {
+				
+				
+				@Override
+				public void onClick(View v) {
+					Log.d("dsh", "clicked");
+					TextView transId = (TextView)  v.findViewById(R.id.activity_confirm_transacation);
+					TextView payeeView = (TextView)  v.findViewById(R.id.activity_confirm_payee);
+					Log.d("dsh", "test " + transId.getText());
+					
+					///////////////// Open Approve / Deny Dialog /////////////////
+					try{
+						final Dialog dialog = new Dialog(context);
+						dialog.setContentView(R.layout.dialog);
+						dialog.setTitle("Approve pending transacation?");
+						TextView text = (TextView) dialog.findViewById(R.id.text);
+						text.setText("Sending money to " + payeeView.getText());
+						TextView hidden = (TextView) dialog.findViewById(R.id.hidden);
+						hidden.setText(transId.getText());
+						Log.d("dsh", "dialog now has trans: " + transId.getText());
+						
+						TextView dialogButtonPOS = (TextView) dialog.findViewById(R.id.dialogButtonPOS);
+						dialogButtonPOS.setText("Approve");
+						dialogButtonPOS.setOnClickListener(new OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
+								Log.d("dsh", "user approved: " + transId.getText());
+								dialog.dismiss();
+								transAction(true, (String) transId.getText());
+							}
+						});
+						
+						TextView dialogButtonNEG = (TextView) dialog.findViewById(R.id.dialogButtonNEG);
+						dialogButtonNEG.setVisibility(1);
+						dialogButtonNEG.setOnClickListener(new OnClickListener() {
+							@Override
+							public void onClick(View v) {
+								TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
+								Log.d("dsh", "user denied: " + transId.getText());
+								dialog.dismiss();
+								transAction(false, (String) transId.getText());
+							}
+						});
+						dialog.show();
+					}
+					catch(Exception e){
+						Log.e("dsh","dialog error");
+						e.printStackTrace();
+					}
+				}
+				
+			});
+			
+			
+			
+			
+			
+			
 //		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 //			e.printStackTrace();
@@ -195,6 +274,43 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		Log.d("getView", "returning rowView");
 		return rowView;
 
+	}
+	
+	///////////////// Confirm/Deny the Push Msg /////////////////
+	public void transAction(boolean action, String id){
+		final String serviceContext = "transAction";
+/*		BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String receivedServiceContext = intent.getStringExtra("context");
+				
+				if(serviceContext.equals(receivedServiceContext)) {
+					String url = intent.getStringExtra("url");
+					String method = intent.getStringExtra("method");
+					String response = intent.getStringExtra("response");
+					Log.d("dsh", "REST Response for push " + response);
+				}
+			}
+		};						
+	*/	
+		if(action){															//only authorize if true...  later we will revisit this and send different REST call
+			Intent intent = new Intent(context, RESTCalls.class);
+			JSONObject obj = new JSONObject();
+			try {
+				obj.put("username", Constants.userName);
+			} catch (JSONException e) {
+				Toast.makeText(context, "Error creating JSON", Toast.LENGTH_SHORT).show();
+			}
+	
+			String url = Constants.baseURL + "/authorize/" + id;
+			//String url = Constants.baseURL + "";
+			intent.putExtra("method","put");
+			intent.putExtra("url",url);
+			intent.putExtra("body", obj.toString());
+			intent.putExtra("context", serviceContext);
+			Log.d("dsh", "starting rest service for push: " + action);
+			getContext().startService(intent);
+		}
 	}
 
 } 

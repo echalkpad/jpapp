@@ -1,12 +1,14 @@
 package com.soontobe.joinpay;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -55,8 +57,8 @@ public class SendConfirmActivity extends ListActivity {
 		updatePaneTitle();
 		setListView();
 		setEventListeners();
-		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-		registerReceiver(restResponseReceiver, restIntentFilter);
+//		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+//		registerReceiver(restResponseReceiver, restIntentFilter);
 
 	}
 
@@ -110,8 +112,32 @@ public class SendConfirmActivity extends ListActivity {
 
 		boolean isPending = false;	//	Don't care
 		boolean isHistory = false;
-//		PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, paymentInfo, isHistory);
-//		list.setAdapter(adapter);
+		
+		//JSONArray obj = new JSONArray();
+		//List JSONObject obj = new JSONObject();
+		ArrayList<JSONObject> obj = new ArrayList<JSONObject>();
+		for (String[] sa : paymentInfo){
+			JSONObject tmp = new JSONObject();
+			try {
+				for(int i=0; i < sa.length; i++){
+					if(i == 0) tmp.put("type", sa[i]);
+					if(i == 1) tmp.put("description", sa[i]);
+					if(i == 2) tmp.put("name", sa[i]);
+					if(i == 3) tmp.put("from", sa[i]);
+					if(i == 4) tmp.put("amount", sa[i]);
+					obj.add(tmp);
+				}
+				//Log.d("dsh", "json: " + tmp);
+			} catch (JSONException e) {
+				e.printStackTrace();
+			}
+			//Log.d("dsh", "json: " + obj);
+			
+		}
+		//Log.d("dsh", "jsonarray: " + obj);
+		
+		PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, obj, isHistory);
+		list.setAdapter(adapter);
 	}
 
 	private void setConstant() {

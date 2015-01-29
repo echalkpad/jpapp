@@ -4,6 +4,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import android.util.Log;
+
 import com.soontobe.joinpay.model.UserInfo;
 
 /**
@@ -16,7 +18,7 @@ public class SendFragment extends TransactionFragment {
 			if (info.isSelecetd()) {
 				String[] item = {"normal", info.getPersonalNote(), myUserInfo.getUserName(), info.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "notPending"};
 				paymentInfo.add(item);
-//				Log.d(" paymentInfo", item[2]);
+				Log.d("paymentInfo", item[2]);
 			}
 		}
 		

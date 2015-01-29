@@ -9,6 +9,7 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -26,14 +27,18 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.View.OnTouchListener;
 import android.webkit.WebView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.MainActivity;
 import com.soontobe.joinpay.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.RESTCalls;
@@ -175,7 +180,7 @@ implements LoaderCallbacks<Void> {
 					Log.e("HistoryFragment REST", "Error parsing JSON response moneyIn");
 				}
 				
-				Log.d("mihirswrong", "now!");
+
 				
 				try {
 					JSONObject obj = new JSONObject(response);
@@ -250,7 +255,7 @@ implements LoaderCallbacks<Void> {
 		Utility.setListViewHeightBasedOnChildren(lv);
 		mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams(); 
 		mlp.setMargins(0, margin, 0, margin);
-		
+
 	}
 /*	public void addTransaction(ArrayList<String[]> info){
 		int margin = 15;
@@ -420,7 +425,7 @@ implements LoaderCallbacks<Void> {
 	}
 	
 	/**
-	 * Check for ui change every 4 seconds
+	 * Check for ui change every 5 seconds
 	 */
 	private class CheckViewUpdateAsyncTask extends AsyncTask<Void, Void, Void>{
 		
@@ -437,7 +442,7 @@ implements LoaderCallbacks<Void> {
 					Message msg = new Message();
 					msg.what = COMPLETED;
 					mHandler.sendMessage(msg);
-					Thread.sleep(4000);
+					Thread.sleep(5000);
 				} catch (InterruptedException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

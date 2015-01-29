@@ -37,9 +37,9 @@ public class RESTCalls extends IntentService {
 		final String url = intent.getStringExtra("url");
 		final String body = intent.getStringExtra("body");
 		final String context = intent.getStringExtra("context");
-		Log.d("method", method);
-		Log.d("url", url);
-		Log.d("body", ""+body);
+		//Log.d("method", method);
+		//Log.d("url", url);
+		//Log.d("body", ""+body);
 		
 		if(method.toLowerCase().equals("get")) {
 			try {
@@ -106,6 +106,7 @@ public class RESTCalls extends IntentService {
 		} else if(method.toLowerCase().equals("put")) {
 			try {
 				Log.d("url", url);
+				Log.d("httpput", "put url " + url);
 				//HttpClient httpClient = new DefaultHttpClient();
 				HttpPut put = new HttpPut(url);
 				if(Constants.loginToken != null) {
@@ -116,7 +117,7 @@ public class RESTCalls extends IntentService {
 					public String handleResponse(HttpResponse response)
 							throws ClientProtocolException, IOException {
 						String strResp = EntityUtils.toString(response.getEntity());
-						Log.d("httppost", strResp);
+						Log.d("httpput", strResp);
 						
 						Intent responseIntent = new Intent(Constants.RESTRESP);
 						responseIntent.putExtra("url", url);

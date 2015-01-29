@@ -38,6 +38,7 @@ import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
 import android.widget.TabWidget;
 import android.widget.TextView;
+
 import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.fragment.HistoryFragment;
 import com.soontobe.joinpay.fragment.RequestFragment;
@@ -103,7 +104,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		mSendFragment = new SendFragment();
 		mRequestFragment = new RequestFragment();
 		mHistoryFragment = new HistoryFragment();
-
+		MainActivity.context = this;
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		setupTabs();
 		mTabHost.setOnTabChangedListener(this);
@@ -305,6 +306,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
+				Log.d("dsh", "pressed an item down 1");
 				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.arrow_active);
@@ -320,6 +322,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
+				Log.d("dsh", "pressed an item down 2");
 				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.cross_active);
@@ -329,7 +332,8 @@ HistoryFragment.OnFragmentInteractionListener {
 				return false;
 			}
 		});
-	}
+	}	
+	
 
 	private void setupTabs() {
 		// Setup tabs
@@ -397,6 +401,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	@Override
 	public void onFragmentInteraction(Uri uri) {
+		Log.d("dsh", "pressed an item down 3");
 		Log.d(TAG, uri.toString());		
 	}
 
