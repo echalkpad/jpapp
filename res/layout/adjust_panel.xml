@@ -15,8 +15,8 @@
     <!-- Top button -->
     <ImageButton 
         android:id="@+id/button_adjpanel_top"
-        android:layout_width="26.7dp"
-        android:layout_height="26.7dp"
+        android:layout_width="30.7dp"
+        android:layout_height="30.7dp"
         android:layout_marginLeft="50.7dp"
         android:src="@drawable/unlocked_white"
         android:scaleType="fitCenter"
@@ -28,8 +28,8 @@
 
     <ImageButton 
         android:id="@+id/button_adjpanel_left"
-        android:layout_width="26.7dp"
-        android:layout_height="26.7dp"
+        android:layout_width="30.7dp"
+        android:layout_height="30.7dp"
         android:layout_marginTop="50.7dp"
         android:src="@drawable/pencil_white"
         android:scaleType="fitCenter"
@@ -41,8 +41,8 @@
    
     <ImageButton 
         android:id="@+id/button_adjpanel_bottom"
-        android:layout_width="26.7dp"
-        android:layout_height="26.7dp"
+        android:layout_width="30.7dp"
+        android:layout_height="30.7dp"
         android:layout_marginLeft="50.7dp"
         android:layout_gravity="bottom"
         android:src="@drawable/add_person_white"
@@ -56,8 +56,8 @@
     <ImageButton 
         android:id="@+id/button_adjpanel_right"
         android:layout_gravity="right"
-        android:layout_width="26.7dp"
-        android:layout_height="26.7dp"
+        android:layout_width="30.7dp"
+        android:layout_height="30.7dp"
         android:layout_marginTop="50.7dp"
         android:background="@drawable/shape_small_button_circle"
         android:src="@drawable/cross_white"
@@ -101,7 +101,7 @@
         android:focusable="false"
         android:layout_width="66.7dp"
         android:layout_height="19dp"
-        android:textSize="16sp"
+        android:textSize="14sp"
         android:text="24.2"
         android:textColor="#5cc38c"
         android:layout_gravity="center"

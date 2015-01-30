@@ -91,8 +91,7 @@ public abstract class TransactionFragment extends Fragment implements
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		if (mCurrentView == null) {
-			mCurrentView = inflater.inflate(R.layout.fragment_send, container,
-					false);
+			mCurrentView = inflater.inflate(R.layout.fragment_send, container,false);
 			init();
 		}
 
@@ -108,10 +107,8 @@ public abstract class TransactionFragment extends Fragment implements
 	}
 
 	private void init() {
-		mBubbleFrameLayout = (FrameLayout) mCurrentView
-				.findViewById(R.id.layout_send_frag_bubbles);
-		mBubbleFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener(
-				new MyOnGlobalLayoutChgListener());
+		mBubbleFrameLayout = (FrameLayout) mCurrentView.findViewById(R.id.layout_send_frag_bubbles);
+		mBubbleFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener( new MyOnGlobalLayoutChgListener() );
 		mBubbleFrameLayout.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -173,53 +170,47 @@ public abstract class TransactionFragment extends Fragment implements
 		mUserPositions = new ArrayList<Integer>();
 		// mPositionHandler = new PositionHandler();
 
-		mTotalAmount
-				.setOnFocusChangeListener(new OnTotalMoneyFocusChangeListener());
-
-		mTotalAmount
-		.addTextChangedListener(new TextWatcher() {
+		mTotalAmount.setOnFocusChangeListener(new OnTotalMoneyFocusChangeListener());
+		mTotalAmount.addTextChangedListener(new TextWatcher() {
 			
 			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				// TODO Auto-generated method stub
-				
-			}
-			
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
 			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-				
-			}
-			
+			public void beforeTextChanged(CharSequence s, int start, int count,int after) {}
 			@Override
 			public void afterTextChanged(Editable s) {
-
 				float currentAmount = 0.0f;
 				try {
 					currentAmount = Float.valueOf(s.toString());
 				} catch (NumberFormatException e) {
-					;
+					Log.e("amount","can't get float from string");
 				}
 
 				ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 				int size = targetUserIndex.size();
-				float splitAmount = (currentAmount) / (float) size;
+				//float splitAmount = (currentAmount) / (float) size;
+				int safeTotal = (int) (currentAmount * 100);					//converting to pennies to avoid floating point errors, should really store setAmountOfMoney as float too... <- TO DO
+				int safeSplit = (int) (safeTotal / size);
+				//int safeSplit = (int) Math.ceil((float)safeTotal / (float)size);
+				int safeCheckRounding = safeSplit * size;
+				int roundErrorRecover = 0;
+				Log.d("money","(pennies) total: " + safeTotal + " splitTotal: " + safeCheckRounding);
+				Log.d("money","(pennies) split: " + safeSplit);
+				if(safeCheckRounding != safeTotal){
+					Log.d("money", "total is not evenly divisable, last person pays the rounding error");
+					roundErrorRecover = safeTotal - safeCheckRounding;
+				}
+				
 				for (Integer index : targetUserIndex) {
 					if (index == -1) {
-//						float oldUserAmount = myUserInfo.getAmountOfMoney();
-						myUserInfo.setAmountOfMoney(splitAmount);
+						myUserInfo.setAmountOfMoney(currentAmount);
 						mSelfBubble.setUserInfo(myUserInfo);
 					} else {
-//						float oldUserAmount = mUserInfoList.get(index).getAmountOfMoney();
-						mUserInfoList.get(index).setAmountOfMoney(splitAmount);
-						mUserBubbles.get(index).setUserInfo(
-								mUserInfoList.get(index));
+						float pay = (float)safeSplit / 100;
+						if(index == mUserInfoList.size()-1) pay = ( (float)safeSplit + (float)roundErrorRecover ) / 100;
+						mUserInfoList.get(index).setAmountOfMoney(pay);
+						mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
 					}
-				}
-				if(size == 0){
-					//Toast.makeText(getApplicationContext(), "PICK A GOD DAMN PERSON FIRST", Toast.LENGTH_SHORT).show();
-					Log.d("dumbuser", "Need to select a person first buddy");
 				}
 			}
 		});
@@ -245,6 +236,7 @@ public abstract class TransactionFragment extends Fragment implements
 	 * @param contactName
 	 */
 	public void addContactToView(String contactName, int position) {
+		Log.d("debug", contactName);
 		if (!generateBubbles(1, position, contactName))
 			return;
 		int index = mUserInfoList.size() - 1;
@@ -259,7 +251,7 @@ public abstract class TransactionFragment extends Fragment implements
 	 * @param userName
 	 */
 	public void addUserToView(String userName, int position) {
-		Log.d("addUserToView", userName);
+		Log.d("debug", "add user: " + userName);
 		for (UserInfo userInfo : mUserInfoList) {
 			if (userName.equals(userInfo.getUserName())) {
 				return;
@@ -279,12 +271,23 @@ public abstract class TransactionFragment extends Fragment implements
 	 *            Amount of users to be generated.
 	 */
 	public boolean generateBubbles(int qty, int position, String username) {
-		int posOffset = mUserInfoList.size();
+		int posOffset = 0;
+		Log.d("debug", "starting generating bubble for" + username);
+		try{
+			posOffset = mUserInfoList.size();
+		}
+		catch(Exception e){
+			Log.d("debug", "error with generating something");
+			e.printStackTrace();
+		}
+		Log.d("debug", "starting generating something");
 		if (qty + posOffset > PositionHandler.MAX_USER_SUPPORTED) {
 			Log.e("SendFragment::generateBubbles",
 					"Maximum user quantity exceed!");
+			Log.d("debug", "can't generate bubble at pos: " + position);
 			return false;
 		}
+		Log.d("debug", "generating bubble at pos: " + position);
 		// TODO: Generate randomly
 		int frameHeight = mBubbleFrameLayout.getHeight();
 		int frameWidth = mBubbleFrameLayout.getWidth();
@@ -295,11 +298,11 @@ public abstract class TransactionFragment extends Fragment implements
 		
 //		for (int i = posOffset; i < qty + posOffset; i++) {
 
+			Log.d("debug", "generating bubble more");
 			float pos[] = { PositionHandler.RAND_BUBBLE_CENTER_POS_X[position], PositionHandler.RAND_BUBBLE_CENTER_POS_Y[position] };
-			
 			pos[0] = pos[0] * frameWidth - widgetWidth / 2;
 			pos[1] = pos[1] * frameHeight - widgetWidth / 2;
-			Log.d("Bubble pos", "x=" + pos[0] + ", y=" + pos[1]);
+			Log.d("debug", "x=" + pos[0] + ", y=" + pos[1]);
 			params = new FrameLayout.LayoutParams(mSelfBubble.getLayoutParams());
 			params.gravity = Gravity.LEFT | Gravity.TOP;
 			params.setMargins((int) pos[0], (int) pos[1], 0, 0);
@@ -327,6 +330,7 @@ public abstract class TransactionFragment extends Fragment implements
 			mUserBubbles.add(ruv);
 //			mUserBubbles.set(position, ruv);
 //		}
+		Log.d("debug", "bubble gen done");
 		return true;
 	}
 
@@ -618,22 +622,21 @@ public abstract class TransactionFragment extends Fragment implements
 
 		@Override
 		public void onFocusChange(View v, boolean hasFocus) {
-			if (hasFocus) {
+			//dsh testing removal
+			  /*if (hasFocus) {
 				oldAmount = 0.0f;
 				try {
-					oldAmount = Float.valueOf(((EditText) v).getEditableText()
-							.toString());
+					oldAmount = Float.valueOf(((EditText) v).getEditableText().toString());
 				} catch (NumberFormatException e) {
 					oldAmount = 0.0f;
 				}
 				Log.d("TotalMoneyAmount", "" + oldAmount);
 				return;
 			}
-
+			
 			float currentAmount = 0.0f;
 			try {
-				currentAmount = Float.valueOf(((EditText) v).getEditableText()
-						.toString());
+				currentAmount = Float.valueOf(((EditText) v).getEditableText().toString());
 			} catch (NumberFormatException e) {
 				;
 			}
@@ -656,7 +659,7 @@ public abstract class TransactionFragment extends Fragment implements
 				}
 			}
 
-			oldAmount = currentAmount;
+			oldAmount = currentAmount;*/
 		}
 	}
 

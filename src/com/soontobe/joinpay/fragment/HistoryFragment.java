@@ -170,6 +170,7 @@ implements LoaderCallbacks<Void> {
 					
 					for(int i = 0; i < arrIn.length(); i++) {
 						JSONObject obj1 = arrIn.getJSONObject(i);
+						obj1.put("type","requesting");			//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
 						list.add(obj1);
 					}
 
@@ -189,6 +190,7 @@ implements LoaderCallbacks<Void> {
 					
 					for(int i = 0; i < arrOut.length(); i++) {
 						JSONObject obj1 = arrOut.getJSONObject(i);
+						obj1.put("type","sending");		//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
 						list.add(obj1);
 					}
 					

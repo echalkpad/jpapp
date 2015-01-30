@@ -161,31 +161,40 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
 		TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm);
 		TextView transcation = (TextView) rowView.findViewById(R.id.activity_confirm_transacation);
-		Log.d("getView", obj.toString());
+		Log.d("transBuilder", obj.toString());
 //		personalNoteView.setText(obj.getString());
 
 //		try {
 			String to = Constants.userName;
 			String from = Constants.userName;
+			String type = "-";
 			
 			try {
-				to = obj.getString("to");
-			} catch(Exception e) {			
-				to = Constants.userName;
+				type = obj.getString("type");
+			} catch (JSONException e2) {
+				e2.printStackTrace();
 			}
+			
+			
 			try {
 				from = obj.getString("from");
 			} catch(Exception e) {			
 				from = Constants.userName;
 			}
 			try {
+				to = obj.getString("to");
+			} catch(Exception e) {			
+				to = Constants.userName;
+			}
+			try {
 				transcation.setText(obj.getString("id"));
 			} catch (JSONException e1) {
 				e1.printStackTrace();
 			}
+			Log.d("transBuilder", "to: " + to + ", from: " + from + ", " + type);
 			payerView.setText(from);
 			payeeView.setText(to);
-			Log.d("getView", "Past payer, payee");
+			//Log.d("getView", "Past payer, payee");
 			try {
 				amountView.setText(obj.getString("amount"));
 			} catch(Exception e) {
@@ -207,60 +216,68 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			
 			tr.requestLayout();
 			
-			
-			rowView.setOnClickListener(new View.OnClickListener() {
-				
-				
-				@Override
-				public void onClick(View v) {
-					Log.d("dsh", "clicked");
-					TextView transId = (TextView)  v.findViewById(R.id.activity_confirm_transacation);
-					TextView payeeView = (TextView)  v.findViewById(R.id.activity_confirm_payee);
-					Log.d("dsh", "test " + transId.getText());
+			if(isPending && type.equals("sending")){
+				rowView.setOnClickListener(new View.OnClickListener() {
 					
-					///////////////// Open Approve / Deny Dialog /////////////////
-					try{
-						final Dialog dialog = new Dialog(context);
-						dialog.setContentView(R.layout.dialog);
-						dialog.setTitle("Approve pending transacation?");
-						TextView text = (TextView) dialog.findViewById(R.id.text);
-						text.setText("Sending money to " + payeeView.getText());
-						TextView hidden = (TextView) dialog.findViewById(R.id.hidden);
-						hidden.setText(transId.getText());
-						Log.d("dsh", "dialog now has trans: " + transId.getText());
+					@Override
+					public void onClick(View v) {
+						Log.d("dsh", "clicked");
+						TextView transId = (TextView)  v.findViewById(R.id.activity_confirm_transacation);
+						TextView payeeView = (TextView)  v.findViewById(R.id.activity_confirm_payee);
+						Log.d("dsh", "test " + transId.getText());
 						
-						TextView dialogButtonPOS = (TextView) dialog.findViewById(R.id.dialogButtonPOS);
-						dialogButtonPOS.setText("Approve");
-						dialogButtonPOS.setOnClickListener(new OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
-								Log.d("dsh", "user approved: " + transId.getText());
-								dialog.dismiss();
-								transAction(true, (String) transId.getText());
-							}
-						});
-						
-						TextView dialogButtonNEG = (TextView) dialog.findViewById(R.id.dialogButtonNEG);
-						dialogButtonNEG.setVisibility(1);
-						dialogButtonNEG.setOnClickListener(new OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
-								Log.d("dsh", "user denied: " + transId.getText());
-								dialog.dismiss();
-								transAction(false, (String) transId.getText());
-							}
-						});
-						dialog.show();
+						///////////////// Open Approve / Deny Dialog /////////////////
+						try{
+							final Dialog dialog = new Dialog(context);
+							dialog.setContentView(R.layout.dialog);
+							dialog.setTitle("Approve pending transacation?");
+							TextView text = (TextView) dialog.findViewById(R.id.text);
+							text.setText("Sending money to " + payeeView.getText());
+							TextView hidden = (TextView) dialog.findViewById(R.id.hidden);
+							hidden.setText(transId.getText());
+							Log.d("dsh", "dialog now has trans: " + transId.getText());
+							
+							TextView dialogButtonPOS = (TextView) dialog.findViewById(R.id.dialogButtonPOS);
+							dialogButtonPOS.setVisibility(1);
+							dialogButtonPOS.setOnClickListener(new OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
+									Log.d("dsh", "user approved: " + transId.getText());
+									dialog.dismiss();
+									transAction(true, (String) transId.getText());
+								}
+							});
+							
+							TextView dialogButtonNEG = (TextView) dialog.findViewById(R.id.dialogButtonNEG);
+							dialogButtonNEG.setVisibility(1);
+							dialogButtonNEG.setOnClickListener(new OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
+									Log.d("dsh", "user denied: " + transId.getText());
+									dialog.dismiss();
+									transAction(false, (String) transId.getText());
+								}
+							});
+							
+							Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
+							dialogButtonCancel.setOnClickListener(new OnClickListener() {
+								@Override
+								public void onClick(View v) {
+									dialog.dismiss();
+								}
+							});
+							dialog.show();
+						}
+						catch(Exception e){
+							Log.e("dsh","dialog error");
+							e.printStackTrace();
+						}
 					}
-					catch(Exception e){
-						Log.e("dsh","dialog error");
-						e.printStackTrace();
-					}
-				}
-				
-			});
+					
+				});
+			}
 			
 			
 			

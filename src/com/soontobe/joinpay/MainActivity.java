@@ -71,8 +71,10 @@ public class MainActivity extends Activity{
 		notificationlistener = new IBMPushNotificationListener() {
 		
 			@Override
-			public void onReceive(final IBMSimplePushNotification message) {				
+			public void onReceive(final IBMSimplePushNotification message) {		
+				Log.d("push", "I got a push");
 				runOnUiThread(new Runnable() {
+					
 					
 					///////////////////////////////////////////////////
 					/////////////////  PUSH Received  /////////////////
@@ -90,13 +92,11 @@ public class MainActivity extends Activity{
 							TextView text = (TextView) dialog.findViewById(R.id.text);
 							text.setText(message.getAlert());
 				 
-							Button dialogButtonPOS = (Button) dialog.findViewById(R.id.dialogButtonPOS);
-							dialogButtonPOS.setOnClickListener(new OnClickListener() {
+							Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
+							dialogButtonCancel.setOnClickListener(new OnClickListener() {
 								@Override
 								public void onClick(View v) {
-									Log.d("push", "user approved");
 									dialog.dismiss();
-									//pushAction(true);
 								}
 							});
 							dialog.show();

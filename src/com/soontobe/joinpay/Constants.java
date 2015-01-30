@@ -1,5 +1,12 @@
 package com.soontobe.joinpay;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import org.json.JSONArray;
+import org.json.JSONException;
+import android.annotation.SuppressLint;
+import android.util.Log;
+
 /**
 * This class stores constants needed for the demo in the final round.
 *
@@ -31,8 +38,10 @@ public class Constants {
 	public static String transactionEndTag = "<TransactionRecordEnd>";
 	public static String transactionIntiatorTag = "TheTransactionInitiatorIs";
 	public static String[] contactNameList = {
-		"Ben",
-		"David"
+		"mrshah",
+		"dshuffma",
+		"programsam",
+		"demo"
 	};
 
 	public static String[] deviceNameList = {
@@ -53,5 +62,35 @@ public class Constants {
 	public static String appSecret = "bd885f97-e6e7-4f91-8365-98fc61162760";
 	public static String appKey = "25798ac2eb6b2d28f3fcee2f3795e4261d9591a0";
 	public static String appRoute = "http://join-pay.mybluemix.net";
+	
+	
+	
+	/*Some crappy debug log printers*/
+	@SuppressLint("NewApi")
+	public static void debug(String[] var){
+		JSONArray test = null;
+		try {
+			test = new JSONArray(var);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.d("debug", test.toString());
+	}
+	public static void debug(ArrayList var){
+		JSONArray test = new JSONArray(var);
+		Log.d("debug", test.toString());
+	}
+	@SuppressLint("NewApi")
+	public void debug(Array var){
+		JSONArray test = null;
+		try {
+			test = new JSONArray(var);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		Log.d("debug", test.toString());
+	}
 
 }

@@ -118,8 +118,11 @@ HistoryFragment.OnFragmentInteractionListener {
 		}
 
 		mTabHost.setCurrentTab(mCurrentTab);
-		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment)
-		.commit();
+		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment).commit();
+		
+		mTabHost.setCurrentTab(receiveTab);
+		getFragmentManager().beginTransaction().replace(R.id.tab_request, mRequestFragment).commit();
+			
 
 		lockInfo = new HashMap<String, Boolean>();
 		lockInfo.put("total", false);
@@ -154,7 +157,8 @@ HistoryFragment.OnFragmentInteractionListener {
 						}
 						if(!usedPositionsListSendFragment.contains(pos)) {
 							namesOnScreen.add(user);
-							mSendFragment.addContactToView(user,pos);
+							mSendFragment.addContactToView(user, pos);
+							mRequestFragment.addContactToView(user, pos);
 							usedPositionsListSendFragment.add(pos);
 						} else {
 							i--;
@@ -407,11 +411,39 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.d("dsh", "do i run???");
 		if (requestCode == contactListRequestCode) { 
+			Log.d("dsh", "do i run??");
 			if (resultCode == RESULT_OK) {
-				//				Toast.makeText(this, data.getData().toString(), Toast.LENGTH_SHORT).show();
 				String nameArray[];
-				switch(mCurrentTab){
+				
+				//Send
+				nameArray = data.getStringArrayExtra("name");
+				Log.d("dsh", "do i run?");
+				Constants.debug(nameArray);
+				for(String name: nameArray){
+					int i;
+					for(i = maxPositions - 1; i >= 0; i--) {
+						if(namesOnScreen.contains(name)) {
+							continue;
+						}
+						if(!usedPositionsListSendFragment.contains(i)) {
+							Log.d("dsh", "adding user to position " + i);
+							mSendFragment.addContactToView(name, i);
+							mRequestFragment.addContactToView(name, i);
+							usedPositionsListSendFragment.add(i);
+							break;	
+						}
+						else{
+							Log.d("dsh", "skipping, position taken");
+						}
+					}
+					if(i < 0) {
+						Toast.makeText(getApplicationContext(), "Maximum users reached", Toast.LENGTH_SHORT).show();
+					}
+				}
+				
+				/*switch(mCurrentTab){
 				case 0:
 					//Send
 					nameArray = data.getStringArrayExtra("name");
@@ -455,7 +487,7 @@ HistoryFragment.OnFragmentInteractionListener {
 					break;
 				default:
 					break;
-				}
+				}*/
 				//TODO: Inform mSendFragment of mRequestFragment that we have new contact selected
 				// switch case.: mCurrentTab
 			} 

@@ -15,12 +15,12 @@ public class RequestFragment extends TransactionFragment {
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
 		for (UserInfo info : mUserInfoList) {
 			if (info.isSelecetd()) {
-				String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending"};
+				String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending", "requesting"};
 				paymentInfo.add(item);
 			}
 		}
 		if (myUserInfo.isSelecetd()) {
-			String[] item = {"normal", myUserInfo.getPersonalNote(), myUserInfo.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",myUserInfo.getAmountOfMoney()), "notPending"};
+			String[] item = {"normal", myUserInfo.getPersonalNote(), myUserInfo.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",myUserInfo.getAmountOfMoney()), "notPending", "request"};
 			paymentInfo.add(item);
 		}
 

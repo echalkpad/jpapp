@@ -16,7 +16,7 @@ public class SendFragment extends TransactionFragment {
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
 		for (UserInfo info : mUserInfoList) {
 			if (info.isSelecetd()) {
-				String[] item = {"normal", info.getPersonalNote(), myUserInfo.getUserName(), info.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "notPending"};
+				String[] item = {"normal", info.getPersonalNote(), myUserInfo.getUserName(), info.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "notPending", "sending"};
 				paymentInfo.add(item);
 				Log.d("paymentInfo", item[2]);
 			}

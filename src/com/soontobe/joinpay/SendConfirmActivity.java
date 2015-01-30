@@ -57,8 +57,8 @@ public class SendConfirmActivity extends ListActivity {
 		updatePaneTitle();
 		setListView();
 		setEventListeners();
-//		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-//		registerReceiver(restResponseReceiver, restIntentFilter);
+		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+		registerReceiver(restResponseReceiver, restIntentFilter);
 
 	}
 
@@ -77,6 +77,7 @@ public class SendConfirmActivity extends ListActivity {
 		OnTouchListener buttonOnTouchListener = new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
+				Log.d("dsh", "button hit");
 				Button btn = (Button) v;
 				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
@@ -109,32 +110,34 @@ public class SendConfirmActivity extends ListActivity {
 
 	private void setListView() {
 		ListView list = getListView();
-
 		boolean isPending = false;	//	Don't care
 		boolean isHistory = false;
 		
-		//JSONArray obj = new JSONArray();
-		//List JSONObject obj = new JSONObject();
 		ArrayList<JSONObject> obj = new ArrayList<JSONObject>();
-		for (String[] sa : paymentInfo){
-			JSONObject tmp = new JSONObject();
+		for (String[] sa : paymentInfo){										//iter over each payment detail, build JSON
 			try {
+				JSONObject tmp = new JSONObject();								//reset
 				for(int i=0; i < sa.length; i++){
-					if(i == 0) tmp.put("type", sa[i]);
+					if(i == 0) {
+						if(sa[i].equals("normal")) tmp.put("type", sa[i]);
+						else break;												//if its not normal, skip 
+					}
 					if(i == 1) tmp.put("description", sa[i]);
-					if(i == 2) tmp.put("name", sa[i]);
-					if(i == 3) tmp.put("from", sa[i]);
+					if(i == 2) tmp.put("from", sa[i]);
+					if(i == 3) tmp.put("to", sa[i]);
 					if(i == 4) tmp.put("amount", sa[i]);
-					obj.add(tmp);
+					if(i == 5){
+						tmp.put("type", sa[i]);
+						obj.add(tmp);											//all good, add it
+					}
 				}
-				//Log.d("dsh", "json: " + tmp);
-			} catch (JSONException e) {
+			}
+			catch (JSONException e) {
 				e.printStackTrace();
 			}
-			//Log.d("dsh", "json: " + obj);
 			
 		}
-		//Log.d("dsh", "jsonarray: " + obj);
+		Log.d("payment", "jsonarray: " + obj);
 		
 		PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, obj, isHistory);
 		list.setAdapter(adapter);
@@ -166,25 +169,38 @@ public class SendConfirmActivity extends ListActivity {
 		ArrayList<String> users = new ArrayList<String>();
 		ArrayList<String> amount = new ArrayList<String>();
 		JSONObject objTransaction = new JSONObject();
+		Integer targetIndex = 0;
+		Boolean check = false;
 		
-		Log.d("Payment Info", "" + paymentInfo.toString());
-		for (int i = 0;i < paymentInfo.size() - 1;i++) {
-/*			if (i != 0) retData += "|";
-			for (int j = 0;j < paymentInfo.get(i).length;j++) {
-				if (j != 0) retData += ",";
-				retData += paymentInfo.get(i)[j];
-			}
-*/
-			if(paymentInfo.get(i)[3].equals(Constants.userName)) {
-			
-			} else {
-				users.add(paymentInfo.get(i)[3]);
-				amount.add(paymentInfo.get(i)[4]);
+		Constants.debug(paymentInfo);
+		
+		for(int i=0; i < paymentInfo.size() - 1; i++) {
+			check = false;
+			if(paymentInfo.get(i)[0].equals("normal")){
+				if(paymentInfo.get(i)[6].equals("requesting")){
+					Log.d("debug", "requesting money");
+					targetIndex = 2;								//if requesting look at position 2
+					check = true;									//only check if requesting money, ie don't request money from myself
+				}
+				else{
+					Log.d("debug", "sending money");
+					targetIndex = 3;								//if sending look at position 3
+					finish();										//WE DON'T SUPPORT SENDING MONEY YET, just die
+				}
+				
+				if(check && paymentInfo.get(i)[targetIndex].equals(Constants.userName)) {
+					Log.d("debug", "skipping over self");
+				} else {
+					Log.d("debug", "adding user to users: " + paymentInfo.get(i)[targetIndex]);
+					users.add(paymentInfo.get(i)[targetIndex]);
+					amount.add(paymentInfo.get(i)[4]);
+				}
 			}
 		}
 		
+		Constants.debug(users);
 		JSONArray arr = new JSONArray();
-		for(int i = 0; i < users.size(); i++) {
+		for(int i=0; i < users.size(); i++) {
 			JSONObject obj = new JSONObject();
 			try {
 				obj.put("username", users.get(i));
@@ -204,16 +220,15 @@ public class SendConfirmActivity extends ListActivity {
 			e.printStackTrace();
 		}
 
+		Log.d("debug", objTransaction.toString());
 		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-		
 		String url = Constants.baseURL + "/charge";
 		intent.putExtra("method","post");
 		intent.putExtra("url",url);
 		intent.putExtra("body", objTransaction.toString());
 		intent.putExtra("context", serviceContext);
-
-		startService(intent); 
-
+		startService(intent);
+		
 		/*
 		final String paymentInfoString = retData;
 		new Thread() {
@@ -240,12 +255,15 @@ public class SendConfirmActivity extends ListActivity {
 				String url = intent.getStringExtra("url");
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
+				Log.d("dsh", "rest response: " + response);
 				
 				if(response.contains("OK")) {
 					Log.d("restResponse", "Received OK, returning");
 					Intent data = new Intent();
 					data.setData(Uri.parse(response));
 					SendConfirmActivity.this.setResult(RESULT_OK, data);
+					
+					unregisterReceiver(restResponseReceiver);
 					finish();
 				}
 			}			
