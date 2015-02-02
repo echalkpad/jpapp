@@ -1,17 +1,20 @@
 package com.soontobe.joinpay.widget;
 
 import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.model.UserInfo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Color;
+import android.text.Editable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -36,6 +39,7 @@ public class RadarUserView extends FrameLayout {
 	private boolean mIsUserSelected;	//Is this bubble selected
 	private boolean mIsContact;			//Is this bubble indicating a contact
 	private boolean mIsMyself;          //Is this bubble indicating myself
+	private UserInfo myUserInfo;
 	
 	private ImageView mYellowCircle;
 	private ImageButton	mSideButtons[] = {null, null, null, null}; 	// 0-Top, 1-Left, 2-Bottom, 3-Right
@@ -125,6 +129,7 @@ public class RadarUserView extends FrameLayout {
 	 */
 	public void setUserInfo(UserInfo userInfo){
 		if(null != userInfo){
+			myUserInfo = userInfo;
 			setUserName(userInfo.getUserName());
 			setMoneyAmount(userInfo.getAmountOfMoney());
 			
@@ -154,7 +159,7 @@ public class RadarUserView extends FrameLayout {
 		mSideButtons[0].setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				Log.d("AdjPanel", "MoneyLockState=" + !mIsMoneyLocked);
+				Log.d("options", "top button fired - lock");
 				changeLockState(!mIsMoneyLocked);
 
 				if(lockBtnClickedListener != null)
@@ -166,6 +171,7 @@ public class RadarUserView extends FrameLayout {
 		mSideButtons[1].setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
+				Log.d("options", "left button fired");
 				if(editBtnClickedListener != null){
 					editBtnClickedListener.OnClick(v);
 				}
@@ -177,6 +183,7 @@ public class RadarUserView extends FrameLayout {
 			
 			@Override
 			public void onClick(View v) {
+				Log.d("options", "bottom button fired");
 				if(addBtnClickedListener != null){
 					addBtnClickedListener.OnClick(v);
 				}
@@ -189,6 +196,9 @@ public class RadarUserView extends FrameLayout {
 			@Override
 			public void onClick(View v) {
 				//Deselect and close expand panel
+				Log.d("options", "right button fired - deselect");
+				myUserInfo.setSelecetd(false);
+				setMoneyAmount(0);
 				setSelectState(false);
 				switchExpandPanel(false);
 				if(null != deselectBtnClickedListener){

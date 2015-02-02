@@ -77,9 +77,7 @@ public class SendConfirmActivity extends ListActivity {
 		OnTouchListener buttonOnTouchListener = new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
-				Log.d("dsh", "button hit");
 				Button btn = (Button) v;
-				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.button_active);
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -95,7 +93,6 @@ public class SendConfirmActivity extends ListActivity {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
-				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.pencil_grey);
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -178,20 +175,20 @@ public class SendConfirmActivity extends ListActivity {
 			check = false;
 			if(paymentInfo.get(i)[0].equals("normal")){
 				if(paymentInfo.get(i)[6].equals("requesting")){
-					Log.d("debug", "requesting money");
+					Log.d("paymentBuilder", "requesting money");
 					targetIndex = 2;								//if requesting look at position 2
 					check = true;									//only check if requesting money, ie don't request money from myself
 				}
 				else{
-					Log.d("debug", "sending money");
+					Log.d("paymentBuilder", "sending money");
 					targetIndex = 3;								//if sending look at position 3
 					finish();										//WE DON'T SUPPORT SENDING MONEY YET, just die
 				}
 				
 				if(check && paymentInfo.get(i)[targetIndex].equals(Constants.userName)) {
-					Log.d("debug", "skipping over self");
+					Log.d("paymentBuilder", "skipping over self");
 				} else {
-					Log.d("debug", "adding user to users: " + paymentInfo.get(i)[targetIndex]);
+					Log.d("paymentBuilder", "adding user to users: " + paymentInfo.get(i)[targetIndex]);
 					users.add(paymentInfo.get(i)[targetIndex]);
 					amount.add(paymentInfo.get(i)[4]);
 				}
@@ -220,7 +217,7 @@ public class SendConfirmActivity extends ListActivity {
 			e.printStackTrace();
 		}
 
-		Log.d("debug", objTransaction.toString());
+		Log.d("paymentBuilder", objTransaction.toString());
 		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 		String url = Constants.baseURL + "/charge";
 		intent.putExtra("method","post");
@@ -244,7 +241,7 @@ public class SendConfirmActivity extends ListActivity {
 		finish();
 		*/
 	}
-	
+
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
 
 		@Override
@@ -255,7 +252,7 @@ public class SendConfirmActivity extends ListActivity {
 				String url = intent.getStringExtra("url");
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
-				Log.d("dsh", "rest response: " + response);
+				Log.d("debug", "rest response: " + response);
 				
 				if(response.contains("OK")) {
 					Log.d("restResponse", "Received OK, returning");

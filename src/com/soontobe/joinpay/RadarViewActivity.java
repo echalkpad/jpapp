@@ -84,8 +84,8 @@ HistoryFragment.OnFragmentInteractionListener {
 	public Map<String, Boolean> lockInfo;
 
 	WebConnector webConnector;
-	private ArrayList<String> fileNameList; // posttestserver
-	private int visitedFilesCount = 0; // posttestserver
+	private ArrayList<String> fileNameList; 	// posttestserver
+	private int visitedFilesCount = 0; 			// posttestserver
 	private Set<String> onlineNameList = new HashSet<String>();
 
 	final static int maxPositions = 5;
@@ -128,7 +128,6 @@ HistoryFragment.OnFragmentInteractionListener {
 		lockInfo.put("total", false);
 		setEventListeners();
 		runPostTestServer();
-		
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(restResponseReceiver, restIntentFilter);
 
@@ -291,9 +290,6 @@ HistoryFragment.OnFragmentInteractionListener {
 					Log.d("visitedFilesCount", "" + visitedFilesCount);
 					*/
 				}
-				
-				
-				
 			}
 		}.start();
 	}
@@ -310,7 +306,6 @@ HistoryFragment.OnFragmentInteractionListener {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
-				Log.d("dsh", "pressed an item down 1");
 				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.arrow_active);
@@ -326,7 +321,6 @@ HistoryFragment.OnFragmentInteractionListener {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
-				Log.d("dsh", "pressed an item down 2");
 				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.cross_active);
@@ -345,18 +339,14 @@ HistoryFragment.OnFragmentInteractionListener {
 		mTabHost.addTab(newTab(TAG_SEND, R.string.tab_send, R.id.tab_send));
 		mTabHost.addTab(newTab(TAG_REQUEST, R.string.tab_request, R.id.tab_request));
 		mTabHost.addTab(newTab(TAG_HISTORY, R.string.tab_history, R.id.tab_history));
-		
 		mTabHost.setCurrentTab(1);
 		mTabHost.setCurrentTab(2);
 		mTabHost.setCurrentTab(0);
 	}
 
 	private TabSpec newTab(String tag, int labelId, int tabContentId) {
-		//		Log.d(TAG, "buildTab(): tag=" + tag);
-
-		View indicator = LayoutInflater.from(this).inflate(
-				R.layout.tab,
-				(ViewGroup) findViewById(android.R.id.tabs), false);
+		//Log.d(TAG, "buildTab(): tag=" + tag);
+		View indicator = LayoutInflater.from(this).inflate(R.layout.tab, (ViewGroup) findViewById(android.R.id.tabs), false);
 		((TextView) indicator.findViewById(R.id.tab_text)).setText(labelId);
 
 		TabSpec tabSpec = mTabHost.newTabSpec(tag);
@@ -368,27 +358,39 @@ HistoryFragment.OnFragmentInteractionListener {
 	private boolean mFragmentInitState[] = {true, false, false};
 	@Override
 	public void onTabChanged(String tabId) {
-		//		Log.d(TAG, "onTabChanged(): tabId=" + tabId);
+		//Log.d(TAG, "onTabChanged(): tabId=" + tabId);
 		FragmentManager fm = getFragmentManager();
 		if(TAG_SEND.equals(tabId)){
-				fm.beginTransaction().replace(R.id.tab_send, mSendFragment)
-					.commit();
-				mFragmentInitState[0] = true;
-
+			fm.beginTransaction().replace(R.id.tab_send, mSendFragment).commit();
+			mFragmentInitState[0] = true;
 			mCurrentTab = 0;
 			mSendFragment.setMyName(Constants.userName);
 		} else if (TAG_REQUEST.equals(tabId)){
-				fm.beginTransaction().replace(R.id.tab_request, mRequestFragment)
-					.commit();
-				mFragmentInitState[1] = true;
-
+			fm.beginTransaction().replace(R.id.tab_request, mRequestFragment).commit();
+			mFragmentInitState[1] = true;
 			mCurrentTab = 1;
 			mRequestFragment.setMyName(Constants.userName);
 		} else if (TAG_HISTORY.equals(tabId)){
-				fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment)
-				.commit();
-
+			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment).commit();
 			mCurrentTab = 2;
+			
+			//Reset selected users and amounts
+			ArrayList<Integer> targetUserIndex = mRequestFragment.getUnlockedSelectedUserIndex();
+			for (Integer index : targetUserIndex) {
+				if (index == -1) {
+					Log.d("money", "clearing self money");
+					mRequestFragment.myUserInfo.setAmountOfMoney(0);
+					mRequestFragment.mSelfBubble.setUserInfo(mRequestFragment.myUserInfo);
+				} else {
+					Log.d("money", "clearing money");
+					mRequestFragment.mUserInfoList.get(index).setAmountOfMoney(0);
+					mRequestFragment.mUserBubbles.get(index).setUserInfo(mRequestFragment.mUserInfoList.get(index));
+					mRequestFragment.mUserBubbles.get(index).setSelectState(false);
+					mRequestFragment.mUserBubbles.get(index).switchExpandPanel(false);
+				}
+			}
+			
+			
 		} else {
 			Log.w("RadarViewActivity_onTabChanged", "Cannot find tab id=" + tabId);
 		}
@@ -405,45 +407,44 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	@Override
 	public void onFragmentInteraction(Uri uri) {
-		Log.d("dsh", "pressed an item down 3");
 		Log.d(TAG, uri.toString());		
 	}
 
 	@Override
 	public void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.d("dsh", "do i run???");
 		if (requestCode == contactListRequestCode) { 
-			Log.d("dsh", "do i run??");
 			if (resultCode == RESULT_OK) {
 				String nameArray[];
 				
 				//Send
 				nameArray = data.getStringArrayExtra("name");
-				Log.d("dsh", "do i run?");
 				Constants.debug(nameArray);
 				for(String name: nameArray){
-					int i;
-					for(i = maxPositions - 1; i >= 0; i--) {
-						if(namesOnScreen.contains(name)) {
+					boolean foundFree = false;
+					for(int i = maxPositions - 1; i >= 0; i--) {
+						if(namesOnScreen.contains(name)) {																	//to do  - this doesn't work correctly yet
+							Toast.makeText(getApplicationContext(), "This user is already added", Toast.LENGTH_SHORT).show();
 							continue;
 						}
 						if(!usedPositionsListSendFragment.contains(i)) {
-							Log.d("dsh", "adding user to position " + i);
+							Log.d("bubble", "adding user to position " + i);
 							mSendFragment.addContactToView(name, i);
 							mRequestFragment.addContactToView(name, i);
 							usedPositionsListSendFragment.add(i);
+							foundFree = true;
 							break;	
 						}
 						else{
-							Log.d("dsh", "skipping, position taken");
+							Log.d("bubble", "skipping, position taken");
 						}
 					}
-					if(i < 0) {
+					if(!foundFree) {
 						Toast.makeText(getApplicationContext(), "Maximum users reached", Toast.LENGTH_SHORT).show();
 					}
 				}
 				
-				/*switch(mCurrentTab){
+				/*dsh - removed, new code above adds to both tabs
+				 * switch(mCurrentTab){
 				case 0:
 					//Send
 					nameArray = data.getStringArrayExtra("name");
@@ -500,7 +501,6 @@ HistoryFragment.OnFragmentInteractionListener {
 					String[] items = paymentStrings[i].split(",");
 					paymentInfo.add(items);
 				}
-
 //				mHistoryFragment.setNewRecordNotification(paymentInfo);
 				mTabHost.setCurrentTab(historyTab);
 			} 
@@ -533,10 +533,9 @@ HistoryFragment.OnFragmentInteractionListener {
 	}
 
 	public void contactButtonOnClick(View v) {
-		//		Log.d("contactButtonOnClick", "clicked");
+		//Log.d("contactButtonOnClick", "clicked");
 		startActivityForResult(new Intent(this, ContactListActivity.class), contactListRequestCode);
 	}
-
 
 	public void setSendTotalLock(View v) {
 		ImageView iv = (ImageView) v;

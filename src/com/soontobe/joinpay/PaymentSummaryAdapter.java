@@ -221,10 +221,9 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 					
 					@Override
 					public void onClick(View v) {
-						Log.d("dsh", "clicked");
 						TextView transId = (TextView)  v.findViewById(R.id.activity_confirm_transacation);
 						TextView payeeView = (TextView)  v.findViewById(R.id.activity_confirm_payee);
-						Log.d("dsh", "test " + transId.getText());
+						Log.d("dialog", "transacation from view: " + transId.getText());
 						
 						///////////////// Open Approve / Deny Dialog /////////////////
 						try{
@@ -235,7 +234,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 							text.setText("Sending money to " + payeeView.getText());
 							TextView hidden = (TextView) dialog.findViewById(R.id.hidden);
 							hidden.setText(transId.getText());
-							Log.d("dsh", "dialog now has trans: " + transId.getText());
+							Log.d("dialog", "dialog now has trans: " + transId.getText());
 							
 							TextView dialogButtonPOS = (TextView) dialog.findViewById(R.id.dialogButtonPOS);
 							dialogButtonPOS.setVisibility(1);
@@ -243,7 +242,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 								@Override
 								public void onClick(View v) {
 									TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
-									Log.d("dsh", "user approved: " + transId.getText());
+									Log.d("dialog", "user approved: " + transId.getText());
 									dialog.dismiss();
 									transAction(true, (String) transId.getText());
 								}
@@ -255,7 +254,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 								@Override
 								public void onClick(View v) {
 									TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
-									Log.d("dsh", "user denied: " + transId.getText());
+									Log.d("dialog", "user denied: " + transId.getText());
 									dialog.dismiss();
 									transAction(false, (String) transId.getText());
 								}
@@ -271,7 +270,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 							dialog.show();
 						}
 						catch(Exception e){
-							Log.e("dsh","dialog error");
+							Log.e("dialog","dialog error");
 							e.printStackTrace();
 						}
 					}
@@ -296,20 +295,6 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 	///////////////// Confirm/Deny the Push Msg /////////////////
 	public void transAction(boolean action, String id){
 		final String serviceContext = "transAction";
-/*		BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				String receivedServiceContext = intent.getStringExtra("context");
-				
-				if(serviceContext.equals(receivedServiceContext)) {
-					String url = intent.getStringExtra("url");
-					String method = intent.getStringExtra("method");
-					String response = intent.getStringExtra("response");
-					Log.d("dsh", "REST Response for push " + response);
-				}
-			}
-		};						
-	*/	
 		if(action){															//only authorize if true...  later we will revisit this and send different REST call
 			Intent intent = new Intent(context, RESTCalls.class);
 			JSONObject obj = new JSONObject();
@@ -320,12 +305,11 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			}
 	
 			String url = Constants.baseURL + "/authorize/" + id;
-			//String url = Constants.baseURL + "";
 			intent.putExtra("method","put");
 			intent.putExtra("url",url);
 			intent.putExtra("body", obj.toString());
 			intent.putExtra("context", serviceContext);
-			Log.d("dsh", "starting rest service for push: " + action);
+			Log.d("dialog", "starting rest service for dialog: " + action);
 			getContext().startService(intent);
 		}
 	}

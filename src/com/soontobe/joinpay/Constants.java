@@ -65,32 +65,30 @@ public class Constants {
 	
 	
 	
-	/*Some crappy debug log printers*/
+	/*Some slightly useful short hand debug prints*/
 	@SuppressLint("NewApi")
 	public static void debug(String[] var){
-		JSONArray test = null;
+		JSONArray temp = null;
 		try {
-			test = new JSONArray(var);
+			temp = new JSONArray(var);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Log.d("debug", test.toString());
+		Log.d("debug", temp.toString());
 	}
 	public static void debug(ArrayList var){
-		JSONArray test = new JSONArray(var);
-		Log.d("debug", test.toString());
+		JSONArray temp = new JSONArray(var);
+		Log.d("debug", temp.toString());
 	}
 	@SuppressLint("NewApi")
 	public void debug(Array var){
-		JSONArray test = null;
+		JSONArray temp = null;
 		try {
-			test = new JSONArray(var);
+			temp = new JSONArray(var);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		Log.d("debug", test.toString());
+		Log.d("debug", temp.toString());
 	}
 
 }
