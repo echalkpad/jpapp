@@ -62,6 +62,7 @@ public abstract class TransactionFragment extends Fragment implements
 	protected TextView mSelectCountText; // Number of selected user
 	public static EditText mTotalAmount;
 	protected EditText mGroupNote;
+	public static float totalLockedAmount;
 
 	public static UserInfo myUserInfo;
 	public static ArrayList<UserInfo> mUserInfoList; // User info list except for
@@ -137,7 +138,7 @@ public abstract class TransactionFragment extends Fragment implements
 		myUserInfo.setUserName(Constants.DemoMyName);
 		// myUserInfo.setContactState(true);
 		myUserInfo.setMyself(true);
-
+		totalLockedAmount = 0;
 		mSelfBubble.setUserInfo(myUserInfo);
 		mSelfBubble
 				.setEditBtnClickedListener(new OnEditButtonClickedListener() {
@@ -154,29 +155,17 @@ public abstract class TransactionFragment extends Fragment implements
 						myUserInfo.setSelecetd(isSelected);
 						updateSelectedUserNumber();
 						Editable edit = mTotalAmount.getText();
-						float currentAmount = 0.0f;
-						try {
-							currentAmount = Float.valueOf(edit.toString());
-						} catch (NumberFormatException e) {
-							Log.e("money","can't get float from string");
-						}
-						splitMoney(currentAmount);
+						splitMoney();
 					}
 				});
 		mSelfBubble
 				.setDeselectBtnClickedListener(new OnDeselectButtonClickedListener() {
 					@Override
 					public void OnClick(View v) {
+						Log.d("dsh", "test self deselect");
 						myUserInfo.setSelecetd(false);
 						updateSelectedUserNumber();
-						Editable edit = mTotalAmount.getText();
-						float currentAmount = 0.0f;
-						try {
-							currentAmount = Float.valueOf(edit.toString());
-						} catch (NumberFormatException e) {
-							Log.e("money","can't get float from string");
-						}
-						splitMoney(currentAmount);
+						splitMoney();
 					}
 				});
 
@@ -195,13 +184,7 @@ public abstract class TransactionFragment extends Fragment implements
 			public void beforeTextChanged(CharSequence s, int start, int count,int after) {}
 			@Override
 			public void afterTextChanged(Editable s) {
-				float currentAmount = 0.0f;
-				try {
-					currentAmount = Float.valueOf(s.toString());
-				} catch (NumberFormatException e) {
-					Log.e("money","can't get float from string");
-				}
-				splitMoney(currentAmount);
+				splitMoney();
 			}
 		});
 
@@ -211,25 +194,29 @@ public abstract class TransactionFragment extends Fragment implements
 	
 	
 	//// Split the Total Bill - evenly between currently selected users ////
-	public static void splitMoney(float currentAmount){
-		Log.d("money", "recalculting split");
+	public static void splitMoney(){
+		Editable edit = mTotalAmount.getText();
+		float currentAmount = 0.0f;
+		try {
+			currentAmount = Float.valueOf(edit.toString());
+		} catch (NumberFormatException e) {
+			Log.e("money","can't get float from string");
+		}
+		Log.d("money", "recalculting split, lockd amount: $" + totalLockedAmount);
 		ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 		int size = targetUserIndex.size();
 		if(size > 0){
-			int safeTotal = (int) (currentAmount * 100);					//converting to pennies to avoid floating point errors, should really store setAmountOfMoney as float too... <- TO DO
+			int safeTotal = (int) ((currentAmount - totalLockedAmount) * 100);					//converting to pennies to avoid floating point errors, should really store setAmountOfMoney as float too... <- TO DO
 			int safeSplit = (int) (safeTotal / size);
 			//int safeSplit = (int) Math.ceil((float)safeTotal / (float)size);
 			int safeCheckRounding = safeSplit * size;
 			int roundErrorRecover = 0;
 			Log.d("money","(pennies) total: " + safeTotal + " splitTotal: " + safeCheckRounding + ", #:" + targetUserIndex.size());
 			Log.d("money","(pennies) split: " + safeSplit);
-			if(safeCheckRounding != safeTotal){
-				Log.d("money", "total is not evenly divisable, last person pays the rounding error");
-				roundErrorRecover = safeTotal - safeCheckRounding;
-			}
 			
 			float pay = (float)safeSplit / 100;
 			int i = 1;
+			//// Divide the total equally ////
 			for(Integer index : targetUserIndex) {
 				if(index == -1) {
 					myUserInfo.setAmountOfMoney(pay);
@@ -237,12 +224,32 @@ public abstract class TransactionFragment extends Fragment implements
 					Log.d("money", "user: " + myUserInfo.getUserName() + " $" + pay);
 				}
 				else {
-					if(i >= targetUserIndex.size()) pay = ( (float)safeSplit + (float)roundErrorRecover ) / 100;		//if last guy, you get the rounding error! (don't use index instead of i)
 					mUserInfoList.get(index).setAmountOfMoney(pay);
 					mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
 					Log.d("money", "user: " + mUserInfoList.get(index).getUserName() + " $" + pay + ", i:" + i);
 				}
 				i++;
+			}
+			
+			//// Divide the rounding error remainder ////
+			if(safeCheckRounding != safeTotal){
+				roundErrorRecover = safeTotal - safeCheckRounding;
+				Log.d("money", "total is not evenly divisable, round robin and divvy up the remainder 1 cent at a time");
+				for(Integer index : targetUserIndex) {
+					pay = ( (float)safeSplit + 1 ) / 100;									//pay 1 more cent
+					if(index == -1) {
+						myUserInfo.setAmountOfMoney(pay);
+						mSelfBubble.setUserInfo(myUserInfo);
+						Log.d("money", "user: " + myUserInfo.getUserName() + " $" + pay);
+					}
+					else {
+						mUserInfoList.get(index).setAmountOfMoney(pay);
+						mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
+						Log.d("money", "user: " + mUserInfoList.get(index).getUserName() + " $" + pay + " [final]");
+					}
+					roundErrorRecover--;
+					if(roundErrorRecover == 0) break;										//its all been divvied up, end
+				}
 			}
 		}
 		else{
@@ -463,8 +470,7 @@ public abstract class TransactionFragment extends Fragment implements
 
 		}
 
-		private void applyFurtherMoneyChange(int indexOfUser, float oldAmount,
-				float currentAmount) {
+		private void applyFurtherMoneyChange(int indexOfUser, float oldAmount, float currentAmount) {
 			if (!getTotalLockState()) {
 				// Total amount is not locked
 				float moneyChanged = currentAmount - oldAmount;
@@ -495,10 +501,8 @@ public abstract class TransactionFragment extends Fragment implements
 					}
 
 					float old = mUserInfoList.get(index).getAmountOfMoney();
-					mUserInfoList.get(index).setAmountOfMoney(
-							old - moneyToSplit);
-					mUserBubbles.get(index).setUserInfo(
-							mUserInfoList.get(index));
+					mUserInfoList.get(index).setAmountOfMoney(old - moneyToSplit);
+					mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
 				}
 			}
 		}
@@ -577,8 +581,17 @@ public abstract class TransactionFragment extends Fragment implements
 		@Override
 		public void OnClick(View v, boolean isLocked) {
 			mUserInfoList.get(indexOfBubble).setLocked(isLocked);
-			Log.d(getTag(), "User" + indexOfBubble + " lock state = "
-					+ isLocked);
+			if(isLocked) {
+				totalLockedAmount += mUserInfoList.get(indexOfBubble).getAmountOfMoney();
+				Log.d("money","adding locked amount: " + mUserInfoList.get(indexOfBubble).getAmountOfMoney());
+			}
+			else{
+				totalLockedAmount -= mUserInfoList.get(indexOfBubble).getAmountOfMoney();
+				Log.d("money","removing locked amount: " + mUserInfoList.get(indexOfBubble).getAmountOfMoney());
+				if(totalLockedAmount < 0) totalLockedAmount = 0;
+			}
+			Log.d(getTag(), "User" + indexOfBubble + " lock state = " + isLocked);
+			splitMoney();
 		}
 
 	}
@@ -602,13 +615,7 @@ public abstract class TransactionFragment extends Fragment implements
 			Log.d(getTag(), "User" + indexOfBubble + " select state = " + isSelected);
 			updateSelectedUserNumber();
 			Editable edit = mTotalAmount.getText();
-			float currentAmount = 0.0f;
-			try {
-				currentAmount = Float.valueOf(edit.toString());
-			} catch (NumberFormatException e) {
-				Log.e("money","can't get float from string");
-			}
-			splitMoney(currentAmount);
+			splitMoney();
 		}
 	}
 	
@@ -627,18 +634,17 @@ public abstract class TransactionFragment extends Fragment implements
 
 		@Override
 		public void OnClick(View v) {
+			Log.d("dsh", "test deselect");
 			mUserInfoList.get(indexOfBubble).setSelecetd(false);
 			Log.d(getTag(), "User" + indexOfBubble + " deselected");
 			updateSelectedUserNumber();
 			
-			Editable edit = mTotalAmount.getText();
-			float currentAmount = 0.0f;
-			try {
-				currentAmount = Float.valueOf(edit.toString());
-			} catch (NumberFormatException e) {
-				Log.e("money","can't get float from string");
+			if(mUserInfoList.get(indexOfBubble).isLocked()){
+				Log.d("money","removing locked amount: " + mUserInfoList.get(indexOfBubble).getAmountOfMoney());
+				totalLockedAmount -= mUserInfoList.get(indexOfBubble).getAmountOfMoney();
+				if(totalLockedAmount < 0) totalLockedAmount = 0;
 			}
-			splitMoney(currentAmount);
+			splitMoney();
 		}
 
 	}
