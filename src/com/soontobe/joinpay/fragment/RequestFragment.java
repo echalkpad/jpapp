@@ -4,6 +4,9 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import android.util.Log;
+
+import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.model.UserInfo;
 
 /**
@@ -13,16 +16,22 @@ import com.soontobe.joinpay.model.UserInfo;
 public class RequestFragment extends TransactionFragment {
 	public ArrayList<String[]> getPaymentInfo() {
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
+		Log.d("paymentInfo","requesting to: " + Constants.userName);
 		for (UserInfo info : mUserInfoList) {
 			if (info.isSelecetd()) {
-				String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending", "requesting"};
-				paymentInfo.add(item);
+				if(!info.getUserName().equals(Constants.userName)){			//shouldn't be possible, just double check
+					String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending", "requesting"};
+					paymentInfo.add(item);
+				}
+				else Log.d("paymentInfo", "skipping self");
 			}
 		}
-		if (myUserInfo.isSelecetd()) {
+		
+		/* Doesn't make sense to send money to ourselves */
+		/*if (myUserInfo.isSelecetd()) {
 			String[] item = {"normal", myUserInfo.getPersonalNote(), myUserInfo.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",myUserInfo.getAmountOfMoney()), "notPending", "request"};
 			paymentInfo.add(item);
-		}
+		}*/
 
 		String[] groupNote = {"group_note", mGroupNote.getText().toString() };
 		if (groupNote[1].length() > 0) paymentInfo.add(groupNote);

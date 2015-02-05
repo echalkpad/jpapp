@@ -90,5 +90,4 @@ public class Constants {
 		}
 		Log.d("debug", temp.toString());
 	}
-
 }

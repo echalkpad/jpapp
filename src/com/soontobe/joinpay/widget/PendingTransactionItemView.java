@@ -8,6 +8,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -107,6 +108,7 @@ public class PendingTransactionItemView extends LinearLayout {
 	}
 	
 	public void setPaymentInfo(ArrayList<String[]> info){
+		Log.d("dsh", "ran");
 		String[] groupNotes = info.get(1);
 		String groupNote;
 		if(null == groupNotes ||

@@ -2,9 +2,6 @@ package com.soontobe.joinpay;
 
 import java.util.List;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import bolts.Continuation;
 import bolts.Task;
 
@@ -14,15 +11,9 @@ import com.ibm.mobile.services.push.IBMPushNotificationListener;
 import com.ibm.mobile.services.push.IBMSimplePushNotification;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -32,7 +23,6 @@ import android.view.View.OnClickListener;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
 
 /**
@@ -86,6 +76,7 @@ public class MainActivity extends Activity{
 						
 						///////////////// Open Approve / Deny Dialog /////////////////
 						try{
+							//PointBalance.parsePoints("test");
 							final Dialog dialog = new Dialog(context);
 							dialog.setContentView(R.layout.dialog);
 							dialog.setTitle("New Message");
@@ -218,6 +209,12 @@ public class MainActivity extends Activity{
 		Log.d("button", "click");
 		startActivity(new Intent(this, RadarViewActivity.class));
 		finish(); //Close current activity
+	}
+	
+	public void onButton0Click(View view){
+		Log.d("button", "click button 0");
+		startActivity(new Intent(this, PointBalance.class));
+		//finish(); //Close current activity
 	}
 
 	public void onStartServiceClick(View v){

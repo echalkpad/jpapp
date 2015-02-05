@@ -104,6 +104,14 @@ public class SendConfirmActivity extends ListActivity {
 		sendEditPencil.setOnTouchListener(buttonOnTouchListener);
 	}
 
+	@Override
+	protected void onStop(){
+		try{
+			unregisterReceiver(restResponseReceiver);		//remove the receiver
+		}
+		catch(Exception e){}
+	    super.onStop();
+	}
 
 	private void setListView() {
 		ListView list = getListView();
@@ -134,10 +142,11 @@ public class SendConfirmActivity extends ListActivity {
 			}
 			
 		}
-		Log.d("payment", "jsonarray: " + obj);
-		
-		PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, obj, isHistory);
-		list.setAdapter(adapter);
+		if(obj.size() > 0){
+			Log.d("payment", "jsonarray: " + obj);
+			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, obj, isHistory);
+			list.setAdapter(adapter);
+		}
 	}
 
 	private void setConstant() {

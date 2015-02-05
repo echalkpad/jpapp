@@ -78,6 +78,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	private static final int sendTab = 0;
 	private static final int receiveTab = 1;
 	private static final int historyTab = 2;
+	private boolean endOnce = false;
 
 	private ArrayList<String[]> paymentInfo;
 
@@ -130,11 +131,18 @@ HistoryFragment.OnFragmentInteractionListener {
 		runPostTestServer();
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(restResponseReceiver, restIntentFilter);
-
 	}
-
+	
+	@Override
+	protected void onStop(){
+		try{
+			unregisterReceiver(restResponseReceiver);		//remove the receiver
+		}
+		catch(Exception e){}
+	    super.onStop();
+	}
+	
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
-		
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String receivedServiceContext = intent.getStringExtra("context");
@@ -144,7 +152,6 @@ HistoryFragment.OnFragmentInteractionListener {
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				
-				Log.d("nearby Users", response);
 				try {
 					int pos = 0;
 					JSONArray arr = new JSONArray(response);
@@ -164,8 +171,41 @@ HistoryFragment.OnFragmentInteractionListener {
 						}
 						pos++;
 					}
+					endOnce = false;
 				} catch (JSONException e) {
-					// TODO Auto-generated catch block
+					Log.d("nearby", "failed to parse response, look for error");
+					try{
+						JSONObject obj = new JSONObject(response);
+						if(obj.has("message") && obj.getString("message").equals("Unauthorized")){
+							Log.d("nearby", "see unauthorized");
+							Toast.makeText(getApplicationContext(), "Lost connection to server, login again", Toast.LENGTH_LONG).show();
+							if(!endOnce){
+								Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
+								startActivity(intentApplication);
+								endOnce = true;
+							}
+						}
+						else{
+							Log.d("nearby", "something is wrong, not sure what");
+							Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
+						}
+						
+					}
+					catch(JSONException ex){
+						if(response.toLowerCase().contains("404")){
+							Log.d("nearby", "its a 404");
+							Toast.makeText(getApplicationContext(), "Cannot locate server", Toast.LENGTH_LONG).show();
+							if(!endOnce){
+								Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
+								startActivity(intentApplication);
+								endOnce = true;
+							}
+						}
+						else {
+							Log.d("nearby", "something is wrong, not sure what");
+							Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
+						}
+					}
 					e.printStackTrace();
 				}
 			}
@@ -177,19 +217,17 @@ HistoryFragment.OnFragmentInteractionListener {
 	 * For demo use only because the message retrieval mechanism is experimental.
 	 */
 	private void runPostTestServer() {
-//		webConnector = new WebConnector(Constants.userName);
 		Log.d("RadarViewActivity", "onCreate");
-
 		new Thread() {
 			@Override
 			public void run() {
+				boolean doOnce = false;
 				Log.d("RadarViewActivity", "run");
-//				webConnector.onlineSignIn(Constants.urlForPostingToFolder);
 				while (true) {
 					try {
-						Thread.sleep(3000);
+						if(doOnce) Thread.sleep(5000);
+						else doOnce = true;
 					} catch (InterruptedException e) {
-						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 					
@@ -198,7 +236,6 @@ HistoryFragment.OnFragmentInteractionListener {
 					intent.putExtra("method","get");
 					intent.putExtra("url",url);
 					intent.putExtra("context", serviceContext);
-					
 					startService(intent);
 
 					/*
@@ -361,16 +398,19 @@ HistoryFragment.OnFragmentInteractionListener {
 		//Log.d(TAG, "onTabChanged(): tabId=" + tabId);
 		FragmentManager fm = getFragmentManager();
 		if(TAG_SEND.equals(tabId)){
+			Log.d("tab", "changing tab to send");
 			fm.beginTransaction().replace(R.id.tab_send, mSendFragment).commit();
 			mFragmentInitState[0] = true;
 			mCurrentTab = 0;
 			mSendFragment.setMyName(Constants.userName);
 		} else if (TAG_REQUEST.equals(tabId)){
+			Log.d("tab", "changing tab to request");
 			fm.beginTransaction().replace(R.id.tab_request, mRequestFragment).commit();
 			mFragmentInitState[1] = true;
 			mCurrentTab = 1;
 			mRequestFragment.setMyName(Constants.userName);
 		} else if (TAG_HISTORY.equals(tabId)){
+			Log.d("tab", "changing tab to history");
 			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment).commit();
 			mCurrentTab = 2;
 			

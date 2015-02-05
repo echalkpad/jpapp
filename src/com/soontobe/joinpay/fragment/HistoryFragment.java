@@ -9,7 +9,6 @@ import org.json.JSONObject;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -17,7 +16,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.DialogInterface.OnClickListener;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -27,22 +25,13 @@ import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnTouchListener;
-import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.Toast;
-
 import com.soontobe.joinpay.Constants;
-import com.soontobe.joinpay.MainActivity;
 import com.soontobe.joinpay.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.RESTCalls;
-import com.soontobe.joinpay.Utility;
 import com.soontobe.joinpay.widget.PendingTransactionItemView;
 import com.soontobe.joinpay.widget.PendingTransactionItemView.OnAcceptButtonClickListener;
 import com.soontobe.joinpay.widget.PendingTransactionItemView.OnDeclineButtonClickListener;
@@ -50,37 +39,37 @@ import com.soontobe.joinpay.widget.PendingTransactionItemView.OnDeclineButtonCli
 /**
  * It is one of the three fragments in the radar view activity. It shows a readable list of transaction records.
  */
-public class HistoryFragment extends Fragment 
-implements LoaderCallbacks<Void> {
-
+public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	final String serviceContext = "HistoryFragment";
 	private OnFragmentInteractionListener mListener;
 	private View mCurrentView;
 	private ArrayList<ArrayList<String[]>> paymentInfoList;
-	private LinearLayout mHistoryLayout;
+	private ListView mHistoryLayout;
 	private ArrayList<PendingTransactionItemView> mPendingTIVList;
-	
 	private ArrayList<ArrayList<String []>> mPendingInfoList;
 	private ArrayList<Integer> mPendingInfoTypeList;	//0-Transaction, 1-Notification
 	private boolean mShouldAsyncTaskStop = false;
 	private boolean isViewAvailable = false;
-	private CheckViewUpdateAsyncTask mAsyncTask = null;
+	public CheckViewUpdateAsyncTask mAsyncTask = null;
 	
 	private static final int COMPLETED = 0;
 	private Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg){
 			if(msg.what == COMPLETED) {
-				if(getActivity() == null)
-					return;	//Fragment is not available
-				
+				//if(getActivity() == null)
+				//	return;	//Fragment is not available
 				try{
+					Log.d("history", "checking pending info");
 					checkPendingInfo(); //UI update
 				} catch (Exception e){
+					Log.e("history", "error with checking pending info");
+					e.printStackTrace();
 					//mShouldAsyncTaskStop = true; //If an error occurs stop the AsyncTask.
 				}
 				
 			}
+			else Log.d("history", "msg is not complete");
 		}
 	};
 
@@ -117,6 +106,8 @@ implements LoaderCallbacks<Void> {
 	public void onDestroy() {
 		// TODO Auto-generated method stub
 		//mShouldAsyncTaskStop = true;
+		Log.d("tab", "destroying history fragment");
+	    getActivity().unregisterReceiver(restResponseReceiver);		//remove the receiver
 		super.onDestroy();
 	}
 
@@ -127,9 +118,9 @@ implements LoaderCallbacks<Void> {
 	}
 
 	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-			Bundle savedInstanceState) {
+	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
+		Log.d("tab", "creating history view");
 		if(mCurrentView == null)
 			mCurrentView = inflater.inflate(R.layout.fragment_history, container, false);
 		
@@ -138,9 +129,7 @@ implements LoaderCallbacks<Void> {
 			parent.removeView(mCurrentView);
 		}
 		
-		mHistoryLayout = (LinearLayout)mCurrentView.findViewById(R.id.history_view_pane_items);
-		
-		//checkPaymentInfo();
+		mHistoryLayout = (ListView)mCurrentView.findViewById(android.R.id.list);
 		if(mAsyncTask == null){
 			mAsyncTask = new CheckViewUpdateAsyncTask();
 			mAsyncTask.execute();
@@ -148,7 +137,6 @@ implements LoaderCallbacks<Void> {
 		
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		getActivity().registerReceiver(restResponseReceiver, restIntentFilter);
-
 		return mCurrentView;
 	}
 	
@@ -159,8 +147,8 @@ implements LoaderCallbacks<Void> {
 			String receivedServiceContext = intent.getStringExtra("context");
 			
 			if(serviceContext.equals(receivedServiceContext)) {
-				String url = intent.getStringExtra("url");
-				String method = intent.getStringExtra("method");
+				//String url = intent.getStringExtra("url");
+				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
 
@@ -173,33 +161,25 @@ implements LoaderCallbacks<Void> {
 						obj1.put("type","requesting");			//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
 						list.add(obj1);
 					}
-
-
-
-				} catch (JSONException e) {
+				}
+				catch (JSONException e) {
 					Log.e("response", response);
 					Log.e("HistoryFragment REST", "Error parsing JSON response moneyIn");
 				}
 				
-
-				
 				try {
 					JSONObject obj = new JSONObject(response);
-
 					JSONArray arrOut = obj.getJSONArray("moneyOut");
-					
+				
 					for(int i = 0; i < arrOut.length(); i++) {
 						JSONObject obj1 = arrOut.getJSONObject(i);
 						obj1.put("type","sending");		//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
 						list.add(obj1);
 					}
-					
-
-
-				} catch (JSONException e) {
+				}
+				catch (JSONException e) {
 					Log.e("response", response);
 					Log.e("HistoryFragment REST", "Error parsing JSON response moneyOut");
-					
 				}
 				
 				addTransaction(list);
@@ -211,17 +191,13 @@ implements LoaderCallbacks<Void> {
 		Intent intent = new Intent(getActivity().getApplicationContext(), RESTCalls.class);
 		String url = Constants.baseURL + "/transactions";
 		intent.putExtra("method","get");
-		intent.putExtra("url",url);
+		intent.putExtra("url", url);
 		intent.putExtra("context", serviceContext);
-		
-		
-
-		Log.d("checkPendingInfo", "starting Service");
+		Log.d("transBuilder", "getting pending transactions");
 		getActivity().startService(intent);
-		Log.d("checkPendingInfo", "started Service");
-
 	
-/*		if(mPendingInfoTypeList.isEmpty()){
+		/*
+		if(mPendingInfoTypeList.isEmpty()){
 			return;
 		}
 		int pendingSize = mPendingInfoTypeList.size();
@@ -244,19 +220,24 @@ implements LoaderCallbacks<Void> {
 	}
 	
 	public void addTransaction(ArrayList<JSONObject> obj){
-		int margin = 15;
-		ListView lv;
-		LinearLayout.MarginLayoutParams mlp;
+		//int margin = 15;
+		//ListView lv;
+		//LinearLayout.MarginLayoutParams mlp;
 		
-		lv = new ListView(getActivity());
-		PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
-		lv.setAdapter(adapter);
-		lv.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff)); 
-		mHistoryLayout.removeAllViews();
-		mHistoryLayout.addView(lv, 0);
-		Utility.setListViewHeightBasedOnChildren(lv);
-		mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams(); 
-		mlp.setMargins(0, margin, 0, margin);
+		if(obj.size() > 0){
+			Log.d("transBuilder", "adding transacation");
+			//lv = new ListView(getActivity());
+			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
+			mHistoryLayout.setAdapter(adapter);
+			//mHistoryLayout.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff)); 
+			//lv.setAdapter(adapter);
+			//lv.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff)); 
+			//mHistoryLayout.removeAllViews();
+			//mHistoryLayout.addView(lv, 0);
+			//Utility.setListViewHeightBasedOnChildren(lv);
+			//mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams(); 
+			//mlp.setMargins(0, margin, 0, margin);
+		}
 
 	}
 /*	public void addTransaction(ArrayList<String[]> info){
@@ -310,10 +291,10 @@ implements LoaderCallbacks<Void> {
 		
 		mPendingTIVList.add(pItemView);
 		
-		mHistoryLayout.addView(pItemView, 0);
+		//mHistoryLayout.addView(pItemView, 0); //dsh disabled 2/4/2015
 		
-		LinearLayout.MarginLayoutParams mlp = (LinearLayout.MarginLayoutParams) pItemView.getLayoutParams();
-		mlp.setMargins(0, 15, 0, 15);
+		//LinearLayout.MarginLayoutParams mlp = (LinearLayout.MarginLayoutParams) pItemView.getLayoutParams();
+		//mlp.setMargins(0, 15, 0, 15);
 	}
 	
 	/**
@@ -436,16 +417,18 @@ implements LoaderCallbacks<Void> {
 			Log.d("AsyncTask", "STARTED");
 			while(true){
 				if(mShouldAsyncTaskStop){
-					Log.d("AsyncTask", "STOPPED");
+					Log.d("async", "STOPPED");
 					break;
 				}
 				
 				try {
+					Log.d("async", "running new history task");
 					Message msg = new Message();
 					msg.what = COMPLETED;
 					mHandler.sendMessage(msg);
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
+					Log.e("async", "STOPPED - error");
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}

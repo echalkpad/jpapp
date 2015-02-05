@@ -6,6 +6,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.fragment.HistoryFragment;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -13,6 +15,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -37,6 +40,15 @@ public class LoginActivity extends Activity {
 		mLogin.setOnClickListener(loginClicked);
 	}
 	
+	@Override
+	protected void onStop(){
+		try{
+			unregisterReceiver(restResponseReceiver);		//remove the receiver
+		}
+		catch(Exception e){}
+	    super.onStop();
+	}
+	
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
 		
 		@Override
@@ -47,12 +59,22 @@ public class LoginActivity extends Activity {
 				String url = intent.getStringExtra("url");
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
-				
+				int httpCode = intent.getIntExtra("code", 403);
+				Log.d("login", " http code: " + httpCode);
 				try {
 					JSONObject obj = new JSONObject(response);
-//					Constants.loginToken = obj.getString("sessionID");
+					if(httpCode != 200){
+						Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT);
+						tmp.setGravity(Gravity.TOP, 0, 150);
+						tmp.show();
+						return;
+					}
 				} catch (JSONException e) {
-					Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT).show();
+					Log.d("bcReceiver", "failed to parse response, looking for 404 error");
+					if(response.contains("404")){
+						Log.d("bcReceiver", "its a 404");
+					}
+					Toast.makeText(getApplicationContext(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
 					return;
 				}
 				Log.d("bcReceiver", "Received Response - " + response);
@@ -85,8 +107,6 @@ public class LoginActivity extends Activity {
 			intent.putExtra("url",url);
 			intent.putExtra("body", obj.toString());
 			intent.putExtra("context", serviceContext);
-			
-			
 
 			Log.d("loginClicked", "starting Service");
 			startService(intent);
@@ -94,7 +114,6 @@ public class LoginActivity extends Activity {
 
 			IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 			registerReceiver(restResponseReceiver, restIntentFilter);
-		
 		}
 	};
 

@@ -6,6 +6,7 @@ import java.util.Calendar;
 
 import android.util.Log;
 
+import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.model.UserInfo;
 
 /**
@@ -14,11 +15,15 @@ import com.soontobe.joinpay.model.UserInfo;
 public class SendFragment extends TransactionFragment {
 	public ArrayList<String[]> getPaymentInfo() {
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
+		Log.d("paymentInfo","sending from: " + Constants.userName);
 		for (UserInfo info : mUserInfoList) {
 			if (info.isSelecetd()) {
-				String[] item = {"normal", info.getPersonalNote(), myUserInfo.getUserName(), info.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "notPending", "sending"};
-				paymentInfo.add(item);
-				Log.d("paymentInfo", item[2]);
+				if(!info.getUserName().equals(Constants.userName)){
+					String[] item = {"normal", info.getPersonalNote(), myUserInfo.getUserName(), info.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "notPending", "sending"};
+					paymentInfo.add(item);
+					Log.d("paymentInfo", item[2]);
+				}
+				else Log.d("paymentInfo", "skipping self");
 			}
 		}
 		

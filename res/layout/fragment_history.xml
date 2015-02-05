@@ -1,7 +1,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/history_view_pane"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
     android:background="#c2d42d"
     android:orientation="vertical"
     android:paddingLeft="15dp"
@@ -42,16 +42,22 @@
             android:visibility="invisible" />
     </FrameLayout>
 
-    <ScrollView
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" > 
+  
 
-        <LinearLayout
-            android:id="@+id/history_view_pane_items"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical" >
-        </LinearLayout>
-    </ScrollView>
+     <ListView
+         android:id="@android:id/list"
+         android:layout_width="match_parent"
+         android:layout_height="fill_parent"
+         android:layout_marginBottom="15dp"
+         android:layout_marginLeft="15dp"
+         android:layout_marginRight="15dp"
+         android:background="#ffffff"
+         android:orientation="vertical"
+         android:paddingBottom="10dp"
+         android:paddingTop="10dp"
+         android:paddingLeft="3dp"
+         android:paddingRight="3dp" >
+     </ListView>
+   
 
 </LinearLayout>

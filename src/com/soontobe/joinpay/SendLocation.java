@@ -16,10 +16,8 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class SendLocation extends Service {
-
 	final String serviceIntent = "SendLocation";
 	LocationManager mLocationManager;
-
 	static Context mApplicationContext;
 	
 	public SendLocation() {
@@ -34,42 +32,37 @@ public class SendLocation extends Service {
 	protected void initService() {
 		mLocationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 		if(mLocationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
-//			mProvider = LocationManager.GPS_PROVIDER;
+			Log.d("location", "gps is enabled");
 		} else { 
-//			Toast.makeText(getApplicationContext(), "GPS is disabled. Using Network for location.", Toast.LENGTH_SHORT).show();
-//			mProvider = LocationManager.NETWORK_PROVIDER;
+			Log.d("location", "gps is disabled");
+			Toast.makeText(getApplicationContext(), "GPS is disabled. Location may be flaky", Toast.LENGTH_SHORT).show();
 		}
 
 		mLocationManager.requestLocationUpdates(1000L, 1.0f, new Criteria(), mLocationListener, null);
-		Log.d("Location", "Service Started");
+		Log.d("location", "Service Started");
 	}
 
 	LocationListener mLocationListener = new LocationListener() {
-		
+
 		@Override
 		public void onStatusChanged(String provider, int status, Bundle extras) {
-			// TODO Auto-generated method stub
-			
+			Log.d("location", "status changed");
 		}
 		
 		@Override
 		public void onProviderEnabled(String provider) {
-			// TODO Auto-generated method stub
-			
+			Log.d("location", "provider enabled");
 		}
 		
 		@Override
 		public void onProviderDisabled(String provider) {
-			// TODO Auto-generated method stub
-			
+			Log.d("location", "provider disabled");
 		}
 		
 		@Override
 		public void onLocationChanged(Location location) {
-			Log.d("Location", "Got updated Location");
-			Log.d("Latitude", "" + location.getLatitude());
-			Log.d("Longitude", "" + location.getLongitude());
-			
+			Log.d("location", "lat" + location.getLatitude());
+			Log.d("location", "long" + location.getLongitude());
 			JSONObject obj = new JSONObject();
 			
 			try {
@@ -79,27 +72,21 @@ public class SendLocation extends Service {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 			
+			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 			String url = Constants.baseURL + "/currentLocation";
 			intent.putExtra("method","put");
 			intent.putExtra("url",url);
 			intent.putExtra("body", obj.toString());
 			intent.putExtra("context", serviceIntent);
 
-			Log.d("loginClicked", "starting Service");
 			startService(intent);
-			Log.d("loginClicked", "started Service");
-
 			Toast.makeText(getApplicationContext(), "Lat: " +  location.getLatitude() + "... Long: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
-			
-			
 		}
 	};
 
 	@Override
 	public IBinder onBind(Intent intent) {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
