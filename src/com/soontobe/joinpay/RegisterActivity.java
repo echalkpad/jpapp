@@ -29,6 +29,7 @@ public class RegisterActivity extends Activity {
 	private static EditText passText;
 	private static EditText confirmPassText;
 	private static EditText accountId;
+	public static String tempUser;
 	PointAdapter adapter;
 	
 	@Override
@@ -67,7 +68,8 @@ public class RegisterActivity extends Activity {
 					Toast tmp = Toast.makeText(getApplicationContext(), "Successfully Registered!", Toast.LENGTH_LONG);
 					tmp.setGravity(Gravity.TOP, 0, 150);
 					tmp.show();
-					Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);			//send them in
+					Constants.userName = tempUser;
+					Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);			//send them in
 					startActivity(intentApplication);
 					finish();
 				}
@@ -95,6 +97,7 @@ public class RegisterActivity extends Activity {
 			String confirmPassStr = confirmPassText.getText().toString();
 			String accountIdStr = accountId.getText().toString();
 			Boolean validInput = true;
+			tempUser = usernameStr;
 			
 			///// Verify Input /////
 			if(!passStr.equals(confirmPassStr)){				
@@ -133,7 +136,7 @@ public class RegisterActivity extends Activity {
 				try {
 					obj.put("username", usernameStr);
 					obj.put("password", passStr);
-					obj.put("paypal_account", accountIdStr);
+					obj.put("default_account", accountIdStr);
 				} catch (JSONException e) {
 					Log.e("register", "Error making JSON object for register");
 					e.printStackTrace();

@@ -58,10 +58,8 @@ public class Constants {
 	public static String loginToken;
 	
 	public static String baseURL = "http://join-pay.mybluemix.net";
-	
-	public static String appSecret = "bd885f97-e6e7-4f91-8365-98fc61162760";
-	public static String appKey = "25798ac2eb6b2d28f3fcee2f3795e4261d9591a0";
-	public static String appRoute = "http://join-pay.mybluemix.net";
+	public static String appSecret = "8c55c943843f34c14672d6f36cfe4fe3f6961d1d";
+	public static String appKey = "3fdaeee4-d711-4ffe-9681-6afee65a120a";
 	
 	
 	

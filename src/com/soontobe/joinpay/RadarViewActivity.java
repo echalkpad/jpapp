@@ -19,7 +19,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v4.app.FragmentActivity;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -78,7 +81,8 @@ HistoryFragment.OnFragmentInteractionListener {
 	private static final int sendTab = 0;
 	private static final int requestTab = 1;
 	private static final int historyTab = 2;
-	private boolean endOnce = false;
+	private static final int COMPLETED = 0;
+	public nearbyUsersAsyncTask mAsyncTaskNearby = null;
 
 	private ArrayList<String[]> paymentInfo;
 
@@ -144,7 +148,10 @@ HistoryFragment.OnFragmentInteractionListener {
 		lockInfo = new HashMap<String, Boolean>();
 		lockInfo.put("total", false);
 		setEventListeners();
-		runPostTestServer();
+		if(mAsyncTaskNearby == null){
+			mAsyncTaskNearby = new nearbyUsersAsyncTask();
+			mAsyncTaskNearby.execute();
+		}
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(restResponseReceiver, restIntentFilter);
 	}
@@ -152,7 +159,12 @@ HistoryFragment.OnFragmentInteractionListener {
 	@Override
 	protected void onStop(){
 		try{
+			Log.d("nearby", "stopping nearby task");
 			unregisterReceiver(restResponseReceiver);		//remove the receiver
+			if(mAsyncTaskNearby != null){
+				mAsyncTaskNearby.cancel(true);
+				mAsyncTaskNearby = null;
+			}
 		}
 		catch(Exception e){}
 	    super.onStop();
@@ -164,186 +176,103 @@ HistoryFragment.OnFragmentInteractionListener {
 			String receivedServiceContext = intent.getStringExtra("context");
 			
 			if(serviceContext.equals(receivedServiceContext)) {
-				String url = intent.getStringExtra("url");
-				String method = intent.getStringExtra("method");
+				//String url = intent.getStringExtra("url");
+				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
+				int httpCode = intent.getIntExtra("code", 0);
 				
-				try {
-					int pos = 0;
-					JSONArray arr = new JSONArray(response);
-					for(int i = 0; i < arr.length(); i++) {
-						JSONObject objUser = arr.getJSONObject(i);
-						String user = objUser.getString("username");
-						if(namesOnScreen.contains(user)) {
-							continue;
-						}
-						if(!usedPositionsListSendFragment.contains(pos)) {
-							namesOnScreen.add(user);
-							mSendFragment.addContactToView(user, pos);
-							mRequestFragment.addContactToView(user, pos);
-							usedPositionsListSendFragment.add(pos);
-						} else {
-							i--;
-						}
-						pos++;
-					}
-					endOnce = false;
-				} catch (JSONException e) {
-					Log.d("nearby", "failed to parse response, look for error");
-					try{
-						JSONObject obj = new JSONObject(response);
-						if(obj.has("message") && obj.getString("message").equals("Unauthorized")){
-							Log.d("nearby", "see unauthorized");
-							Toast.makeText(getApplicationContext(), "Lost connection to server, login again", Toast.LENGTH_LONG).show();
-							if(!endOnce){
-								Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
-								startActivity(intentApplication);
-								endOnce = true;
+				if(httpCode == 404){							//404 means APIs crashed/down, will need to login again when they come back up, kill activity
+					Log.e("nearby", "got 404, back to login");
+					Toast.makeText(getApplicationContext(), "Cannot locate server", Toast.LENGTH_LONG).show();
+					Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
+					startActivity(intentApplication);
+					finish();
+				}
+				else if(httpCode == 401){						//401 means I need to login again, kill activity
+					Log.e("nearby", "got 401, unauthorized, back to login");
+					Toast.makeText(getApplicationContext(), "Lost connection to server, login again", Toast.LENGTH_LONG).show();
+					Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
+					startActivity(intentApplication);
+					finish();
+				}
+				else if(httpCode == 502){						//don't worry about 502, log it and move on
+					Log.d("nearby", "got 502, skipping");
+				}
+				else if(httpCode == 200){						//200 means go do your thing
+					try {
+						int pos = 0;
+						JSONArray arr = new JSONArray(response);
+						for(int i = 0; i < arr.length(); i++) {
+							JSONObject objUser = arr.getJSONObject(i);
+							String user = objUser.getString("username");
+							if(namesOnScreen.contains(user)) {
+								continue;
 							}
-						}
-						else{
-							Log.d("nearby", "something is wrong, not sure what");
-							Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
-						}
-					}
-					catch(JSONException ex){
-						if(response.toLowerCase(Locale.ENGLISH).contains("404")){
-							Log.d("nearby", "its a 404");
-							Toast.makeText(getApplicationContext(), "Cannot locate server", Toast.LENGTH_LONG).show();
-							if(!endOnce){
-								Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
-								startActivity(intentApplication);
-								endOnce = true;
+							if(!usedPositionsListSendFragment.contains(pos)) {
+								namesOnScreen.add(user);
+								mSendFragment.addContactToView(user, pos);
+								mRequestFragment.addContactToView(user, pos);
+								usedPositionsListSendFragment.add(pos);
+							} else {
+								i--;
 							}
+							pos++;
 						}
-						else {
-							Log.d("nearby", "something is wrong, not sure what");
-							Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
-						}
+					} catch (JSONException e) {
+						Log.e("nearby", "failed to parse response =(");
+						e.printStackTrace();
+						Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
 					}
-					e.printStackTrace();
+				}
+				else{											//any other code is odd, just log it, don't die
+					Log.e("nearby", "got odd code, something is wrong, not sure what...");
+					Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
 	};
 	
-	/**
-	 * This method aims to retrieve new payments from the website.
-	 * For demo use only because the message retrieval mechanism is experimental.
-	 */
-	private void runPostTestServer() {
-		Log.d("RadarViewActivity", "onCreate");
-		new Thread() {
-			@Override
-			public void run() {
-				boolean doOnce = false;
-				Log.d("RadarViewActivity", "run");
-				while (true) {
-					try {
-						if(doOnce) Thread.sleep(5000);
-						else doOnce = true;
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					
+	private Handler mHandler = new Handler(){
+		@Override
+		public void handleMessage(Message msg){
+			if(msg.what == COMPLETED) {
+				try{
+					Log.d("nearby", "getting nearby users");
 					Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-					String url = "http://join-pay.mybluemix.net/nearby/users";
+					String url = Constants.baseURL  + "/nearby/users";
 					intent.putExtra("method","get");
 					intent.putExtra("url",url);
 					intent.putExtra("context", serviceContext);
 					startService(intent);
-
-					/*
-					fileNameList = webConnector.getFileNameList(Constants.urlPrefix, visitedFilesCount);
-					for (String i : fileNameList) {
-						String newFile = webConnector.getFile(Constants.urlPrefix + "/" + i);
-						for (String name : Constants.deviceNameList) {
-							if (onlineNameList.contains(name) || name.equals(Constants.userName)) continue;
-							if (newFile.contains(name + "IsOnline")) {
-								onlineNameList.add(name);
-							}
-						}
-
-						if (newFile.contains(Constants.transactionIntiatorTag + Constants.userName)) {
-							continue;
-						}
-
-						int idx1 = newFile.indexOf(Constants.transactionBeginTag);
-						int idx2 = newFile.indexOf(Constants.transactionEndTag);
-						if (idx1 >= 0 && idx2 >= 0) {
-							int st = idx1 + Constants.transactionBeginTag.length();
-							int ed = idx2;
-							String data = newFile.substring(st, ed);
-							//							Log.d("RadarViewActivity paymentInfo from web", newFile.substring(st, ed));
-
-							String[] paymentStrings = data.split("\\|");
-							String [] relevantItem = {};
-							String [] groupNote = {};
-							String [] summary = {};
-							for (int k = 0;k < paymentStrings.length;k++) {
-								String[] items = paymentStrings[k].split(",");
-								//								paymentInfoFromWeb.add(items);
-								if (items.length >= 4) {
-									if (items[2].equals(Constants.userName)) {  	//	payer
-										relevantItem = items;
-									} else if (items[3].equals(Constants.userName)) {	//	payee
-										relevantItem = items;
-									}
-								}
-
-								if (items[0].equals("group_note")) {
-									groupNote = items;
-								}
-
-								if (items[0].equals("summary")) {
-									summary = items;
-								}
-							}
-
-							if (relevantItem.length > 0) {
-								ArrayList<String []> popupPaymentInfo = new ArrayList<String[]>();
-								popupPaymentInfo.add(relevantItem);
-								popupPaymentInfo.add(groupNote);
-								popupPaymentInfo.add(summary);
-								
-
-								final ArrayList<String []> finalInfo = popupPaymentInfo;
-								runOnUiThread(new Runnable() {
-									@Override
-									public void run() {
-										
-										mHistoryFragment.addPendingTransItem(finalInfo);
-										mCurrentTab = 2;	//jump to history view
-										mTabHost.setCurrentTab(mCurrentTab);
-									}
-								});
-							}
-
-
-
-						}
-
-
-					}
-					visitedFilesCount += fileNameList.size();
-					runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							for (String i : onlineNameList) {
-								Log.d("onlineNameList", i);
-								if (mCurrentTab == 0) {
-									mSendFragment.addUserToView(i);
-								} else if (mCurrentTab == 1) {
-									mRequestFragment.addUserToView(i);
-								}
-							}
-						}
-					});
-					Log.d("visitedFilesCount", "" + visitedFilesCount);
-					*/
+				} catch (Exception e){
+					Log.e("nearby", "error with checking pending info");
+					e.printStackTrace();
 				}
 			}
-		}.start();
+			else Log.d("nearby", "msg is not complete");
+		}
+	};
+	
+	private class nearbyUsersAsyncTask extends AsyncTask<Void, Void, Void>{
+		
+		@Override
+		protected Void doInBackground(Void... params) {
+			Log.d("nearby", "STARTED nearby");
+			while(true){				
+				try {
+					Log.d("nearby", "running new nearby task");
+					Message msg = new Message();
+					msg.what = COMPLETED;
+					mHandler.sendMessage(msg);
+					Thread.sleep(5000);
+				} catch (InterruptedException e) {
+					Log.d("nearby", "STOPPED nearby");			//not really an error, the stop method might interrupt it
+					//e.printStackTrace();
+					break;
+				}
+			}
+			return null;
+		}
 	}
 
 	@Override
@@ -354,7 +283,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	private void setEventListeners() {
 		Button btn = (Button) findViewById(R.id.btn_radar_view_back);
-		btn.setOnTouchListener(new OnTouchListener() {
+		btn.setOnTouchListener(new OnTouchListener() {						//cosmetic function only
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
@@ -369,7 +298,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		});
 
 		/*btn = (Button) findViewById(R.id.btn_radar_view_cross);
-		btn.setOnTouchListener(new OnTouchListener() {
+		btn.setOnTouchListener(new OnTouchListener() {						//cosmetic function only
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
@@ -409,7 +338,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	
 	private boolean mFragmentInitState[] = {true, false, false};
 	@Override
-	public void onTabChanged(String tabId) {
+	public void onTabChanged(String tabId) {								//switches UI and backend processes for selected tab
 		//Log.d(TAG, "onTabChanged(): tabId=" + tabId);
 		FragmentManager fm = getFragmentManager();
 		if(TAG_SEND.equals(tabId)){
@@ -421,13 +350,24 @@ HistoryFragment.OnFragmentInteractionListener {
 		}
 		else if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
-			fm.beginTransaction().replace(R.id.tab_request, mRequestFragment, TAG_REQUEST).commit();
 			mFragmentInitState[1] = true;
 			mCurrentTab = 1;
 			mRequestFragment.setMyName(Constants.userName);
+			if(mAsyncTaskNearby == null){							//start nearby task again if its dead
+				mAsyncTaskNearby = new nearbyUsersAsyncTask();
+				mAsyncTaskNearby.execute();
+			}
+			fm.beginTransaction().replace(R.id.tab_request, mRequestFragment, TAG_REQUEST).commit();
 		}
 		else if (TAG_HISTORY.equals(tabId)){
 			Log.d("tab", "changing tab to history");
+			
+			if(mAsyncTaskNearby != null){
+				Log.d("nearby", "stopping nearby task");				//only 1 async task at a time apparently, kill nearby to allow the history task to open
+				mAsyncTaskNearby.cancel(true);
+				mAsyncTaskNearby = null;
+			}
+			
 			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment, TAG_HISTORY).commit();
 			mCurrentTab = 2;
 			

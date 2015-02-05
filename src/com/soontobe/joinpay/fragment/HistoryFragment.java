@@ -86,8 +86,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	public void setUserVisibleHint(boolean isVisibleToUser) {
 		// TODO Auto-generated method stub
 		super.setUserVisibleHint(isVisibleToUser);
-//		if(isVisibleToUser)
-//			checkPaymentInfo();
 	}
 
 	@Override
@@ -98,9 +96,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	
 	@Override
 	public void onDestroy() {
-		mAsyncTask.cancel(true);
-		mAsyncTask = null;
 		Log.d("history", "destroying history fragment");
+		if(mAsyncTask != null){
+			mAsyncTask.cancel(true);
+			mAsyncTask = null;
+		}
 	    getActivity().unregisterReceiver(restResponseReceiver);		//remove the receiver
 		super.onDestroy();
 	}
@@ -123,9 +123,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		
 		mHistoryLayout = (ListView)mCurrentView.findViewById(android.R.id.list);
 		if(mAsyncTask == null){
+			Log.d("history", "mAsyncTask is null");
 			mAsyncTask = new CheckViewUpdateAsyncTask();
 			mAsyncTask.execute();
 		}
+		else Log.d("history", "mAsyncTask is NOT null");
 		
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		getActivity().registerReceiver(restResponseReceiver, restIntentFilter);
@@ -142,6 +144,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				//String url = intent.getStringExtra("url");
 				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
+				int httpCode = intent.getIntExtra("code", 0);
 				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
 
 				try {
@@ -155,8 +158,8 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 					}
 				}
 				catch (JSONException e) {
-					Log.e("response", response);
-					Log.e("HistoryFragment REST", "Error parsing JSON response moneyIn");
+					Log.e("history", response);
+					Log.e("history", "Error parsing JSON response moneyIn");
 				}
 				
 				try {
@@ -165,13 +168,13 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				
 					for(int i = 0; i < arrOut.length(); i++) {
 						JSONObject obj1 = arrOut.getJSONObject(i);
-						obj1.put("type","sending");		//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
+						obj1.put("type","sending");				//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
 						list.add(obj1);
 					}
 				}
 				catch (JSONException e) {
-					Log.e("response", response);
-					Log.e("HistoryFragment REST", "Error parsing JSON response moneyOut");
+					Log.e("history", response);
+					Log.e("history", "Error parsing JSON response moneyOut");
 				}
 				
 				addTransaction(list);
@@ -214,54 +217,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	public void addTransaction(ArrayList<JSONObject> obj){		
 		if(obj.size() > 0){
 			Log.d("transBuilder", "adding transacation");
-			//lv = new ListView(getActivity());
 			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
 			mHistoryLayout.setAdapter(adapter);
-			//mHistoryLayout.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff)); 
-			//lv.setAdapter(adapter);
-			//lv.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff)); 
-			//mHistoryLayout.removeAllViews();
-			//mHistoryLayout.addView(lv, 0);
-			//Utility.setListViewHeightBasedOnChildren(lv);
-			//mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams(); 
-			//mlp.setMargins(0, margin, 0, margin);
 		}
+	}
 
-	}
-	/*
-	public void addTransaction(ArrayList<String[]> info){
-		int margin = 15;
-		ListView lv;
-		LinearLayout.MarginLayoutParams mlp;
-		
-		lv = new ListView(getActivity());
-		PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), info, true);
-		lv.setAdapter(adapter);
-		lv.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff));
-		mHistoryLayout.addView(lv, 0);
-		Utility.setListViewHeightBasedOnChildren(lv);
-		mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams();
-		mlp.setMargins(0, margin, 0, margin);
-	}
-	*/
-	
-/*	public void checkPaymentInfo(){
-		//LinearLayout historyItems = (LinearLayout) getActivity().findViewById(R.id.history_view_pane_items);
-		int margin = 15;
-		ListView lv;
-		LinearLayout.MarginLayoutParams mlp;
-		for (int i = 0;i < paymentInfoList.size();i++) {
-			lv = new ListView(getActivity());
-			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), paymentInfoList.get(i), true);
-			lv.setAdapter(adapter);
-			lv.setBackgroundColor(Color.rgb(0xff, 0xff, 0xff));
-			mHistoryLayout.addView(lv, 0);
-			Utility.setListViewHeightBasedOnChildren(lv);
-			mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams();
-			mlp.setMargins(0, margin, 0, margin);
-		}
-	}
-*/
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
@@ -296,8 +256,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		try {
 			mListener = (OnFragmentInteractionListener) activity;
 		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString()
-					+ " must implement OnFragmentInteractionListener");
+			throw new ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener");
 		}
 	}
 
@@ -359,7 +318,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
 						mPendingTIVList.get(index).setAccepted();
 					}
 				})
@@ -367,7 +325,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 					
 					@Override
 					public void onClick(DialogInterface dialog, int which) {
-						// TODO Auto-generated method stub
 						return;
 					}
 				})

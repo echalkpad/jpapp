@@ -48,12 +48,9 @@ import com.soontobe.joinpay.widget.RadarUserView.OnLockButtonClickedListener;
  *
  */
 
-public abstract class TransactionFragment extends Fragment implements
-		LoaderCallbacks<Void> {
+public abstract class TransactionFragment extends Fragment implements LoaderCallbacks<Void> {
 	static Context mApplicationContext;
 	private OnFragmentInteractionListener mListener;
-	// private static final int contactListRequestCode = 1;
-
 	private FrameLayout mBubbleFrameLayout;
 	public static ArrayList<RadarUserView> mUserBubbles;
 	public static RadarUserView mSelfBubble;
@@ -65,12 +62,9 @@ public abstract class TransactionFragment extends Fragment implements
 	public static float totalLockedAmount;
 
 	public static UserInfo myUserInfo;
-	public static ArrayList<UserInfo> mUserInfoList; // User info list except for
-	// myself
-	protected ArrayList<Integer> mUserPositions; // User info list except for
-	// myself
-	private float mOldMoneyAmount; // Record for old money amount (//TODO:USE
-									// DATABASE)
+	public static ArrayList<UserInfo> mUserInfoList; // User info list except for myself
+	protected ArrayList<Integer> mUserPositions; // User info list except for myself
+	private float mOldMoneyAmount; // Record for old money amount (//TODO:USE DATABASE)
 
 	public TransactionFragment() {
 		// Required empty public constructor

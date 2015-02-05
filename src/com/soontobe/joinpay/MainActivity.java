@@ -45,7 +45,7 @@ public class MainActivity extends Activity{
 		/////////////////  IBM Push Code  ///////////////// 
 		///////////////////////////////////////////////////
 		context = this;
-		IBMBluemix.initialize(this, Constants.appSecret, Constants.appKey, Constants.appRoute);			//init for IBM push
+		IBMBluemix.initialize(this, Constants.appKey, Constants.appSecret, Constants.baseURL);			//init for IBM push
 		push = IBMPush.initializeService();
 		notificationlistener = new IBMPushNotificationListener() {
 		
