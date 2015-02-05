@@ -4,7 +4,7 @@ package com.soontobe.joinpay;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -76,7 +76,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	private static final int proceedToConfirmRequestCode = 2;
 	public static final int historyRequestCode = 3;
 	private static final int sendTab = 0;
-	private static final int receiveTab = 1;
+	private static final int requestTab = 1;
 	private static final int historyTab = 2;
 	private boolean endOnce = false;
 
@@ -102,27 +102,43 @@ HistoryFragment.OnFragmentInteractionListener {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_radar_view);
-		mSendFragment = new SendFragment();
-		mRequestFragment = new RequestFragment();
-		mHistoryFragment = new HistoryFragment();
+		//mSendFragment = new SendFragment();
+		//mRequestFragment = new RequestFragment();
+		//mHistoryFragment = new HistoryFragment();
 		MainActivity.context = this;
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		setupTabs();
 		mTabHost.setOnTabChangedListener(this);
 
 		//Receive jump command
-		Intent intent = getIntent();
-		int jump_target = intent.getIntExtra(JUMP_KEY, 0);
-		mCurrentTab = sendTab;
-		if(jump_target == historyRequestCode){
-			mCurrentTab = historyTab;
-		}
+		//Intent intent = getIntent();
+		//int jump_target = intent.getIntExtra(JUMP_KEY, 0);
+		//if(jump_target == historyRequestCode){
+		//	mCurrentTab = historyTab;
+		//}
 
-		mTabHost.setCurrentTab(mCurrentTab);
-		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment).commit();
+		if (savedInstanceState != null) {
+			Log.d("history","resuming history fragment");
+			Log.d("send","resuming history fragment");
+			Log.d("request","resuming history fragment");
+			mHistoryFragment = (HistoryFragment) getFragmentManager().findFragmentByTag(TAG_HISTORY);
+			mSendFragment = (SendFragment) getFragmentManager().findFragmentByTag(TAG_SEND);
+			mRequestFragment = (RequestFragment) getFragmentManager().findFragmentByTag(TAG_REQUEST);
+		} else {
+			Log.d("history","creating history fragment");
+			Log.d("send","creating send fragment");
+			Log.d("request","creating request fragment");
+			mHistoryFragment = new HistoryFragment();
+			mSendFragment = new SendFragment();
+			mRequestFragment = new RequestFragment();
+		}
+		 
+		mCurrentTab = requestTab;
+		mTabHost.setCurrentTab(sendTab);
+		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 		
-		mTabHost.setCurrentTab(receiveTab);
-		getFragmentManager().beginTransaction().replace(R.id.tab_request, mRequestFragment).commit();
+		mTabHost.setCurrentTab(requestTab);
+		getFragmentManager().beginTransaction().replace(R.id.tab_request, mRequestFragment, TAG_REQUEST).commit();
 			
 
 		lockInfo = new HashMap<String, Boolean>();
@@ -189,10 +205,9 @@ HistoryFragment.OnFragmentInteractionListener {
 							Log.d("nearby", "something is wrong, not sure what");
 							Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
 						}
-						
 					}
 					catch(JSONException ex){
-						if(response.toLowerCase().contains("404")){
+						if(response.toLowerCase(Locale.ENGLISH).contains("404")){
 							Log.d("nearby", "its a 404");
 							Toast.makeText(getApplicationContext(), "Cannot locate server", Toast.LENGTH_LONG).show();
 							if(!endOnce){
@@ -353,7 +368,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			}
 		});
 
-		btn = (Button) findViewById(R.id.btn_radar_view_cross);
+		/*btn = (Button) findViewById(R.id.btn_radar_view_cross);
 		btn.setOnTouchListener(new OnTouchListener() {
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
@@ -366,7 +381,7 @@ HistoryFragment.OnFragmentInteractionListener {
 				}
 				return false;
 			}
-		});
+		});*/
 	}	
 	
 
@@ -399,19 +414,21 @@ HistoryFragment.OnFragmentInteractionListener {
 		FragmentManager fm = getFragmentManager();
 		if(TAG_SEND.equals(tabId)){
 			Log.d("tab", "changing tab to send");
-			fm.beginTransaction().replace(R.id.tab_send, mSendFragment).commit();
+			fm.beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 			mFragmentInitState[0] = true;
 			mCurrentTab = 0;
 			mSendFragment.setMyName(Constants.userName);
-		} else if (TAG_REQUEST.equals(tabId)){
+		}
+		else if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
-			fm.beginTransaction().replace(R.id.tab_request, mRequestFragment).commit();
+			fm.beginTransaction().replace(R.id.tab_request, mRequestFragment, TAG_REQUEST).commit();
 			mFragmentInitState[1] = true;
 			mCurrentTab = 1;
 			mRequestFragment.setMyName(Constants.userName);
-		} else if (TAG_HISTORY.equals(tabId)){
+		}
+		else if (TAG_HISTORY.equals(tabId)){
 			Log.d("tab", "changing tab to history");
-			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment).commit();
+			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment, TAG_HISTORY).commit();
 			mCurrentTab = 2;
 			
 			//Reset selected users and amounts
@@ -429,9 +446,8 @@ HistoryFragment.OnFragmentInteractionListener {
 					mRequestFragment.mUserBubbles.get(index).switchExpandPanel(false);
 				}
 			}
-			
-			
-		} else {
+		}
+		else {
 			Log.w("RadarViewActivity_onTabChanged", "Cannot find tab id=" + tabId);
 		}
 
@@ -541,7 +557,6 @@ HistoryFragment.OnFragmentInteractionListener {
 					String[] items = paymentStrings[i].split(",");
 					paymentInfo.add(items);
 				}
-//				mHistoryFragment.setNewRecordNotification(paymentInfo);
 				mTabHost.setCurrentTab(historyTab);
 			} 
 		}

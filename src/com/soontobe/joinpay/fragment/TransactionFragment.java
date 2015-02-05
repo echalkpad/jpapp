@@ -162,7 +162,7 @@ public abstract class TransactionFragment extends Fragment implements
 				.setDeselectBtnClickedListener(new OnDeselectButtonClickedListener() {
 					@Override
 					public void OnClick(View v) {
-						Log.d("dsh", "test self deselect");
+						Log.d("bubble", "self bubble deselect");
 						myUserInfo.setSelecetd(false);
 						updateSelectedUserNumber();
 						splitMoney();
@@ -634,7 +634,7 @@ public abstract class TransactionFragment extends Fragment implements
 
 		@Override
 		public void OnClick(View v) {
-			Log.d("dsh", "test deselect");
+			Log.d("bubble", "deselect bubble");
 			mUserInfoList.get(indexOfBubble).setSelecetd(false);
 			Log.d(getTag(), "User" + indexOfBubble + " deselected");
 			updateSelectedUserNumber();

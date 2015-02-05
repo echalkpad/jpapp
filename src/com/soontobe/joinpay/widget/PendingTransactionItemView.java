@@ -108,7 +108,6 @@ public class PendingTransactionItemView extends LinearLayout {
 	}
 	
 	public void setPaymentInfo(ArrayList<String[]> info){
-		Log.d("dsh", "ran");
 		String[] groupNotes = info.get(1);
 		String groupNote;
 		if(null == groupNotes ||

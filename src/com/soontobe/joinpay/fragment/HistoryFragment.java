@@ -48,26 +48,21 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	private ArrayList<PendingTransactionItemView> mPendingTIVList;
 	private ArrayList<ArrayList<String []>> mPendingInfoList;
 	private ArrayList<Integer> mPendingInfoTypeList;	//0-Transaction, 1-Notification
-	private boolean mShouldAsyncTaskStop = false;
 	private boolean isViewAvailable = false;
 	public CheckViewUpdateAsyncTask mAsyncTask = null;
-	
 	private static final int COMPLETED = 0;
+	
 	private Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg){
 			if(msg.what == COMPLETED) {
-				//if(getActivity() == null)
-				//	return;	//Fragment is not available
 				try{
 					Log.d("history", "checking pending info");
-					checkPendingInfo(); //UI update
+					checkPendingInfo(); 						//UI update
 				} catch (Exception e){
 					Log.e("history", "error with checking pending info");
 					e.printStackTrace();
-					//mShouldAsyncTaskStop = true; //If an error occurs stop the AsyncTask.
 				}
-				
 			}
 			else Log.d("history", "msg is not complete");
 		}
@@ -75,7 +70,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 
 	public HistoryFragment() {
 		// Required empty public constructor
-		//newRecordAvailable = false;
 		paymentInfoList = new ArrayList<ArrayList<String[]>>();
 		mPendingInfoList = new ArrayList<ArrayList<String[]>>();
 		mPendingTIVList = new ArrayList<PendingTransactionItemView>();
@@ -104,9 +98,9 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	
 	@Override
 	public void onDestroy() {
-		// TODO Auto-generated method stub
-		//mShouldAsyncTaskStop = true;
-		Log.d("tab", "destroying history fragment");
+		mAsyncTask.cancel(true);
+		mAsyncTask = null;
+		Log.d("history", "destroying history fragment");
 	    getActivity().unregisterReceiver(restResponseReceiver);		//remove the receiver
 		super.onDestroy();
 	}
@@ -119,10 +113,8 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		Log.d("tab", "creating history view");
-		if(mCurrentView == null)
-			mCurrentView = inflater.inflate(R.layout.fragment_history, container, false);
+		Log.d("history", "creating history view");
+		if(mCurrentView == null) mCurrentView = inflater.inflate(R.layout.fragment_history, container, false);
 		
 		ViewGroup parent = (ViewGroup) mCurrentView.getParent(); 
 		if(parent != null){
@@ -219,11 +211,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		*/
 	}
 	
-	public void addTransaction(ArrayList<JSONObject> obj){
-		//int margin = 15;
-		//ListView lv;
-		//LinearLayout.MarginLayoutParams mlp;
-		
+	public void addTransaction(ArrayList<JSONObject> obj){		
 		if(obj.size() > 0){
 			Log.d("transBuilder", "adding transacation");
 			//lv = new ListView(getActivity());
@@ -240,7 +228,8 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		}
 
 	}
-/*	public void addTransaction(ArrayList<String[]> info){
+	/*
+	public void addTransaction(ArrayList<String[]> info){
 		int margin = 15;
 		ListView lv;
 		LinearLayout.MarginLayoutParams mlp;
@@ -253,7 +242,8 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		Utility.setListViewHeightBasedOnChildren(lv);
 		mlp = (LinearLayout.MarginLayoutParams) lv.getLayoutParams();
 		mlp.setMargins(0, margin, 0, margin);
-	}*/
+	}
+	*/
 	
 /*	public void checkPaymentInfo(){
 		//LinearLayout historyItems = (LinearLayout) getActivity().findViewById(R.id.history_view_pane_items);
@@ -288,13 +278,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		pItemView.setPaymentInfo(info);
 		pItemView.setAcceptButtonClickListener(new OnPendingItemAcceptedListener(index));
 		pItemView.setDeclineButtonClickListener(new OnPendingItemDeclinedListener(index));
-		
 		mPendingTIVList.add(pItemView);
-		
-		//mHistoryLayout.addView(pItemView, 0); //dsh disabled 2/4/2015
-		
-		//LinearLayout.MarginLayoutParams mlp = (LinearLayout.MarginLayoutParams) pItemView.getLayoutParams();
-		//mlp.setMargins(0, 15, 0, 15);
 	}
 	
 	/**
@@ -367,9 +351,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		}
 		
 		@Override
-		public void OnClick(View v) {
-			// TODO Auto-generated method stub
-			
+		public void OnClick(View v) {			
 			String confirmMsg = "Confirm the payment?";
 			new AlertDialog.Builder(getActivity())
 				.setMessage(confirmMsg)
@@ -402,7 +384,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		
 		@Override
 		public void OnClick(View v) {
-			// TODO Auto-generated method stub
 			mPendingTIVList.get(index).setDeclined();
 		}
 	}
@@ -414,23 +395,18 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		
 		@Override
 		protected Void doInBackground(Void... params) {
-			Log.d("AsyncTask", "STARTED");
-			while(true){
-				if(mShouldAsyncTaskStop){
-					Log.d("async", "STOPPED");
-					break;
-				}
-				
+			Log.d("history", "STARTED history");
+			while(true){				
 				try {
-					Log.d("async", "running new history task");
+					Log.d("history", "running new history task");
 					Message msg = new Message();
 					msg.what = COMPLETED;
 					mHandler.sendMessage(msg);
 					Thread.sleep(5000);
 				} catch (InterruptedException e) {
-					Log.e("async", "STOPPED - error");
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					Log.d("history", "STOPPED history");			//not really an error, the stop method might interrupt it
+					//e.printStackTrace();
+					break;
 				}
 			}
 			return null;

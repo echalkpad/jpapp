@@ -40,17 +40,6 @@ public class MainActivity extends Activity{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  					//No Title Bar
 		setContentView(R.layout.activity_main);
 		mIsServiceStarted = false;
-		
-/*		WifiManager manager = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-		WifiInfo info = manager.getConnectionInfo();
-		String address = info.getMacAddress();
-		if(null == address){
-			address = "fake_address";
-		}
-		Constants.userName = getUserNameByMacAddress(address);
-		Log.d("MAC address", address);
-		Log.d("User name", Constants.userName);
-*/
 				
 		///////////////////////////////////////////////////
 		/////////////////  IBM Push Code  ///////////////// 
@@ -62,17 +51,15 @@ public class MainActivity extends Activity{
 		
 			@Override
 			public void onReceive(final IBMSimplePushNotification message) {		
-				Log.d("push", "I got a push");
+				Log.d("push", "I got a push msg");
 				runOnUiThread(new Runnable() {
-					
 					
 					///////////////////////////////////////////////////
 					/////////////////  PUSH Received  /////////////////
 					///////////////////////////////////////////////////
 					@Override
 					public void run() {
-						Log.d("push", "I got a push message, man");
-						Log.d("push", message.getAlert());
+						Log.d("push", "msg: " + message.getAlert());
 						
 						///////////////// Open Approve / Deny Dialog /////////////////
 						try{
@@ -96,12 +83,7 @@ public class MainActivity extends Activity{
 							Log.e("push","dialog error");
 							e.printStackTrace();
 						}
-						
 					}
-					
-					
-
-					
 				});
 			}
 		};
@@ -114,78 +96,59 @@ public class MainActivity extends Activity{
 					Log.e("push", "failed to push list of subscriptions");
 					return null;
 				} else {
-					push.getSubscriptions().continueWith(new Continuation<List<String>, Void>()
-							{
-								public Void then(Task<List<String>> task1) throws Exception
-								{
-									if(task1.isFaulted()) {
-										Log.e("push", "failed to push list of subscriptions");
-									} else {
-										List<String> tags = task1.getResult();
-										if(tags.size() > 0) {
-											push.unsubscribe(tags.get(0)).continueWith(new Continuation<String, Void>() {
+					push.getSubscriptions().continueWith(new Continuation<List<String>, Void>(){
+						public Void then(Task<List<String>> task1) throws Exception{
+							if(task1.isFaulted()) {
+								Log.e("push", "failed to push list of subscriptions");
+							} else {
+								List<String> tags = task1.getResult();
+								if(tags.size() > 0) {
+									push.unsubscribe(tags.get(0)).continueWith(new Continuation<String, Void>() {
 
-												@Override
-												public Void then(
-														Task<String> task2)
-														throws Exception {
-													if(task2.isFaulted()) {
-														Log.e("push", "subscribe failed");
-													} else {
-														push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
-															public Void then(bolts.Task<String> task1) throws Exception {
-																if(task1.isFaulted()) {
-																	Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
-																} else {
-																	push.listen(notificationlistener);
-																	Log.d("push","Push Subscription Success");								
-																}
-																return null;
-															};
-														});
-													}
-													// TODO Auto-generated method stub
-													return null;
-												}
-											});
-										} else {
-											Log.d("push", "" + task1.getResult());
-											push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
-												public Void then(bolts.Task<String> task1) throws Exception {
-													if(task1.isFaulted()) {
-														Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
-													} else {
-														push.listen(notificationlistener);
-														Log.d("push","Push Subscription Success");								
-													}
-													return null;
-												};
-											});
+										@Override
+										public Void then(Task<String> task2) throws Exception {
+											if(task2.isFaulted()) {
+												Log.e("push", "subscribe failed");
+											} else {
+												push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
+													public Void then(bolts.Task<String> task1) throws Exception {
+														if(task1.isFaulted()) {
+															Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
+														} else {
+															push.listen(notificationlistener);
+															Log.d("push","Push Subscription Success");								
+														}
+														return null;
+													};
+												});
+											}
+											return null;
 										}
-
-									}
-									return null;
+									});
+								} else {
+									Log.d("push", "" + task1.getResult());
+									push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
+										public Void then(bolts.Task<String> task1) throws Exception {
+											if(task1.isFaulted()) {
+												Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
+											} else {
+												push.listen(notificationlistener);
+												Log.d("push","Push Subscription Success");								
+											}
+											return null;
+										};
+									});
 								}
-							});
-					
+							}
+							return null;
+						}
+					});
 					return null;
 				}
 			}
 		});
 	}
-	
-	/*
-	public String getUserNameByMacAddress(String address) {
-		String ret = "User";
-		for (int i = 0;i < Constants.macAddressToName.length;i++) {
-			if (Constants.macAddressToName[i][0].equals(address)) {
-				return Constants.macAddressToName[i][1];
-			}
-		}
-		return ret;
-	}
-	*/
-	
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -206,9 +169,9 @@ public class MainActivity extends Activity{
 	}
 
 	public void onButtonClick(View view){
-		Log.d("button", "click");
+		Log.d("button", "join pay click");
 		startActivity(new Intent(this, RadarViewActivity.class));
-		finish(); //Close current activity
+		//finish(); //Close current activity
 	}
 	
 	public void onButton0Click(View view){

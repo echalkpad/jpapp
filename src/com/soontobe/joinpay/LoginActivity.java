@@ -60,6 +60,7 @@ public class LoginActivity extends Activity {
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 403);
+				findViewById(R.id.button_login).setEnabled(true);
 				Log.d("login", " http code: " + httpCode);
 				try {
 					JSONObject obj = new JSONObject(response);
@@ -84,6 +85,7 @@ public class LoginActivity extends Activity {
 				Log.d("bcReceiver", "Service Started");
 				Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
 				startActivity(intentApplication);
+				finish();
 			}
 		}
 	};
@@ -95,6 +97,8 @@ public class LoginActivity extends Activity {
 			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 			JSONObject obj = new JSONObject();
 			Constants.userName = mUsername.getText().toString();
+			findViewById(R.id.button_login).setEnabled(false);
+			
 			try {
 				obj.put("username", Constants.userName);
 				obj.put("password", mPassword.getText());

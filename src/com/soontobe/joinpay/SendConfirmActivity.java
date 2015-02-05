@@ -177,9 +177,8 @@ public class SendConfirmActivity extends ListActivity {
 		JSONObject objTransaction = new JSONObject();
 		Integer targetIndex = 0;
 		Boolean check = false;
-		
+		findViewById(R.id.transaction_confirm_button).setEnabled(false);
 		Constants.debug(paymentInfo);
-		
 		for(int i=0; i < paymentInfo.size() - 1; i++) {
 			check = false;
 			if(paymentInfo.get(i)[0].equals("normal")){
@@ -261,6 +260,7 @@ public class SendConfirmActivity extends ListActivity {
 				String url = intent.getStringExtra("url");
 				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
+				findViewById(R.id.transaction_confirm_button).setEnabled(true);
 				Log.d("debug", "rest response: " + response);
 				
 				if(response.contains("OK")) {

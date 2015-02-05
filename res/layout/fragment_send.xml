@@ -69,7 +69,6 @@
                 	android:layout_marginBottom="20dp" >
             	</com.soontobe.joinpay.widget.RadarUserView>
 
-
 			</FrameLayout>
 			</LinearLayout>
                
@@ -192,8 +191,16 @@
                 android:onClick="proceedToConfirm"
                 android:text="Next" />
         </RelativeLayout>
-	
-        
+
+        <Button
+            android:id="@+id/btn_radar_view_cross"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:background="@drawable/cross_border"
+            android:gravity="right"
+            android:onClick="onClickClearButton" />
 
     </RelativeLayout>
 
