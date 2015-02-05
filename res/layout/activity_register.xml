@@ -6,6 +6,7 @@
     android:background="@drawable/shape_main_background"
     tools:context="com.soontobe.joinpay.MainActivity" >
 	
+    <!--  Header -->
     <FrameLayout 
         android:layout_width="fill_parent"
         android:layout_height="45dp"
@@ -22,43 +23,69 @@
             />        
     </FrameLayout>
 
+    <!-- Body -->
     <EditText
         android:id="@+id/editText_username"
-        android:hint="username"
+        android:hint="Username"
         android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="text" />
+    
     <EditText
         android:id="@+id/editText_password"
-        android:hint="password"
-        android:text=""
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="textPassword" />
-    <EditText
-        android:id="@+id/editText_passwordConfirm"
-        android:hint="confirm password"
+        android:hint="Password"
         android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword" />
     
+    <EditText
+        android:id="@+id/editText_passwordConfirm"
+        android:hint="Confirm Password"
+        android:text=""
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword" />
+    
+    <!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginTop="10dp"
+	    android:layout_marginBottom="10dp"/>
+    
+    <EditText
+        android:id="@+id/editText_accountId"
+        android:hint="Account ID"
+        android:text=""
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="text" />
+    
+    <!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginTop="10dp"
+	    android:layout_marginBottom="10dp"/>
+    
+    <!-- Button -->
     <Button
-        android:id="@+id/points_button_register"
+        android:id="@+id/button_registerSubmit"
         style="?android:attr/buttonStyleSmall"
         android:layout_marginTop="15dp"
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:textColor="#5ec38a"
         android:layout_gravity="center_horizontal"
-        android:onClick="onButtonClick"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
-        android:text="Register" />
+        android:text="Submit" />
 
 
 </LinearLayout>

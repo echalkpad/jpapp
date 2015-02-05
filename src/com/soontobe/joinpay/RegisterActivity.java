@@ -1,8 +1,8 @@
 package com.soontobe.joinpay;
 
 
-import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import com.soontobe.joinpay.Constants;
 
@@ -12,41 +12,34 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.Editable;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class RegisterActivity extends Activity {
 	
-	final String serviceContext = "PointsActivity";
-	Button butBack;
-	private static TextView pointsText;
+	final String serviceContext = "RegisterActivity";
+	Button butRegSubmit;
+	private static EditText usernameText;
+	private static EditText passText;
+	private static EditText confirmPassText;
+	private static EditText accountId;
 	PointAdapter adapter;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.d("points", "starting points");
+		Log.d("register", "starting points");
 		super.onCreate(savedInstanceState);
 		
 		MainActivity.context = this;
 		setContentView(R.layout.activity_register);
-		butBack = (Button) findViewById(R.id.points_button_back);
-		butBack.setOnClickListener(backClicked);
-		pointsText = (TextView) findViewById(R.id.point_balance);
-		
-		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-		String url = Constants.baseURL + "/rewards";
-		intent.putExtra("method","get");
-		intent.putExtra("url", url);
-		intent.putExtra("context", serviceContext);
-
-		Log.d("points", "starting the service");
-		startService(intent);
-		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-		registerReceiver(restResponseReceiver, restIntentFilter);
-		
+		butRegSubmit = (Button) findViewById(R.id.button_registerSubmit);
+		butRegSubmit.setOnClickListener(regSubmitClicked);
 	}
 	
 	@Override
@@ -57,6 +50,7 @@ public class RegisterActivity extends Activity {
 		catch(Exception e){}
 	    super.onStop();
 	}
+	
 	public BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
 		
 		@Override
@@ -65,35 +59,98 @@ public class RegisterActivity extends Activity {
 			
 			if(serviceContext.equals(receivedServiceContext)) {
 				String response = intent.getStringExtra("response");
-				Log.d("points", "Received Response - " + response);
-				parsePoints(response);
+				int httpCode = intent.getIntExtra("code", 403);
+				Log.d("register", "Received Response - " + response);
+				findViewById(R.id.button_registerSubmit).setEnabled(true);
+				if(httpCode == 200){
+					Log.d("register", "successfully registered new user");
+					Toast tmp = Toast.makeText(getApplicationContext(), "Successfully Registered!", Toast.LENGTH_LONG);
+					tmp.setGravity(Gravity.TOP, 0, 150);
+					tmp.show();
+					Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);			//send them in
+					startActivity(intentApplication);
+					finish();
+				}
+				else{
+					Log.e("register", "failed to register new user");
+					Toast tmp = Toast.makeText(getApplicationContext(), "Failed to register, try again", Toast.LENGTH_LONG);
+					tmp.setGravity(Gravity.TOP, 0, 150);
+					tmp.show();
+				}
 			}
 		}
 	};
 	
-	View.OnClickListener backClicked = new View.OnClickListener() {
+	View.OnClickListener regSubmitClicked = new View.OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			Log.d("points", "clicked back");
-			Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);			//go back
-			startActivity(intentApplication);
-			finish();
+			Log.d("register", "clicked submit");
+			usernameText = (EditText) findViewById(R.id.editText_username);
+			passText = (EditText) findViewById(R.id.editText_password);
+			confirmPassText = (EditText) findViewById(R.id.editText_passwordConfirm);
+			accountId = (EditText) findViewById(R.id.editText_accountId);
+			String usernameStr = usernameText.getText().toString();
+			String passStr = passText.getText().toString();
+			String confirmPassStr = confirmPassText.getText().toString();
+			String accountIdStr = accountId.getText().toString();
+			Boolean validInput = true;
+			
+			///// Verify Input /////
+			if(!passStr.equals(confirmPassStr)){				
+				Log.e("register", "Password and confirm pass do not match");
+				Toast tmp = Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_LONG);
+				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.show();
+				validInput = false;
+			}
+			if(validInput && passStr.length() < 4){
+				Log.e("register", "Password is too short, try harder");
+				Toast tmp = Toast.makeText(getApplicationContext(), "Password is too small", Toast.LENGTH_LONG);
+				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.show();
+				validInput = false;
+			}
+			if(validInput && usernameStr.length() < 4){
+				Log.e("register", "Username is too short, try harder");
+				Toast tmp = Toast.makeText(getApplicationContext(), "Username is too small", Toast.LENGTH_LONG);
+				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.show();
+				validInput = false;
+			}
+			if(validInput && accountIdStr.length() < 4){
+				Log.e("register", "Account ID is too short, try harder");
+				Toast tmp = Toast.makeText(getApplicationContext(), "Account ID is too small", Toast.LENGTH_LONG);
+				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.show();
+				validInput = false;
+			}
+			
+			///// Register User /////
+			if(validInput){
+				findViewById(R.id.button_registerSubmit).setEnabled(false);
+				JSONObject obj = new JSONObject();
+				try {
+					obj.put("username", usernameStr);
+					obj.put("password", passStr);
+					obj.put("paypal_account", accountIdStr);
+				} catch (JSONException e) {
+					Log.e("register", "Error making JSON object for register");
+					e.printStackTrace();
+				}
+				
+				Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
+				String url = Constants.baseURL + "/register";
+				intent.putExtra("method","post");
+				intent.putExtra("url", url);
+				intent.putExtra("body", obj.toString());
+				intent.putExtra("context", serviceContext);
+		
+				Log.d("register", "starting the service");
+				startService(intent);
+				IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+				registerReceiver(restResponseReceiver, restIntentFilter);
+			}
 		}
 	};
-	
-	public boolean parsePoints(String res){
-		pointsText.setText("");
-		final ListView listview = (ListView) findViewById(R.id.listview);
-		try {
-			JSONArray arr = new JSONArray(res);
-			adapter = new PointAdapter(this, arr);
-			listview.setAdapter(adapter);
-		} catch (JSONException e) {
-			pointsText.setText("error");
-			return false;
-		}
-		return true;
-	}
-
 }

@@ -62,7 +62,8 @@
         android:background="@drawable/selector_button"
         android:textSize="18sp"
         android:text="Login" />
-
+    
+	<!--  Buttons -->
     <Button
         android:id="@+id/button2"
         style="?android:attr/buttonStyleSmall"
@@ -73,5 +74,24 @@
         android:onClick="onStartServiceClick"
         android:visibility="gone"
         android:text="SrartService_TEST" />
+    
+     <!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginTop="10dp"
+	    android:layout_marginBottom="10dp"/>
+    
+    <Button
+        android:id="@+id/button_register"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_marginTop="15dp"
+        android:layout_width="250dp"
+        android:layout_height="40dp"
+        android:textColor="#5ec38a"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/selector_button"
+        android:textSize="18sp"
+        android:text="Need an account?" />
 
 </LinearLayout>

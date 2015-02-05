@@ -26,7 +26,7 @@ public class LoginActivity extends Activity {
 	final String serviceContext = "LoginActivity";
 	EditText mUsername;
 	EditText mPassword;
-	Button mLogin;
+	Button mLogin, butRegister;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +38,9 @@ public class LoginActivity extends Activity {
 		
 		mLogin = (Button) findViewById(R.id.button_login);
 		mLogin.setOnClickListener(loginClicked);
+		
+		butRegister = (Button) findViewById(R.id.button_register);
+		butRegister.setOnClickListener(registerClicked);
 	}
 	
 	@Override
@@ -95,29 +98,59 @@ public class LoginActivity extends Activity {
 		@Override
 		public void onClick(View v) {
 			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-			JSONObject obj = new JSONObject();
-			Constants.userName = mUsername.getText().toString();
-			findViewById(R.id.button_login).setEnabled(false);
+			JSONObject obj = new JSONObject();			
+			String usernameStr = mUsername.getText().toString();
+			String passStr = mPassword.getText().toString();
+			Boolean validInput = true;
 			
-			try {
-				obj.put("username", Constants.userName);
-				obj.put("password", mPassword.getText());
-			} catch (JSONException e) {
-				Toast.makeText(getApplicationContext(), "Error creating JSON", Toast.LENGTH_SHORT).show();
+			///// Verify Input /////
+			if(validInput && passStr.length() < 4){
+				Log.e("login", "Password is too short, try harder");
+				validInput = false;
 			}
-
-			String url = Constants.baseURL + "/login";
-			intent.putExtra("method","post");
-			intent.putExtra("url",url);
-			intent.putExtra("body", obj.toString());
-			intent.putExtra("context", serviceContext);
-
-			Log.d("loginClicked", "starting Service");
-			startService(intent);
-			Log.d("loginClicked", "started Service");
-
-			IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-			registerReceiver(restResponseReceiver, restIntentFilter);
+			if(validInput && usernameStr.length() < 4){
+				Log.e("login", "Username is too short, try harder");
+				validInput = false;
+			}
+			if(!validInput){
+				Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_LONG);
+				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.show();
+			}
+			
+			///// Send Login /////
+			if(validInput){
+				findViewById(R.id.button_login).setEnabled(false);
+				Constants.userName = usernameStr;
+				try {
+					obj.put("username", Constants.userName);
+					obj.put("password", passStr);
+				} catch (JSONException e) {
+					Toast.makeText(getApplicationContext(), "Error creating JSON", Toast.LENGTH_SHORT).show();
+				}
+	
+				String url = Constants.baseURL + "/login";
+				intent.putExtra("method","post");
+				intent.putExtra("url",url);
+				intent.putExtra("body", obj.toString());
+				intent.putExtra("context", serviceContext);
+	
+				Log.d("login", "starting Service");
+				startService(intent);	
+				IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+				registerReceiver(restResponseReceiver, restIntentFilter);
+			}
+		}
+	};
+	
+	View.OnClickListener registerClicked = new View.OnClickListener() {
+		
+		@Override
+		public void onClick(View v) {
+			Log.d("registerClicked", "starting activity");
+			startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
+			//Intent intentApplication = new Intent(getApplicationContext(), RegisterActivity.class);
+			//startActivity(intentApplication);
 		}
 	};
 

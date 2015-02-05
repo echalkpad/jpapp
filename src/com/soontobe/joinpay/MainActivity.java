@@ -63,7 +63,6 @@ public class MainActivity extends Activity{
 						
 						///////////////// Open Approve / Deny Dialog /////////////////
 						try{
-							//PointBalance.parsePoints("test");
 							final Dialog dialog = new Dialog(context);
 							dialog.setContentView(R.layout.dialog);
 							dialog.setTitle("New Message");
@@ -180,7 +179,7 @@ public class MainActivity extends Activity{
 		//finish(); //Close current activity
 	}
 
-	public void onStartServiceClick(View v){
+	/*public void onStartServiceClick(View v){
 		Intent i = new Intent(getBaseContext(), MessageRetrievalService.class);;
 		if(!mIsServiceStarted){
 			startService(i);
@@ -191,7 +190,7 @@ public class MainActivity extends Activity{
 			Log.d("Service", "stopped");
 			mIsServiceStarted = false;
 		}
-	}
+	}*/
 
 	@Override
 	protected void onStop() {
