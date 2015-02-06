@@ -1,0 +1,61 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@drawable/shape_main_background" >
+	
+    <FrameLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        android:background="#7ac66c"
+        >
+        <TextView 
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="Link Citi Account"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:gravity="center"
+            />
+        <Button 
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center|right"
+            android:background="@drawable/cross_normal"
+            android:layout_marginRight="8dp"
+            android:visibility="gone"
+            />
+        
+    </FrameLayout>       
+    
+    <EditText
+        android:id="@+id/editText_account_username"
+        android:hint="Citibank username"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editText_account_password"
+        android:hint="Citibank password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword" />
+    
+      <Button
+        android:id="@+id/button_link"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_marginTop="15dp"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:textColor="#5ec38a"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/selector_button"
+        android:textSize="18sp"
+        android:text="Link" />
+</LinearLayout>

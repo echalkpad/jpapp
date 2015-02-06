@@ -74,7 +74,17 @@
             android:windowSoftInputMode="adjustPan"
             android:screenOrientation="portrait" >
         </activity>
-
+        <activity
+            android:name=".CitiAccountActivity"
+            android:label="Citi Account"
+            android:windowSoftInputMode="adjustPan"
+            android:screenOrientation="portrait" >
+        </activity>
+        <service 
+            android:name="com.soontobe.joinpay.CitiAccountActivity"
+            android:exported="false">
+        </service>
+        
         <service
             android:name="MessageRetrievalService"
             android:label="@string/service_name"

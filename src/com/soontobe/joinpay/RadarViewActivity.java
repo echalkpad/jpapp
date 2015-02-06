@@ -78,9 +78,9 @@ HistoryFragment.OnFragmentInteractionListener {
 	private static final int contactListRequestCode = 1;
 	private static final int proceedToConfirmRequestCode = 2;
 	public static final int historyRequestCode = 3;
-	private static final int sendTab = 0;
-	private static final int requestTab = 1;
-	private static final int historyTab = 2;
+//	private static final int sendTab = 0;
+	private static final int requestTab = 0;
+	private static final int historyTab = 1;
 	private static final int COMPLETED = 0;
 	public nearbyUsersAsyncTask mAsyncTaskNearby = null;
 
@@ -123,23 +123,23 @@ HistoryFragment.OnFragmentInteractionListener {
 
 		if (savedInstanceState != null) {
 			Log.d("history","resuming history fragment");
-			Log.d("send","resuming history fragment");
+//			Log.d("send","resuming history fragment");
 			Log.d("request","resuming history fragment");
 			mHistoryFragment = (HistoryFragment) getFragmentManager().findFragmentByTag(TAG_HISTORY);
-			mSendFragment = (SendFragment) getFragmentManager().findFragmentByTag(TAG_SEND);
+//			mSendFragment = (SendFragment) getFragmentManager().findFragmentByTag(TAG_SEND);
 			mRequestFragment = (RequestFragment) getFragmentManager().findFragmentByTag(TAG_REQUEST);
 		} else {
 			Log.d("history","creating history fragment");
-			Log.d("send","creating send fragment");
+//			Log.d("send","creating send fragment");
 			Log.d("request","creating request fragment");
 			mHistoryFragment = new HistoryFragment();
-			mSendFragment = new SendFragment();
+//			mSendFragment = new SendFragment();
 			mRequestFragment = new RequestFragment();
 		}
 		 
 		mCurrentTab = requestTab;
-		mTabHost.setCurrentTab(sendTab);
-		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
+//		mTabHost.setCurrentTab(sendTab);
+//		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 		
 		mTabHost.setCurrentTab(requestTab);
 		getFragmentManager().beginTransaction().replace(R.id.tab_request, mRequestFragment, TAG_REQUEST).commit();
@@ -210,7 +210,7 @@ HistoryFragment.OnFragmentInteractionListener {
 							}
 							if(!usedPositionsListSendFragment.contains(pos)) {
 								namesOnScreen.add(user);
-								mSendFragment.addContactToView(user, pos);
+//								mSendFragment.addContactToView(user, pos);
 								mRequestFragment.addContactToView(user, pos);
 								usedPositionsListSendFragment.add(pos);
 							} else {
@@ -317,7 +317,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	private void setupTabs() {
 		// Setup tabs
 		mTabHost.setup();
-		mTabHost.addTab(newTab(TAG_SEND, R.string.tab_send, R.id.tab_send));
+//		mTabHost.addTab(newTab(TAG_SEND, R.string.tab_send, R.id.tab_send));
 		mTabHost.addTab(newTab(TAG_REQUEST, R.string.tab_request, R.id.tab_request));
 		mTabHost.addTab(newTab(TAG_HISTORY, R.string.tab_history, R.id.tab_history));
 		mTabHost.setCurrentTab(1);
@@ -343,10 +343,10 @@ HistoryFragment.OnFragmentInteractionListener {
 		FragmentManager fm = getFragmentManager();
 		if(TAG_SEND.equals(tabId)){
 			Log.d("tab", "changing tab to send");
-			fm.beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
+//			fm.beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 			mFragmentInitState[0] = true;
 			mCurrentTab = 0;
-			mSendFragment.setMyName(Constants.userName);
+//			mSendFragment.setMyName(Constants.userName);
 		}
 		else if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
@@ -424,7 +424,7 @@ HistoryFragment.OnFragmentInteractionListener {
 						}
 						if(!usedPositionsListSendFragment.contains(i)) {
 							Log.d("bubble", "adding user to position " + i);
-							mSendFragment.addContactToView(name, i);
+//							mSendFragment.addContactToView(name, i);
 							mRequestFragment.addContactToView(name, i);
 							usedPositionsListSendFragment.add(i);
 							foundFree = true;
@@ -510,11 +510,11 @@ HistoryFragment.OnFragmentInteractionListener {
 		Intent i = new Intent(this, SendConfirmActivity.class);
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
 		switch(mCurrentTab) {
-		case 0:
-			paymentInfo = mSendFragment.getPaymentInfo();
-			i.putExtra("transactionType", "Send");
+		case 99:
+//			paymentInfo = mSendFragment.getPaymentInfo();
+//			i.putExtra("transactionType", "Send");
 			break;
-		case 1:
+		case 0:
 			paymentInfo = mRequestFragment.getPaymentInfo();
 			i.putExtra("transactionType", "Request");
 			break;
@@ -553,10 +553,10 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	public void onClickClearButton(View v){
 		switch(mCurrentTab){
-		case 0:
+		case 99:
 			mSendFragment.clearUserMoneyAmount();
 			break;
-		case 1:
+		case 0:
 			mRequestFragment.clearUserMoneyAmount();
 			break;
 		}

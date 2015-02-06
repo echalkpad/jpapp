@@ -192,6 +192,10 @@ public class MainActivity extends Activity{
 		}
 	}*/
 
+	public void onCitiAccountClicked(View view) {
+		startActivity(new Intent(this, CitiAccountActivity.class));		
+	}
+	
 	@Override
 	protected void onStop() {
 		// TODO Auto-generated method stub
