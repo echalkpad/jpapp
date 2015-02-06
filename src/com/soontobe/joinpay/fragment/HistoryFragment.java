@@ -1,13 +1,11 @@
 package com.soontobe.joinpay.fragment;
 
 import java.util.ArrayList;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
@@ -27,6 +25,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.PaymentSummaryAdapter;
@@ -41,17 +40,17 @@ import com.soontobe.joinpay.widget.PendingTransactionItemView.OnDeclineButtonCli
  */
 public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	final String serviceContext = "HistoryFragment";
-	private OnFragmentInteractionListener mListener;
+	//private OnFragmentInteractionListener mListener;
 	private View mCurrentView;
 	private ArrayList<ArrayList<String[]>> paymentInfoList;
 	private ListView mHistoryLayout;
 	private ArrayList<PendingTransactionItemView> mPendingTIVList;
 	private ArrayList<ArrayList<String []>> mPendingInfoList;
 	private ArrayList<Integer> mPendingInfoTypeList;	//0-Transaction, 1-Notification
-	private boolean isViewAvailable = false;
 	public CheckViewUpdateAsyncTask mAsyncTask = null;
 	private static final int COMPLETED = 0;
 	
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg){
@@ -90,7 +89,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 
 	@Override
 	public void onResume() {
-		isViewAvailable = true;
 		super.onResume();
 	}
 	
@@ -107,7 +105,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 
 	@Override
 	public void onPause() {
-		isViewAvailable = false;
 		super.onPause();
 	}
 
@@ -146,37 +143,41 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 0);
 				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
-
-				try {
-					JSONObject obj = new JSONObject(response);
-					JSONArray arrIn = obj.getJSONArray("moneyIn");
-					
-					for(int i = 0; i < arrIn.length(); i++) {
-						JSONObject obj1 = arrIn.getJSONObject(i);
-						obj1.put("type","requesting");			//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
-						list.add(obj1);
+				
+				if(httpCode == 500){
+					Log.d("history", "got 500 == no transacations");
+				}
+				else if(httpCode == 200){
+					try {
+						JSONObject obj = new JSONObject(response);
+						
+						if(obj.has("moneyIn")){
+							JSONArray arrIn = obj.getJSONArray("moneyIn");
+							
+							for(int i = 0; i < arrIn.length(); i++) {
+								JSONObject obj1 = arrIn.getJSONObject(i);
+								obj1.put("type","requesting");			//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
+								list.add(obj1);
+							}
+						}
+						
+						if(obj.has("moneyOut")){
+							JSONArray arrOut = obj.getJSONArray("moneyOut");
+							
+							for(int i = 0; i < arrOut.length(); i++) {
+								JSONObject obj1 = arrOut.getJSONObject(i);
+								obj1.put("type","sending");				//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
+								list.add(obj1);
+							}
+						}
+					}
+					catch (JSONException e) {
+						Log.e("history", "Error parsing JSON response");
 					}
 				}
-				catch (JSONException e) {
-					Log.e("history", response);
-					Log.e("history", "Error parsing JSON response moneyIn");
+				else{
+					Log.e("history", "response not understoood");
 				}
-				
-				try {
-					JSONObject obj = new JSONObject(response);
-					JSONArray arrOut = obj.getJSONArray("moneyOut");
-				
-					for(int i = 0; i < arrOut.length(); i++) {
-						JSONObject obj1 = arrOut.getJSONObject(i);
-						obj1.put("type","sending");				//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
-						list.add(obj1);
-					}
-				}
-				catch (JSONException e) {
-					Log.e("history", response);
-					Log.e("history", "Error parsing JSON response moneyOut");
-				}
-				
 				addTransaction(list);
 			}
 		}
@@ -190,41 +191,24 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		intent.putExtra("context", serviceContext);
 		Log.d("transBuilder", "getting pending transactions");
 		getActivity().startService(intent);
-	
-		/*
-		if(mPendingInfoTypeList.isEmpty()){
-			return;
-		}
-		int pendingSize = mPendingInfoTypeList.size();
-		int transCount = 0;
-		int notiCount = 0;
-		for(int i=0; i<pendingSize; i++){
-			int pType = mPendingInfoTypeList.get(i);
-			if(pType == 0){
-				//transaction
-				addTransaction(paymentInfoList.get(transCount++));
-			} else {
-				//notification
-				addTransactionNoteItem(mPendingInfoList.get(notiCount++));
-			}
-		}
-		mPendingInfoTypeList.clear();
-		mPendingInfoList.clear();
-		paymentInfoList.clear();
-		*/
 	}
 	
 	public void addTransaction(ArrayList<JSONObject> obj){		
 		if(obj.size() > 0){
-			Log.d("transBuilder", "adding transacation");
+			Log.d("transBuilder", "adding transaction");
 			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
+			mHistoryLayout.setAdapter(adapter);
+		}
+		else{
+			ArrayList<String> itemsList = new ArrayList<String> ();
+            itemsList.add("No transactions yet!") ;
+			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.confirm_page_item_none, R.id.activity_confirm_pay_text, itemsList);
 			mHistoryLayout.setAdapter(adapter);
 		}
 	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onActivityCreated(savedInstanceState);
 	}
 	
@@ -249,8 +233,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		mPendingInfoList.add(info);
 		mPendingInfoTypeList.add(1);
 	}
-	
-	@Override
+	/*@Override
 	public void onAttach(Activity activity) {
 		super.onAttach(activity);
 		try {
@@ -264,7 +247,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	public void onDetach() {
 		super.onDetach();
 		mListener = null;
-	}
+	}*/
 
 	/**
 	 * This interface must be implemented by activities that contain this
