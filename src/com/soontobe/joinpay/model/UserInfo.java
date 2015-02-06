@@ -11,7 +11,6 @@ public class UserInfo {
 	private String publicNote;
 	private String personalNote;
 	private float amountOfMoney;
-	private float changedMoney; // Amount of money changed when editing TextEdit
 	private boolean isMyself; // Is this user just myself
 	private boolean isContact; // Is this user a contact of mine
 	private boolean isLocked; // Lock status of this user
@@ -48,14 +47,6 @@ public class UserInfo {
 
 	public void setContactState(boolean isContact) {
 		this.isContact = isContact;
-	}
-
-	public float getChangedMoney() {
-		return changedMoney;
-	}
-
-	public void setChangedMoney(float changedMoney) {
-		this.changedMoney = changedMoney;
 	}
 
 	public String getPublicNote() {

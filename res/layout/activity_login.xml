@@ -5,38 +5,53 @@
     android:orientation="vertical"
     android:background="@drawable/shape_main_background"
     tools:context="com.soontobe.joinpay.MainActivity" >
-	
-    <FrameLayout 
-        android:layout_width="fill_parent"
-        android:layout_height="45dp"
-        android:background="#7ac66c"
-        >
-        <TextView 
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:text="Login to JoinPay"
-            android:textColor="#ffffff"
-            android:textSize="22sp"
-           
-            android:gravity="center"
-            />
-        <Button 
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center|right"
-            android:background="@drawable/cross_normal"
-            android:layout_marginRight="8dp"
-            android:visibility="gone"
-            />
-        
-    </FrameLayout>
-
+ 
+    <!--  Logo -->
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:layout_marginTop="70dp">
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="Join"
+	           android:textColor="#ffffff"
+	           android:textSize="50sp"
+	           android:gravity="right"
+	           android:layout_weight="0.5"
+	           />
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="Pay"
+	           android:textColor="#ffffff"
+	           android:textStyle="bold"
+	           android:textSize="50sp"
+	           android:gravity="left"
+	           android:layout_weight="0.5"
+	           />
+  	</LinearLayout>
+  	
+	<!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginBottom="20dp"
+	    />  
+	    
+	<!--  Input Fields -->    
     <EditText
         android:id="@+id/editText_username"
         android:hint="username"
         android:text="dshuffma"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:background="#ffffff"
+        android:textColor="#3B6DAC"
+        android:layout_marginBottom="15dp"
         android:ems="10" >
 
         <requestFocus />
@@ -46,52 +61,57 @@
         android:id="@+id/editText_password"
         android:hint="password"
         android:text="dshuffma"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:background="#ffffff"
+        android:textColor="#3B6DAC"
         android:ems="10"
         android:inputType="textPassword" />
     
+    <!--  Login Button -->
     <Button
         android:id="@+id/button_login"
         style="?android:attr/buttonStyleSmall"
-        android:layout_marginTop="15dp"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:textColor="#5ec38a"
+        android:layout_marginTop="25dp"
+        android:layout_width="140dp"
+        android:layout_height="40dp"
+        android:textColor="#3B6DAC"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/selector_button"
-        android:textSize="18sp"
+        android:textSize="20sp"
         android:text="Login" />
     
-	<!--  Buttons -->
-    <Button
-        android:id="@+id/button2"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/button1"
-        android:layout_marginTop="16dp"
-        android:onClick="onStartServiceClick"
-        android:visibility="gone"
-        android:text="SrartService_TEST" />
-    
-     <!--  Break -->
+    <!--  Break -->
     <View
 	    android:layout_width="fill_parent"
 	    android:layout_height="2dp"
-	    android:layout_marginTop="10dp"
-	    android:layout_marginBottom="10dp"/>
+	    android:layout_marginBottom="15dp"/>
     
+    <!--  Register Button -->
     <Button
         android:id="@+id/button_register"
         style="?android:attr/buttonStyleSmall"
-        android:layout_marginTop="15dp"
-        android:layout_width="250dp"
+        android:layout_width="140dp"
         android:layout_height="40dp"
-        android:textColor="#5ec38a"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="center"
+        android:textColor="#3B6DAC"
         android:background="@drawable/selector_button"
-        android:textSize="18sp"
+        android:textSize="14sp"
         android:text="Need an account?" />
+   
+    <!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginBottom="75dp"/>
+    
+    <!--  Citi Logo -->
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="25dp"
+        android:background="@drawable/citi"
+        android:layout_gravity="center" />
 
 </LinearLayout>

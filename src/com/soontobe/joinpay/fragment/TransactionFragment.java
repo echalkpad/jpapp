@@ -138,7 +138,6 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 				.setEditBtnClickedListener(new OnEditButtonClickedListener() {
 					@Override
 					public void OnClick(View v) {
-
 						showBigBubble(myUserInfo);
 					}
 				});

@@ -31,8 +31,7 @@ import android.view.ViewGroup;
  *  -->see layout file for detail.
  */
 public class RadarUserView extends FrameLayout {
-	private static int[] CENTER_BUTTON_BKG_ID = {R.drawable.shape_circle_white_w_border
-		, R.drawable.shape_circle_green_w_border, R.drawable.shape_circle_darkgreen_w_border};
+	private static int[] CENTER_BUTTON_BKG_ID = {R.drawable.shape_circle_white_w_border, R.drawable.shape_circle_green_w_border, R.drawable.shape_circle_darkgreen_w_border, R.drawable.shape_circle_grey_w_border};
 	
 	private boolean mIsPanelExpanded;	//Whether the 4 side buttons are shown.
 	private boolean mIsMoneyLocked;		
@@ -146,6 +145,10 @@ public class RadarUserView extends FrameLayout {
 			if(userInfo.isLocked()){
 				changeLockState(true);
 				//mIsMoneyLocked = true;
+				if(userInfo.isContact()){
+					setCenterButtonBackgroundState(3);
+					Log.d("bubbles", "changing to new bg");
+				}
 			} else {
 				mIsMoneyLocked = false;
 			}
@@ -162,8 +165,7 @@ public class RadarUserView extends FrameLayout {
 				Log.d("options", "top button fired - lock");
 				changeLockState(!mIsMoneyLocked);
 
-				if(lockBtnClickedListener != null)
-					lockBtnClickedListener.OnClick(v, mIsMoneyLocked);
+				if(lockBtnClickedListener != null) lockBtnClickedListener.OnClick(v, mIsMoneyLocked);
 			}
 		});
 		
@@ -197,12 +199,14 @@ public class RadarUserView extends FrameLayout {
 			public void onClick(View v) {
 				//Deselect and close expand panel
 				Log.d("options", "right button fired - deselect");
-				myUserInfo.setSelecetd(false);
-				setMoneyAmount(0);
-				setSelectState(false);
-				switchExpandPanel(false);
-				if(null != deselectBtnClickedListener){
-					deselectBtnClickedListener.OnClick(v);
+				if(!myUserInfo.isLocked()){
+					myUserInfo.setSelecetd(false);
+					setMoneyAmount(0);
+					setSelectState(false);
+					switchExpandPanel(false);
+					if(null != deselectBtnClickedListener){
+						deselectBtnClickedListener.OnClick(v);
+					}
 				}
 			}
 		});
@@ -255,8 +259,16 @@ public class RadarUserView extends FrameLayout {
 	 * @param userType 0-user, 1-contact, 2-myself
 	 */
 	private void setCenterButtonBackgroundState(int userType){
-		
-		if (userType == 1){
+		if (userType == 3){
+			//locked
+			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[3]);
+			mNameText.setTextColor(Color.parseColor("#FFFFFF"));
+			mMoneyText.setTextColor(Color.parseColor("#FFFFFF"));
+			mDollarText.setTextColor(Color.parseColor("#FFFFFF"));
+			mIsContact = true;
+			mIsMyself = false;
+		}
+		else if (userType == 1){
 			//contact
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[1]);
 			mNameText.setTextColor(Color.parseColor("#FFFFFF"));
@@ -264,7 +276,8 @@ public class RadarUserView extends FrameLayout {
 			mDollarText.setTextColor(Color.parseColor("#FFFFFF"));
 			mIsContact = true;
 			mIsMyself = false;
-		} else if(userType == 0) {
+		}
+		else if(userType == 0) {
 			//user
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[0]);
 			mNameText.setTextColor(Color.parseColor("#000000"));
@@ -318,9 +331,11 @@ public class RadarUserView extends FrameLayout {
 		if(isLocked){
 			mSideButtons[0].setImageResource(R.drawable.locked_white);
 			mIsMoneyLocked = true;
+			setCenterButtonBackgroundState(3);
 		} else {
 			mSideButtons[0].setImageResource(R.drawable.unlocked_white);
 			mIsMoneyLocked = false;
+			setCenterButtonBackgroundState(1);
 		}
 	}
 	
