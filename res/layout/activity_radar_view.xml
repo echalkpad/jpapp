@@ -71,7 +71,8 @@
                     <FrameLayout
                         android:id="@+id/tab_send"
                         android:layout_width="fill_parent"
-                        android:layout_height="fill_parent" >
+                        android:layout_height="fill_parent"
+                        android:visibility="invisible" >
                     </FrameLayout>
 
                     <FrameLayout

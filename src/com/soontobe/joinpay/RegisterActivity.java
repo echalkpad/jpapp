@@ -91,11 +91,9 @@ public class RegisterActivity extends Activity {
 			usernameText = (EditText) findViewById(R.id.editText_username);
 			passText = (EditText) findViewById(R.id.editText_password);
 			confirmPassText = (EditText) findViewById(R.id.editText_passwordConfirm);
-			accountId = (EditText) findViewById(R.id.editText_accountId);
 			String usernameStr = usernameText.getText().toString();
 			String passStr = passText.getText().toString();
 			String confirmPassStr = confirmPassText.getText().toString();
-			String accountIdStr = accountId.getText().toString();
 			Boolean validInput = true;
 			tempUser = usernameStr;
 			
@@ -121,13 +119,6 @@ public class RegisterActivity extends Activity {
 				tmp.show();
 				validInput = false;
 			}
-			if(validInput && accountIdStr.length() < 4){
-				Log.e("register", "Account ID is too short, try harder");
-				Toast tmp = Toast.makeText(getApplicationContext(), "Account ID is too small", Toast.LENGTH_LONG);
-				tmp.setGravity(Gravity.TOP, 0, 150);
-				tmp.show();
-				validInput = false;
-			}
 			
 			///// Register User /////
 			if(validInput){
@@ -136,7 +127,6 @@ public class RegisterActivity extends Activity {
 				try {
 					obj.put("username", usernameStr);
 					obj.put("password", passStr);
-					obj.put("default_account", accountIdStr);
 				} catch (JSONException e) {
 					Log.e("register", "Error making JSON object for register");
 					e.printStackTrace();

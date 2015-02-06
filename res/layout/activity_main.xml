@@ -14,7 +14,7 @@
         <TextView 
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:text="Make a Transaction"
+            android:text="Welcome"
             android:textColor="#ffffff"
             android:textSize="22sp"
            
@@ -29,30 +29,19 @@
             android:visibility="gone"
             />
         
-    </FrameLayout>
+    </FrameLayout>       
     
     <Button
+        android:id="@+id/check_balance"
         style="?android:attr/buttonStyleSmall"
-        android:layout_marginTop="50dp"
+        android:layout_marginTop="45dp"
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:textColor="#5ec38a"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
-        android:text="Payments / Transfers" />
-        
-    
-    <Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_marginTop="15dp"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:textColor="#5ec38a"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/selector_button"
-        android:textSize="18sp"
-        android:text="Deposits" />
+        android:text="Check Balance" />
     
     <Button
         android:id="@+id/button0"

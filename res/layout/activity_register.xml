@@ -50,23 +50,7 @@
         android:layout_height="wrap_content"
         android:ems="10"
         android:inputType="textPassword" />
-    
-    <!--  Break -->
-    <View
-	    android:layout_width="fill_parent"
-	    android:layout_height="2dp"
-	    android:layout_marginTop="10dp"
-	    android:layout_marginBottom="10dp"/>
-    
-    <EditText
-        android:id="@+id/editText_accountId"
-        android:hint="Account ID"
-        android:text=""
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ems="10"
-        android:inputType="text" />
-    
+
     <!--  Break -->
     <View
 	    android:layout_width="fill_parent"
