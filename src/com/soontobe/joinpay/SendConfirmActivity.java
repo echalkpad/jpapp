@@ -33,6 +33,7 @@ public class SendConfirmActivity extends ListActivity {
 	private ArrayAdapter<String> adapter;
 	private String transactionType;
 	final String serviceContext = "SendConfirmActivity";
+	private JSONObject objTransaction;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -143,7 +144,7 @@ public class SendConfirmActivity extends ListActivity {
 	public void proceedToConfirmSend(View v) {
 		ArrayList<String> users = new ArrayList<String>();
 		ArrayList<String> amount = new ArrayList<String>();
-		JSONObject objTransaction = new JSONObject();
+		objTransaction = new JSONObject();
 		Integer targetIndex = 0;
 		Boolean check = false;
 		findViewById(R.id.transaction_confirm_button).setEnabled(false);
@@ -236,8 +237,20 @@ public class SendConfirmActivity extends ListActivity {
 					unregisterReceiver(restResponseReceiver);
 					finish();
 				}
-				else{																//502/500 = let user try again...
-					Log.e("confirm", "error with response");
+				else if(httpCode == 502){											//502 = try again
+					Log.d("confirm", "Received 502, trying again");
+					Log.d("confirm", objTransaction.toString());
+					findViewById(R.id.transaction_confirm_button).setEnabled(false);
+					Intent intent2 = new Intent(getApplicationContext(), RESTCalls.class);
+					String url = Constants.baseURL + "/charge";
+					intent2.putExtra("method","post");
+					intent2.putExtra("url",url);
+					intent2.putExtra("body", objTransaction.toString());
+					intent2.putExtra("context", serviceContext);
+					startService(intent2);
+				}
+				else{																//500 = let user try again...
+					Log.e("confirm", "error with api response");
 					Toast.makeText(getApplicationContext(), "Unknown issue with server, try again later", Toast.LENGTH_LONG).show();
 				}
 			}			
