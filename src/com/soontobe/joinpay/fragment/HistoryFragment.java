@@ -1,6 +1,7 @@
 package com.soontobe.joinpay.fragment;
 
 import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,7 +28,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
+
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.LoginActivity;
 import com.soontobe.joinpay.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.RESTCalls;
@@ -144,10 +148,17 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				int httpCode = intent.getIntExtra("code", 0);
 				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
 				
-				if(httpCode == 500){
+				if(httpCode == 500){											//500 = no transactions, do nothing
 					Log.d("history", "got 500 == no transacations");
 				}
-				else if(httpCode == 200){
+				else if(httpCode == 404 || httpCode == 401){
+					Log.e("nearby", "got 404 or 401, back to login");
+					Toast.makeText(getActivity(), "Cannot locate server", Toast.LENGTH_LONG).show();
+					Intent intentApplication = new Intent(getActivity(), LoginActivity.class);
+					startActivity(intentApplication);
+					getActivity().finish();					
+				}
+				else if(httpCode == 200){										//200 = parse the response
 					try {
 						JSONObject obj = new JSONObject(response);
 						
@@ -156,7 +167,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 							
 							for(int i = 0; i < arrIn.length(); i++) {
 								JSONObject obj1 = arrIn.getJSONObject(i);
-								obj1.put("type","requesting");			//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
+								obj1.put("type","requesting");					//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
 								list.add(obj1);
 							}
 						}
@@ -166,7 +177,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 							
 							for(int i = 0; i < arrOut.length(); i++) {
 								JSONObject obj1 = arrOut.getJSONObject(i);
-								obj1.put("type","sending");				//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
+								obj1.put("type","sending");						//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
 								list.add(obj1);
 							}
 						}
@@ -175,10 +186,10 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 						Log.e("history", "Error parsing JSON response");
 					}
 				}
-				else{
+				else{															//??? = error, do nothing
 					Log.e("history", "response not understoood");
 				}
-				addTransaction(list);
+				addTransaction(list);											//adding empty list is okay
 			}
 		}
 	};
@@ -194,12 +205,12 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	}
 	
 	public void addTransaction(ArrayList<JSONObject> obj){		
-		if(obj.size() > 0){
+		if(obj.size() > 0){												//build the list with the transactions
 			Log.d("transBuilder", "adding transaction");
 			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
 			mHistoryLayout.setAdapter(adapter);
 		}
-		else{
+		else{															//if its empty, build list with 1 item that says such
 			ArrayList<String> itemsList = new ArrayList<String> ();
             itemsList.add("No transactions yet!") ;
 			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.confirm_page_item_none, R.id.activity_confirm_pay_text, itemsList);

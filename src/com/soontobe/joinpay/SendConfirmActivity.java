@@ -1,14 +1,10 @@
 package com.soontobe.joinpay;
 
 import java.util.ArrayList;
-import java.util.List;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import android.app.Activity;
-import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -24,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * This class corresponds to the confirmation pane of a transaction (both sending and requesting money). It shows a summary of 
@@ -33,15 +30,7 @@ import android.widget.TextView;
 public class SendConfirmActivity extends ListActivity {
 	// for testing only
 	private ArrayList<String[]> paymentInfo;
-	private String[][] paymentInfoArray;
-
 	private ArrayAdapter<String> adapter;
-	private ListView lv;
-
-	private final static String ACTIVITY_MSG_ID ="activity_confirm";
-	private final static String AMOUNT_ID ="amount_confirm"; 
-	private final static String PERSONAL_NOTE_ID ="personal_note_confirm";   
-
 	private String transactionType;
 	final String serviceContext = "SendConfirmActivity";
 
@@ -49,7 +38,6 @@ public class SendConfirmActivity extends ListActivity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.send_confirm);
-		//setConstant();
 		Bundle bundle = getIntent().getExtras();
 		paymentInfo = (ArrayList<String[]>) bundle.get("paymentInfo");
 		transactionType = getIntent().getExtras().getString("transactionType");
@@ -115,7 +103,6 @@ public class SendConfirmActivity extends ListActivity {
 
 	private void setListView() {
 		ListView list = getListView();
-		boolean isPending = false;	//	Don't care
 		boolean isHistory = false;
 		
 		ArrayList<JSONObject> obj = new ArrayList<JSONObject>();
@@ -149,29 +136,11 @@ public class SendConfirmActivity extends ListActivity {
 		}
 	}
 
-	private void setConstant() {
-		String[][] tmp = 
-			{
-				{"normal", "", "Luna", "Itziar", "$ 500"},
-				{"normal", "Pay one extra beer", "Patrick", "Itziar", "$ 30"},   //	name, amount, personal note
-				{"normal", "", "asd", "Itziar", "$ 20"},
-				{"normal", "", "Itziar", "Itziar", "$ 20"},
-				{"group_note", "This is a group note"},
-				{"summary", "2014-11-14", "5", "$ 130"}
-			};
-		paymentInfo = new ArrayList<String[]>();
-		for (int i = 0;i < tmp.length;i++) {
-			paymentInfo.add(tmp[i]);
-		}
-		paymentInfoArray = tmp;
-	}
-
 	public void backToSendInfo(View v) {
 		finish();
 	}
 
 	public void proceedToConfirmSend(View v) {
-		String retData = "";
 		ArrayList<String> users = new ArrayList<String>();
 		ArrayList<String> amount = new ArrayList<String>();
 		JSONObject objTransaction = new JSONObject();
@@ -233,21 +202,6 @@ public class SendConfirmActivity extends ListActivity {
 		intent.putExtra("body", objTransaction.toString());
 		intent.putExtra("context", serviceContext);
 		startService(intent);
-		
-		/*
-		final String paymentInfoString = retData;
-		new Thread() {
-			@Override
-			public void run() {
-				WebConnector webConnector = new WebConnector(Constants.userName);
-				webConnector.postTransactionRecord(Constants.urlForPostingToFolder, paymentInfoString);
-			}
-		}.start();
-		Intent data = new Intent();
-		data.setData(Uri.parse(retData));
-		setResult(RESULT_OK, data);
-		finish();
-		*/
 	}
 
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
@@ -257,20 +211,34 @@ public class SendConfirmActivity extends ListActivity {
 			String receivedServiceContext = intent.getStringExtra("context");
 			
 			if(serviceContext.equals(receivedServiceContext)) {
-				String url = intent.getStringExtra("url");
-				String method = intent.getStringExtra("method");
+				//String url = intent.getStringExtra("url");
+				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
+				int httpCode = intent.getIntExtra("code", 0);
 				findViewById(R.id.transaction_confirm_button).setEnabled(true);
-				Log.d("debug", "rest response: " + response);
+				Log.d("confirm", "response: " + response);
 				
-				if(response.contains("OK")) {
-					Log.d("restResponse", "Received OK, returning");
+				if(httpCode == 200) {												//200 = return the UI control
+					Log.d("confirm", "Received 200, returning");
 					Intent data = new Intent();
 					data.setData(Uri.parse(response));
 					SendConfirmActivity.this.setResult(RESULT_OK, data);
 					
 					unregisterReceiver(restResponseReceiver);
 					finish();
+				}
+				else if(httpCode == 404 || httpCode == 401) {						//404 = api went down, will need to relogin, should just return UI control, let others move me to login
+					Log.d("confirm", "Received 404 or 401, closing activity");
+					Intent data = new Intent();
+					data.setData(Uri.parse(response));
+					SendConfirmActivity.this.setResult(RESULT_OK, data);
+					
+					unregisterReceiver(restResponseReceiver);
+					finish();
+				}
+				else{																//502/500 = let user try again...
+					Log.e("confirm", "error with response");
+					Toast.makeText(getApplicationContext(), "Unknown issue with server, try again later", Toast.LENGTH_LONG).show();
 				}
 			}			
 		}

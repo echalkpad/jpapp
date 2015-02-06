@@ -64,7 +64,6 @@ public class LoginActivity extends Activity {
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 403);
 				findViewById(R.id.button_login).setEnabled(true);
-				Log.d("login", " http code: " + httpCode);
 				try {
 					JSONObject obj = new JSONObject(response);
 					if(httpCode != 200){
@@ -74,18 +73,18 @@ public class LoginActivity extends Activity {
 						return;
 					}
 				} catch (JSONException e) {
-					Log.d("bcReceiver", "failed to parse response, looking for 404 error");
+					Log.d("login", "failed to parse response, looking for 404 error");
 					if(response.contains("404")){
-						Log.d("bcReceiver", "its a 404");
+						Log.d("login", "its a 404");
 					}
 					Toast.makeText(getApplicationContext(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
 					return;
 				}
-				Log.d("bcReceiver", "Received Response - " + response);
+				Log.d("login", "Received Response - " + response);
 				
 				Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
 				startService(locationServiceIntent);
-				Log.d("bcReceiver", "Service Started");
+				Log.d("login", "Service Started");
 				Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
 				startActivity(intentApplication);
 				finish();

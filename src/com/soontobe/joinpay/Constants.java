@@ -74,7 +74,7 @@ public class Constants {
 		}
 		Log.d("debug", temp.toString());
 	}
-	public static void debug(ArrayList var){
+	public static void debug(ArrayList<?> var){
 		JSONArray temp = new JSONArray(var);
 		Log.d("debug", temp.toString());
 	}
