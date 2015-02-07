@@ -86,7 +86,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
 		if (mCurrentView == null) {
-			mCurrentView = inflater.inflate(R.layout.fragment_send, container,false);
+			mCurrentView = inflater.inflate(R.layout.main_tab, container,false);
 			init();
 		}
 
@@ -119,12 +119,9 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			}
 		});
 
-		mSelfBubble = (RadarUserView) mCurrentView
-				.findViewById(R.id.user_bubble_myself);
-		mSelectCountText = (TextView) mCurrentView
-				.findViewById(R.id.send_num_of_people);
-		mTotalAmount = (EditText) mCurrentView
-				.findViewById(R.id.edit_text_total_amount);
+		mSelfBubble = (RadarUserView) mCurrentView.findViewById(R.id.user_bubble_myself);
+		mSelectCountText = (TextView) mCurrentView.findViewById(R.id.send_num_of_people);
+		mTotalAmount = (EditText) mCurrentView.findViewById(R.id.edit_text_total_amount);
 		mGroupNote = (EditText) mCurrentView.findViewById(R.id.group_note);
 
 		myUserInfo = new UserInfo();
@@ -134,35 +131,31 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		myUserInfo.setMyself(true);
 		totalLockedAmount = 0;
 		mSelfBubble.setUserInfo(myUserInfo);
-		mSelfBubble
-				.setEditBtnClickedListener(new OnEditButtonClickedListener() {
-					@Override
-					public void OnClick(View v) {
-						showBigBubble(myUserInfo);
-					}
-				});
-		mSelfBubble
-				.setCenterBtnClickedListener(new OnCenterButtonClickedListener() {
-					@Override
-					public void OnClick(View v, boolean isSelected) {
-						myUserInfo.setSelecetd(isSelected);
-						updateSelectedUserNumber();
-						Editable edit = mTotalAmount.getText();
-						splitMoney();
-					}
-				});
-		mSelfBubble
-				.setDeselectBtnClickedListener(new OnDeselectButtonClickedListener() {
-					@Override
-					public void OnClick(View v) {
-						Log.d("bubble", "self bubble deselect");
-						myUserInfo.setSelecetd(false);
-						updateSelectedUserNumber();
-						splitMoney();
-					}
-				});
+		mSelfBubble.setEditBtnClickedListener(new OnEditButtonClickedListener() {
+				@Override
+				public void OnClick(View v) {
+					showBigBubble(myUserInfo);
+				}
+		});
+		mSelfBubble.setCenterBtnClickedListener(new OnCenterButtonClickedListener() {
+				@Override
+				public void OnClick(View v, boolean isSelected) {
+					myUserInfo.setSelecetd(isSelected);
+					updateSelectedUserNumber();
+					Editable edit = mTotalAmount.getText();
+					splitMoney();
+				}
+		});
+		mSelfBubble.setDeselectBtnClickedListener(new OnDeselectButtonClickedListener() {
+				@Override
+				public void OnClick(View v) {
+					Log.d("bubble", "self bubble deselect");
+					myUserInfo.setSelecetd(false);
+					updateSelectedUserNumber();
+					splitMoney();
+				}
+		});
 
-		// TODO: Randomly generated small bubbles~
 		mUserInfoList = new ArrayList<UserInfo>();
 		mUserBubbles = new ArrayList<RadarUserView>();
 		mUserPositions = new ArrayList<Integer>();

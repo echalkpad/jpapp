@@ -2,10 +2,10 @@
     android:id="@+id/history_view_pane"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#c2d42d"
     android:orientation="vertical"
     android:paddingLeft="15dp"
-    android:paddingRight="15dp" >
+    android:paddingRight="15dp"
+    style="@style/DarkBgTheme" >
 
     <FrameLayout
         android:id="@+id/history_search_layout"

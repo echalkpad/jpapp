@@ -9,7 +9,7 @@
         android:id="@+id/frameLayout1"
         android:layout_width="fill_parent"
         android:layout_height="45dp"
-        android:background="#7ac66c" >
+        style="@style/DarkBgTheme" >
 
         <TextView
             android:layout_width="fill_parent"
@@ -28,12 +28,20 @@
             android:visibility="gone" />
     </FrameLayout>
 
+    
+    <RelativeLayout
+        android:layout_marginLeft="20dp"
+	    android:layout_width="wrap_content"
+	    android:layout_height="fill_parent"
+	    android:orientation="vertical" 
+	    android:layout_below="@+id/frameLayout1">
+    
+    
     <TextView
         android:id="@+id/textView1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_below="@+id/frameLayout1"
         android:text=" "
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -43,7 +51,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/textView1"
-		android:textColor="#5f0091"
+		android:textColor="#fff"
         android:text="Account Name: "
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
@@ -64,7 +72,7 @@
         android:layout_below="@+id/TextView01"
         android:text="Account Number: "
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView03"
@@ -83,7 +91,7 @@
         android:layout_below="@+id/TextView03"
         android:text="First Name: "
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView05"
@@ -102,7 +110,7 @@
         android:layout_below="@+id/TextView05"
         android:text="Last Name: "
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView08"
@@ -112,7 +120,7 @@
         android:layout_below="@+id/TextView07"
         android:text="Balance: "
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView_account_name"
@@ -122,7 +130,7 @@
         android:layout_toRightOf="@+id/textView2"
         android:text="--"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView_account_number"
@@ -132,7 +140,7 @@
         android:layout_toRightOf="@+id/TextView02"
         android:text="--"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView_account_firstname"
@@ -142,7 +150,7 @@
         android:layout_toRightOf="@+id/TextView04"
         android:text="--"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView_account_lastname"
@@ -152,7 +160,7 @@
         android:layout_toRightOf="@+id/TextView04"
         android:text="--"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView_account_balance"
@@ -162,7 +170,7 @@
         android:layout_toRightOf="@+id/TextView08"
         android:text="--"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textColor="#5f0091" />
+        android:textColor="#fff" />
 
     <TextView
         android:id="@+id/TextView07"
@@ -173,4 +181,6 @@
         android:text=" "
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
+    </RelativeLayout>
+    
 </RelativeLayout>

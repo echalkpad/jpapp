@@ -71,7 +71,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	public static final String JUMP_KEY = "_jump";
 	private static final String TAG = "RadarViewActivity";
-	private static final String TAG_SEND = "tab_send";
+	//private static final String TAG_SEND = "tab_send";
 	private static final String TAG_REQUEST = "tab_request";
 	private static final String TAG_HISTORY = "tab_history";
 
@@ -320,9 +320,11 @@ HistoryFragment.OnFragmentInteractionListener {
 //		mTabHost.addTab(newTab(TAG_SEND, R.string.tab_send, R.id.tab_send));
 		mTabHost.addTab(newTab(TAG_REQUEST, R.string.tab_request, R.id.tab_request));
 		mTabHost.addTab(newTab(TAG_HISTORY, R.string.tab_history, R.id.tab_history));
-		mTabHost.setCurrentTab(1);
-		mTabHost.setCurrentTab(2);
-		mTabHost.setCurrentTab(0);
+		mTabHost.setCurrentTab(requestTab);
+		mTabHost.setCurrentTab(historyTab);
+		
+		mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));
+		//mTabHost.setCurrentTab(0);
 	}
 
 	private TabSpec newTab(String tag, int labelId, int tabContentId) {
@@ -341,14 +343,14 @@ HistoryFragment.OnFragmentInteractionListener {
 	public void onTabChanged(String tabId) {								//switches UI and backend processes for selected tab
 		//Log.d(TAG, "onTabChanged(): tabId=" + tabId);
 		FragmentManager fm = getFragmentManager();
-		if(TAG_SEND.equals(tabId)){
+		/*if(TAG_SEND.equals(tabId)){
 			Log.d("tab", "changing tab to send");
 //			fm.beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 			mFragmentInitState[0] = true;
 			//mCurrentTab = 0;
 //			mSendFragment.setMyName(Constants.userName);
 		}
-		else if (TAG_REQUEST.equals(tabId)){
+		else*/ if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
 			mFragmentInitState[1] = true;
 			//mCurrentTab = 1;
@@ -393,7 +395,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 		// change history tab color. Should be refactored later.
 		if (tabId.equals("tab_history")) {
-			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.rgb(0xc2, 0xd4, 0x2d));
+			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));
 		} else {
 			TabWidget tabWidget = mTabHost.getTabWidget();
 			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
@@ -523,7 +525,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		startActivityForResult(new Intent(this, ContactListActivity.class), contactListRequestCode);
 	}
 
-	public void setSendTotalLock(View v) {
+	/*public void setSendTotalLock(View v) {
 		ImageView iv = (ImageView) v;
 		if (lockInfo.get("total")) {
 			iv.setImageResource(R.drawable.unlocked_darkgreen);
@@ -534,7 +536,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			lockInfo.put("total", true);
 			findViewById(R.id.edit_text_total_amount).setEnabled(false);
 		}
-	}
+	}*/
 
 	public void onClickBackButton(View v){
 		Intent i = new Intent(this, MainActivity.class);
@@ -548,8 +550,8 @@ HistoryFragment.OnFragmentInteractionListener {
 		//Clear total lock state
 		lockInfo.put("total", false);
 		findViewById(R.id.edit_text_total_amount).setEnabled(true);
-		ImageView lockView = (ImageView)findViewById(R.id.send_total_lock);
-		lockView.setImageResource(R.drawable.unlocked_darkgreen);
+		//ImageView lockView = (ImageView)findViewById(R.id.send_total_lock);
+		//lockView.setImageResource(R.drawable.unlocked_darkgreen);
 	}
 
 	@Override

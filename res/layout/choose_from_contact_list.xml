@@ -3,12 +3,12 @@
     android:id="@+id/contact_list"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#c2d42d"
     android:orientation="vertical"
     android:paddingBottom="10dp"
     android:paddingLeft="15dp"
     android:paddingRight="15dp"
-    android:paddingTop="10dp" >
+    android:paddingTop="10dp"
+    style="@style/NormalBgTheme" >
 
     <TextView
         android:id="@+id/title_contact_list"
@@ -44,8 +44,8 @@
             android:layout_gravity="center_vertical|left"
             android:layout_marginLeft="5dp"
             android:src="@drawable/search_green" />
-
-        <Button
+			
+		<Button
             android:id="@+id/button_clear_contact_search_input"
             android:layout_width="30dp"
             android:layout_height="30dp"
@@ -68,6 +68,7 @@
             android:layout_alignParentRight="true"
             android:background="@drawable/button_normal"
             android:onClick="AddContactAndBackToMain"
+            style="@style/ButtonTheme"
             android:text="Add" />
     </RelativeLayout>
 

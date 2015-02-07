@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     android:orientation="vertical"
-    android:background="@drawable/shape_main_background"
+    style="@style/NormalBgTheme"
     tools:context="com.soontobe.joinpay.MainActivity" >
  
     <!--  Logo -->
