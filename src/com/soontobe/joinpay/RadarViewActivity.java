@@ -93,7 +93,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	private int visitedFilesCount = 0; 			// posttestserver
 	private Set<String> onlineNameList = new HashSet<String>();
 
-	final static int maxPositions = 5;
+	final static int maxPositions = PositionHandler.MAX_USER_SUPPORTED;
 	
 	ArrayList<Integer> usedPositionsListSendFragment = new ArrayList<Integer>();
 	ArrayList<Integer> usedPositionsListRequestFragment = new ArrayList<Integer>();
@@ -425,7 +425,7 @@ HistoryFragment.OnFragmentInteractionListener {
 							continue;
 						}
 						if(!usedPositionsListSendFragment.contains(i)) {
-							Log.d("bubble", "adding user to position " + i);
+							Log.d("bubble", "adding user to position: " + i);
 //							mSendFragment.addContactToView(name, i);
 							mRequestFragment.addContactToView(name, i);
 							usedPositionsListSendFragment.add(i);
@@ -433,7 +433,7 @@ HistoryFragment.OnFragmentInteractionListener {
 							break;	
 						}
 						else{
-							Log.d("bubble", "skipping, position taken");
+							Log.d("bubble", "skipping, position taken: " + i);
 						}
 					}
 					if(!foundFree) {
