@@ -31,7 +31,6 @@ public class SendConfirmActivity extends ListActivity {
 	// for testing only
 	private ArrayList<String[]> paymentInfo;
 	private ArrayAdapter<String> adapter;
-	private String transactionType;
 	final String serviceContext = "SendConfirmActivity";
 	private JSONObject objTransaction;
 
@@ -41,24 +40,11 @@ public class SendConfirmActivity extends ListActivity {
 		setContentView(R.layout.send_confirm);
 		Bundle bundle = getIntent().getExtras();
 		paymentInfo = (ArrayList<String[]>) bundle.get("paymentInfo");
-		transactionType = getIntent().getExtras().getString("transactionType");
-		setConfirmButtonText();
-		updatePaneTitle();
 		setListView();
 		setEventListeners();
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(restResponseReceiver, restIntentFilter);
 
-	}
-
-	private void setConfirmButtonText() {
-		Button confirmButton = (Button) findViewById(R.id.transaction_confirm_button);
-		confirmButton.setText(transactionType);
-	}
-
-	private void updatePaneTitle() {
-		TextView tv = (TextView) findViewById(R.id.title_transaction_confirm);
-		tv.setText(transactionType);
 	}
 
 	private void setEventListeners() {

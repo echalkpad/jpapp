@@ -38,6 +38,15 @@ public class CitiAccountActivity extends Activity {
 		
 	}
 	
+	@Override
+	protected void onDestroy(){
+		try{
+			unregisterReceiver(bcReceiver);		//remove the receiver
+		}
+		catch(Exception e){}
+	    super.onStop();
+	}
+	
 	private BroadcastReceiver bcReceiver = new BroadcastReceiver() {
 		
 		@Override

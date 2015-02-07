@@ -67,6 +67,7 @@
 
         <Button
             android:id="@+id/transaction_confirm_button"
+            style="@style/ButtonTheme"
             android:layout_width="85dp"
             android:layout_height="30dp"
             android:layout_alignParentRight="true"

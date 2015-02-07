@@ -23,7 +23,7 @@
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 	<uses-permission android:name="com.ibm.bluelist.permission.C2D_MESSAGE" />
 	<uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" /> 
-    
+	
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"

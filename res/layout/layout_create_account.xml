@@ -49,11 +49,10 @@
     
       <Button
         android:id="@+id/button_link"
-        style="?android:attr/buttonStyleSmall"
+        style="@style/ButtonTheme"
         android:layout_marginTop="15dp"
         android:layout_width="250dp"
         android:layout_height="50dp"
-        android:textColor="#5ec38a"
         android:layout_gravity="center_horizontal"
         android:background="@drawable/selector_button"
         android:textSize="18sp"

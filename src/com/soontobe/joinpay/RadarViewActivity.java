@@ -64,7 +64,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	final String serviceContext = "RadarViewActivity";
 	
 	private TabHost mTabHost;
-	private int mCurrentTab;
+	//private int mCurrentTab;
 	private SendFragment mSendFragment;
 	private RequestFragment mRequestFragment;
 	private HistoryFragment mHistoryFragment;
@@ -137,7 +137,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			mRequestFragment = new RequestFragment();
 		}
 		 
-		mCurrentTab = requestTab;
+		//mCurrentTab = requestTab;
 //		mTabHost.setCurrentTab(sendTab);
 //		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 		
@@ -345,13 +345,13 @@ HistoryFragment.OnFragmentInteractionListener {
 			Log.d("tab", "changing tab to send");
 //			fm.beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 			mFragmentInitState[0] = true;
-			mCurrentTab = 0;
+			//mCurrentTab = 0;
 //			mSendFragment.setMyName(Constants.userName);
 		}
 		else if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
 			mFragmentInitState[1] = true;
-			mCurrentTab = 1;
+			//mCurrentTab = 1;
 			mRequestFragment.setMyName(Constants.userName);
 			if(mAsyncTaskNearby == null){							//start nearby task again if its dead
 				mAsyncTaskNearby = new nearbyUsersAsyncTask();
@@ -369,7 +369,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			}
 			
 			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment, TAG_HISTORY).commit();
-			mCurrentTab = 2;
+			//mCurrentTab = 2;
 			
 			//Reset selected users and amounts
 			ArrayList<Integer> targetUserIndex = mRequestFragment.getUnlockedSelectedUserIndex();
@@ -396,7 +396,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.rgb(0xc2, 0xd4, 0x2d));
 		} else {
 			TabWidget tabWidget = mTabHost.getTabWidget();
-			tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
+			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
 		}
 
 	}
@@ -509,18 +509,9 @@ HistoryFragment.OnFragmentInteractionListener {
 	public void proceedToConfirm(View v) {
 		Intent i = new Intent(this, SendConfirmActivity.class);
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
-		switch(mCurrentTab) {
-		case 99:
-//			paymentInfo = mSendFragment.getPaymentInfo();
-//			i.putExtra("transactionType", "Send");
-			break;
-		case 0:
-			paymentInfo = mRequestFragment.getPaymentInfo();
-			i.putExtra("transactionType", "Request");
-			break;
-		default:
-			break;
-		}
+		paymentInfo = mRequestFragment.getPaymentInfo();
+		i.putExtra("transactionType", "Request");
+		
 		Bundle extras = new Bundle();
 		extras.putSerializable("paymentInfo", paymentInfo);
 		i.putExtras(extras);
@@ -552,16 +543,9 @@ HistoryFragment.OnFragmentInteractionListener {
 	}
 
 	public void onClickClearButton(View v){
-		switch(mCurrentTab){
-		case 99:
-			mSendFragment.clearUserMoneyAmount();
-			break;
-		case 0:
-			mRequestFragment.clearUserMoneyAmount();
-			break;
-		}
+		mRequestFragment.clearUserMoneyAmount();
+
 		//Clear total lock state
-		
 		lockInfo.put("total", false);
 		findViewById(R.id.edit_text_total_amount).setEnabled(true);
 		ImageView lockView = (ImageView)findViewById(R.id.send_total_lock);

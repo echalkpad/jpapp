@@ -1,23 +1,22 @@
 package com.soontobe.joinpay;
 
-import java.util.HashMap;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.soontobe.joinpay.Constants;
-import com.soontobe.joinpay.fragment.HistoryFragment;
-
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
+import android.view.View.OnFocusChangeListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -28,6 +27,7 @@ public class LoginActivity extends Activity {
 	EditText mUsername;
 	EditText mPassword;
 	Button mLogin, butRegister;
+	private Boolean changedUser = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -36,13 +36,35 @@ public class LoginActivity extends Activity {
 		setContentView(R.layout.activity_login);
 		
 		mUsername = (EditText) findViewById(R.id.editText_username);
+		mUsername.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before, int count) {}
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,int after) {}
+			@Override
+			public void afterTextChanged(Editable s) {
+				changedUser = true;
+			}
+		});
 		mPassword = (EditText) findViewById(R.id.editText_password);
+		mPassword.setOnFocusChangeListener(new OnPasswordFocusChangeListener());
 		
 		mLogin = (Button) findViewById(R.id.button_login);
 		mLogin.setOnClickListener(loginClicked);
 		
 		butRegister = (Button) findViewById(R.id.button_register);
 		butRegister.setOnClickListener(registerClicked);
+	}
+	
+	private class OnPasswordFocusChangeListener implements
+		OnFocusChangeListener {
+		@Override
+		public void onFocusChange(View v, boolean hasFocus) {
+			if(changedUser){
+				mPassword.setText("");
+				changedUser = false;
+			}
+		}
 	}
 	
 	@Override
@@ -84,9 +106,11 @@ public class LoginActivity extends Activity {
 				}
 				Log.d("login", "Received Response - " + response);
 				
+				Log.d("login", "starting location service");
 				Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
 				startService(locationServiceIntent);
-				Log.d("login", "Service Started");
+				
+				Log.d("login", "starting main activity");
 				Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
 				startActivity(intentApplication);
 				finish();

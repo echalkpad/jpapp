@@ -30,39 +30,26 @@
             />
         
     </FrameLayout>       
-    
-    <Button
-        android:id="@+id/check_balance"
-        style="?android:attr/buttonStyleSmall"
-        android:layout_marginTop="45dp"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:textColor="#5ec38a"
-        android:layout_gravity="center_horizontal"
-        android:background="@drawable/selector_button"
-        android:textSize="18sp"
-        android:text="Check Balance" />
-    
+   
     <Button
         android:id="@+id/button0"
-        style="?android:attr/buttonStyleSmall"
+        style="@style/ButtonTheme"
         android:layout_marginTop="15dp"
         android:layout_width="250dp"
         android:layout_height="50dp"
-        android:textColor="#5ec38a"
         android:layout_gravity="center_horizontal"
         android:onClick="onButton0Click"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
-        android:text="Check Points" />
+        android:text="Check Points" 
+        android:visibility="gone"/>
     
     <Button
         android:id="@+id/button1"
-        style="?android:attr/buttonStyleSmall"
+        style="@style/ButtonTheme"
         android:layout_marginTop="15dp"
         android:layout_width="250dp"
         android:layout_height="50dp"
-        android:textColor="#5ec38a"
         android:layout_gravity="center_horizontal"
         android:onClick="onButtonClick"
         android:background="@drawable/selector_button"
@@ -71,20 +58,20 @@
         
     <Button
         android:id="@+id/button_citiAccount"
-        style="?android:attr/buttonStyleSmall"
+        style="@style/ButtonTheme"
         android:layout_marginTop="15dp"
         android:layout_width="250dp"
         android:layout_height="50dp"
-        android:textColor="#5ec38a"
         android:layout_gravity="center_horizontal"
         android:onClick="onCitiAccountClicked"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
-        android:text="Citi Account" />
+        android:text="Citi Account" 
+       />
 
     <Button
         android:id="@+id/button2"
-        style="?android:attr/buttonStyleSmall"
+        style="@style/ButtonTheme"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/button1"

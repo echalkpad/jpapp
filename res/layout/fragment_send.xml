@@ -183,6 +183,7 @@
 
             <Button
                 android:id="@+id/send_money_next"
+                style="@style/ButtonTheme"
                 android:layout_width="70dp"
                 android:layout_height="30dp"
                 android:layout_alignParentRight="true"

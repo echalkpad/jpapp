@@ -25,6 +25,7 @@ public class SendLocation extends Service {
 	
 	@Override
 	public void onCreate() {
+		Log.d("location", "creating gps service");
 		super.onCreate();
 		initService();
 	}
@@ -61,8 +62,8 @@ public class SendLocation extends Service {
 		
 		@Override
 		public void onLocationChanged(Location location) {
-			Log.d("location", "lat" + location.getLatitude());
-			Log.d("location", "long" + location.getLongitude());
+			Log.d("location", "lat: " + location.getLatitude());
+			Log.d("location", "long: " + location.getLongitude());
 			JSONObject obj = new JSONObject();
 			
 			try {
