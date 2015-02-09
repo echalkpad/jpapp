@@ -23,9 +23,9 @@ import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.Toast;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
 
@@ -58,6 +58,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	private BigBubblePopupWindow mBigBubble;
 	protected TextView mSelectCountText; // Number of selected user
 	public static EditText mTotalAmount;
+	public static Button mSendMoneyButton;
 	protected EditText mGroupNote;
 	public static float totalLockedAmount;
 
@@ -122,6 +123,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mSelfBubble = (RadarUserView) mCurrentView.findViewById(R.id.user_bubble_myself);
 		mSelectCountText = (TextView) mCurrentView.findViewById(R.id.send_num_of_people);
 		mTotalAmount = (EditText) mCurrentView.findViewById(R.id.edit_text_total_amount);
+		mSendMoneyButton = (Button) mCurrentView.findViewById(R.id.send_money_next);
 		mGroupNote = (EditText) mCurrentView.findViewById(R.id.group_note);
 
 		myUserInfo = new UserInfo();
@@ -186,9 +188,10 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		try {
 			currentAmount = Float.valueOf(edit.toString());
 		} catch (NumberFormatException e) {
-			Log.e("money","can't get float from string");
+			currentAmount = 0.0f;
+			//Log.e("money","can't get float from string");
 		}
-		Log.d("money", "recalculting split, lockd amount: $" + totalLockedAmount);
+		Log.d("money", "recalculting split!, locked amount: $" + totalLockedAmount + ", " + currentAmount);
 		ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 		int size = targetUserIndex.size();
 		if(size > 0){
@@ -456,19 +459,18 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 
 		}
 
-		private void applyFurtherMoneyChange(int indexOfUser, float oldAmount, float currentAmount) {
+		private void applyFurtherMoneyChange(int indexOfUser, float oldAmount, float currentAmount) {		//dsh to do today!
 			if (!getTotalLockState()) {
 				// Total amount is not locked
 				float moneyChanged = currentAmount - oldAmount;
 				float oldTotalAmount = 0;
 				try {
-					oldTotalAmount = Float.valueOf(mTotalAmount
-							.getEditableText().toString());
+					oldTotalAmount = Float.valueOf(mTotalAmount.getEditableText().toString());
 				} catch (NumberFormatException e) {
 					oldTotalAmount = 0;
 				}
 				float newAmount = oldTotalAmount + moneyChanged;
-				mTotalAmount.setText(String.format("%.2f", newAmount));
+				//mTotalAmount.setText(String.format("%.2f", newAmount));
 			} else {
 				// Total amount is locked, split the balance to (unlocked && selected) users
 				float moneyChanged = currentAmount - oldAmount;
@@ -576,6 +578,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 				Log.d("money","removing locked amount: " + mUserInfoList.get(indexOfBubble).getAmountOfMoney());
 				if(totalLockedAmount < 0) totalLockedAmount = 0;
 			}
+			Log.d("money","locked total: " + totalLockedAmount);
 			Log.d(getTag(), "User" + indexOfBubble + " lock state = " + isLocked);
 			splitMoney();
 		}
@@ -692,8 +695,10 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mSelectCountText.setText(String.valueOf(selectedUserNum));
 		if (selectedUserNum > 0 && !getTotalLockState()) {
 			mTotalAmount.setEnabled(true);
+			mSendMoneyButton.setEnabled(true);
 		} else {
 			mTotalAmount.setEnabled(false);
+			mSendMoneyButton.setEnabled(false);
 		}
 	}
 

@@ -159,17 +159,17 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			Log.e("transBuilder", "error getting type field");
 		}
 		try {
-			from = obj.getString("from");
+			from = obj.getString("fromUser");
 		} catch(Exception e) {			
 			from = Constants.userName;
 		}
 		try {
-			to = obj.getString("to");
+			to = obj.getString("toUser");
 		} catch(Exception e) {			
 			to = Constants.userName;
 		}
 		try {
-			transId.setText(obj.getString("id"));
+			transId.setText(obj.getString("_id"));
 		} catch (JSONException e1) {
 			Log.d("transBuilder", "did not find trans id field");
 		}

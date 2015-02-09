@@ -4,6 +4,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.soontobe.joinpay.Constants;
+
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -83,37 +84,44 @@ public class LoginActivity extends Activity {
 			String receivedServiceContext = intent.getStringExtra("context");
 			
 			if(serviceContext.equals(receivedServiceContext)) {
-				String url = intent.getStringExtra("url");
-				String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 403);
 				findViewById(R.id.button_login).setEnabled(true);
+				String message = "error";
 				try {
 					JSONObject obj = new JSONObject(response);
-					if(httpCode != 200){
-						Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT);
-						tmp.setGravity(Gravity.TOP, 0, 150);
-						tmp.show();
-						return;
-					}
-				} catch (JSONException e) {
-					Log.d("login", "failed to parse response, looking for 404 error");
-					if(response.contains("404")){
-						Log.d("login", "its a 404");
-					}
-					Toast.makeText(getApplicationContext(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
-					return;
+					if(obj.has("message")) message = obj.getString("message");
 				}
+				catch (JSONException e) {
+					Log.e("login", "Error parsing JSON response");
+				}
+				
 				Log.d("login", "Received Response - " + response);
 				
-				Log.d("login", "starting location service");
-				Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
-				startService(locationServiceIntent);
-				
-				Log.d("login", "starting main activity");
-				Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
-				startActivity(intentApplication);
-				finish();
+				//// Http Codes ////
+				if(httpCode == 404){
+					Log.d("login", "its a 404");
+					Toast.makeText(getApplicationContext(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();				
+				}
+				else if(httpCode == 401 || httpCode == 403){
+					Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT);
+					tmp.setGravity(Gravity.TOP, 0, 150);
+					tmp.show();
+				}
+				else if(httpCode == 200){										//200 = parse the response
+					Log.d("login", "starting location service");
+					Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
+					startService(locationServiceIntent);
+					
+					Log.d("login", "starting main activity");
+					Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
+					startActivity(intentApplication);
+					finish();
+				}
+				else{															//??? = error, do nothing
+					Log.e("login", "response not understoood");
+					Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+				}
 			}
 		}
 	};

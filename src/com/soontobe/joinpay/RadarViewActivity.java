@@ -161,8 +161,8 @@ HistoryFragment.OnFragmentInteractionListener {
 					startActivity(intentApplication);
 					finish();
 				}
-				else if(httpCode == 401){						//401 means I need to login again, kill activity
-					Log.e("nearby", "got 401, unauthorized, back to login");
+				else if(httpCode == 401 || httpCode == 403){	//401/403 means I need to login again, kill activity
+					Log.e("nearby", "got " + httpCode + ", unauthorized, back to login");
 					Toast.makeText(getApplicationContext(), "Lost connection to server, login again", Toast.LENGTH_LONG).show();
 					Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
 					startActivity(intentApplication);
@@ -183,7 +183,6 @@ HistoryFragment.OnFragmentInteractionListener {
 							}
 							if(!usedPositionsListSendFragment.contains(pos)) {
 								namesOnScreen.add(user);
-//								mSendFragment.addContactToView(user, pos);
 								mRequestFragment.addContactToView(user, pos);
 								usedPositionsListSendFragment.add(pos);
 							} else {
@@ -198,8 +197,16 @@ HistoryFragment.OnFragmentInteractionListener {
 					}
 				}
 				else{											//any other code is odd, just log it, don't die
+					String message = "Unknown problem with server..";
+					try {
+						JSONObject obj = new JSONObject(response);
+						if(obj.has("message")) message = obj.getString("message");
+					}
+					catch (JSONException e) {
+						Log.e("nearby", "Error parsing JSON response");
+					}
 					Log.e("nearby", "got odd code, something is wrong, not sure what...");
-					Toast.makeText(getApplicationContext(), "Unknown problem with server...", Toast.LENGTH_SHORT).show();
+					Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 				}
 			}
 		}
@@ -424,12 +431,15 @@ HistoryFragment.OnFragmentInteractionListener {
 		Intent i = new Intent(this, SendConfirmActivity.class);
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
 		paymentInfo = mRequestFragment.getPaymentInfo();
-		i.putExtra("transactionType", "Request");
-		
-		Bundle extras = new Bundle();
-		extras.putSerializable("paymentInfo", paymentInfo);
-		i.putExtras(extras);
-		startActivityForResult(i, proceedToConfirmRequestCode);
+		Constants.debug(paymentInfo);
+		if(paymentInfo.size() > 0){
+			i.putExtra("transactionType", "Request");
+			
+			Bundle extras = new Bundle();
+			extras.putSerializable("paymentInfo", paymentInfo);
+			i.putExtras(extras);
+			startActivityForResult(i, proceedToConfirmRequestCode);
+		}
 	}
 
 	public void contactButtonOnClick(View v) {
@@ -461,7 +471,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 		//Clear total lock state
 		lockInfo.put("total", false);
-		findViewById(R.id.edit_text_total_amount).setEnabled(true);
+		//findViewById(R.id.edit_text_total_amount).setEnabled(true);
 		//ImageView lockView = (ImageView)findViewById(R.id.send_total_lock);
 		//lockView.setImageResource(R.drawable.unlocked_darkgreen);
 	}

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.echo.holographlibrary.PieGraph;
 import com.echo.holographlibrary.PieSlice;
 import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.model.UserInfo;
 
 import android.graphics.Color;
@@ -65,20 +66,20 @@ public class BigBubblePopupWindow extends PopupWindow {
 			public void beforeTextChanged(CharSequence s, int start, int count,int after) {}
 			@Override
 			public void afterTextChanged(Editable s) {
-				if(sysEdit) Log.d("bigUi", "sys changed amount");						//the code that populates the amount field will trigger this listener, but this should only run if a USER edited the field
+				if(sysEdit) Log.d("money", "sys changed amount");						//the code that populates the amount field will trigger this listener, but this should only run if a USER edited the field
 				else {
-					Log.d("bigUi", "user changed amount");
+					Log.d("money", "user changed amount");
 					Float currentMoney = 0.0f;
 					try{
 						currentMoney = Float.valueOf(mEditText.getText().toString());
 					} catch (NumberFormatException e){
-						;
+						currentMoney = 0.0f;
 					}
 					
-					if (currentMoney != mUserInfo.getAmountOfMoney()){
-						mUserInfo.setAmountOfMoney(currentMoney);
-						determineLock();
-					}
+					//if (currentMoney != mUserInfo.getAmountOfMoney()){
+					//	Log.d("money", "user changed amount 2");
+						determineLock(currentMoney);
+					//}
 				}
 			}
 		});
@@ -92,12 +93,9 @@ public class BigBubblePopupWindow extends PopupWindow {
 			public void onClick(View v) {
 				mTextPersonalNote.setVisibility(View.GONE);
 				mEditPersonalNote.setVisibility(View.VISIBLE);
-				if(null == mUserInfo)
-					return;
+				if(null == mUserInfo) return;
 				String personalNote = mUserInfo.getPersonalNote();
-				if (null != personalNote &&
-						!personalNote.isEmpty())
-					mEditPersonalNote.setText(personalNote);
+				if (null != personalNote && !personalNote.isEmpty()) mEditPersonalNote.setText(personalNote);
 			}
 		});
 		
@@ -213,14 +211,31 @@ public class BigBubblePopupWindow extends PopupWindow {
 
 	}
 
-	private void determineLock(){
-		if (mEditText.getText().toString().equals("")){ 						//Unlock
+	private void determineLock(float moneyToSet){
+		Log.d("money","----------------- $" + moneyToSet);
+		if (mEditText.getText().toString().equals("")){ 													//unlock if blank
 			mUserInfo.setLocked(false);
 			mLockButton.setBackgroundResource(R.drawable.unlocked_darkgreen2);
-		} else {
+			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();
+			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
+			Log.d("money","removing locked amount: " + mUserInfo.getAmountOfMoney());
+		} else {																							//lock
 			mUserInfo.setLocked(true);
 			mLockButton.setBackgroundResource(R.drawable.locked_darkgreen);
+			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();							//remove current amount of locked money
+			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
+			TransactionFragment.totalLockedAmount += moneyToSet;											//add new amount of locked money
+			Log.d("money","adding locked amount: " + moneyToSet);
+			
+			float total = Float.valueOf(TransactionFragment.mTotalAmount.getEditableText().toString());		//if locked amount is over total, raise total
+			if(moneyToSet > total){
+				TransactionFragment.mTotalAmount.setText(String.format("%.2f", moneyToSet));
+				Log.d("money","raised total to account for locked amount: " + moneyToSet);
+			}
 		}
+		mUserInfo.setAmountOfMoney(moneyToSet);
+		Log.d("money","locked total: " + TransactionFragment.totalLockedAmount);
+		TransactionFragment.splitMoney();
 	}
 
 	private class PersonalNoteChangeListener implements View.OnFocusChangeListener{

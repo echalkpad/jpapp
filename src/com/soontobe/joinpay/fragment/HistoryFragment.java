@@ -141,18 +141,60 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		public void onReceive(Context context, Intent intent) {
 			String receivedServiceContext = intent.getStringExtra("context");
 			
+			/////////////////////////////////////////////////
+			///////////  Dialog Response Receiver ///////////
+			/////////////////////////////////////////////////
+			if(receivedServiceContext.equals("transAction")){
+				String response = intent.getStringExtra("response");
+				int httpCode = intent.getIntExtra("code", 0);
+				String message = "error";
+				Log.d("dialog", "got code: " + httpCode);
+				try {
+					JSONObject obj = new JSONObject(response);
+					if(obj.has("message")) message = obj.getString("message");
+				}
+				catch (JSONException e) {
+					Log.e("dialog", "Error parsing JSON response");
+				}
+				
+				//// Http Codes ////
+				if(httpCode == 400 | httpCode == 500){							//400/500 = error, show msg
+					Log.d("dialog", "got " + httpCode + ", showing message");					
+					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+				}
+				else if(httpCode == 200){										//200 = all good
+					Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+				}
+				else{															//??? = error, do nothing
+					Log.e("dialog", "response not understoood");
+					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+				}
+			}
+			
+			////////////////////////////////////////////////////
+			/////////// Getting Transaction Receiver ///////////
+			////////////////////////////////////////////////////
 			if(serviceContext.equals(receivedServiceContext)) {
 				//String url = intent.getStringExtra("url");
 				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 0);
 				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
+				String message = "error";
+				try {
+					JSONObject obj = new JSONObject(response);
+					if(obj.has("message")) message = obj.getString("message");
+				}
+				catch (JSONException e) {
+					Log.e("dialog", "Error parsing JSON response");
+				}
 				
+				//// Http Codes ////
 				if(httpCode == 500){											//500 = no transactions, do nothing
 					Log.d("history", "got 500 == no transacations");
 				}
 				else if(httpCode == 404 || httpCode == 401){
-					Log.e("nearby", "got 404 or 401, back to login");
+					Log.e("history", "got 404 or 401, back to login");
 					Toast.makeText(getActivity(), "Cannot locate server", Toast.LENGTH_LONG).show();
 					Intent intentApplication = new Intent(getActivity(), LoginActivity.class);
 					startActivity(intentApplication);
@@ -184,10 +226,12 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 					}
 					catch (JSONException e) {
 						Log.e("history", "Error parsing JSON response");
+						Toast.makeText(getActivity(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
 					}
 				}
 				else{															//??? = error, do nothing
 					Log.e("history", "response not understoood");
+					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 				}
 				addTransaction(list);											//adding empty list is okay
 			}

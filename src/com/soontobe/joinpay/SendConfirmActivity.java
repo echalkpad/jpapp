@@ -1,6 +1,7 @@
 package com.soontobe.joinpay;
 
 import java.util.ArrayList;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -42,6 +43,7 @@ public class SendConfirmActivity extends ListActivity {
 		paymentInfo = (ArrayList<String[]>) bundle.get("paymentInfo");
 		setListView();
 		setEventListeners();
+		findViewById(R.id.transaction_confirm_button).setEnabled(true);
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(restResponseReceiver, restIntentFilter);
 
@@ -102,8 +104,8 @@ public class SendConfirmActivity extends ListActivity {
 						else break;												//if its not normal, skip 
 					}
 					if(i == 1) tmp.put("description", sa[i]);
-					if(i == 2) tmp.put("from", sa[i]);
-					if(i == 3) tmp.put("to", sa[i]);
+					if(i == 2) tmp.put("fromUser", sa[i]);
+					if(i == 3) tmp.put("toUser", sa[i]);
 					if(i == 4) tmp.put("amount", sa[i]);
 					if(i == 5){
 						tmp.put("type", sa[i]);
@@ -202,8 +204,9 @@ public class SendConfirmActivity extends ListActivity {
 				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 0);
-				findViewById(R.id.transaction_confirm_button).setEnabled(true);
 				Log.d("confirm", "response: " + response);
+				//findViewById(R.id.transaction_confirm_button).setEnabled(true);
+
 				
 				if(httpCode == 200) {												//200 = return the UI control
 					Log.d("confirm", "Received 200, returning");
@@ -236,8 +239,17 @@ public class SendConfirmActivity extends ListActivity {
 					startService(intent2);
 				}
 				else{																//500 = let user try again...
+					String message = "Unknown issue with server, try again later";
+					try {
+						JSONObject obj = new JSONObject(response);
+						if(obj.has("message")) message = obj.getString("message");
+					}
+					catch (JSONException e) {
+						Log.e("confirm", "Error parsing JSON response");
+					}
 					Log.e("confirm", "error with api response");
-					Toast.makeText(getApplicationContext(), "Unknown issue with server, try again later", Toast.LENGTH_LONG).show();
+					Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+					findViewById(R.id.transaction_confirm_button).setEnabled(true);
 				}
 			}			
 		}
