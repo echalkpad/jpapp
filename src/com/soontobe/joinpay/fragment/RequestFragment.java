@@ -20,8 +20,10 @@ public class RequestFragment extends TransactionFragment {
 		for (UserInfo info : mUserInfoList) {
 			if (info.isSelecetd()) {
 				if(!info.getUserName().equals(Constants.userName)){			//shouldn't be possible, just double check
-					String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending", "requesting"};
-					paymentInfo.add(item);
+					if(info.getAmountOfMoney() > 0){
+						String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending", "requesting"};
+						paymentInfo.add(item);
+					}
 				}
 				else Log.d("paymentInfo", "skipping self");
 			}

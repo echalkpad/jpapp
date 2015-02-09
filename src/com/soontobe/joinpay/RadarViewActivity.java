@@ -129,6 +129,14 @@ HistoryFragment.OnFragmentInteractionListener {
 		registerReceiver(restResponseReceiver, restIntentFilter);
 	}
 	
+	/*@Override
+	protected void onStart(){
+		super.onStart();
+		if(mAsyncTaskNearby == null){
+			mAsyncTaskNearby = new nearbyUsersAsyncTask();
+			mAsyncTaskNearby.execute();
+		}
+	}*/
 	@Override
 	protected void onStop(){
 		try{
@@ -388,13 +396,14 @@ HistoryFragment.OnFragmentInteractionListener {
 				Constants.debug(nameArray);
 				for(String name: nameArray){
 					boolean foundFree = false;
-					for(int i = maxPositions - 1; i >= 0; i--) {
-						if(namesOnScreen.contains(name)) {																	//to do  - this doesn't work correctly yet
-							Toast.makeText(getApplicationContext(), "This user is already added", Toast.LENGTH_SHORT).show();
-							continue;
+					for(int i=maxPositions - 1; i >= 0; i--) {
+						if(namesOnScreen.contains(name)) {
+							Toast.makeText(getApplicationContext(), "User '" + name + "' is already added", Toast.LENGTH_SHORT).show();
+							break;
 						}
 						if(!usedPositionsListSendFragment.contains(i)) {
 							Log.d("bubble", "adding user to position: " + i);
+							namesOnScreen.add(name);
 							mRequestFragment.addContactToView(name, i);
 							usedPositionsListSendFragment.add(i);
 							foundFree = true;
@@ -432,13 +441,16 @@ HistoryFragment.OnFragmentInteractionListener {
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
 		paymentInfo = mRequestFragment.getPaymentInfo();
 		Constants.debug(paymentInfo);
-		if(paymentInfo.size() > 0){
+		if(paymentInfo.size() > 1){
 			i.putExtra("transactionType", "Request");
 			
 			Bundle extras = new Bundle();
 			extras.putSerializable("paymentInfo", paymentInfo);
 			i.putExtras(extras);
 			startActivityForResult(i, proceedToConfirmRequestCode);
+		}
+		else {
+			Log.e("transAction", "payment obj too small");
 		}
 	}
 
@@ -471,9 +483,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 		//Clear total lock state
 		lockInfo.put("total", false);
-		//findViewById(R.id.edit_text_total_amount).setEnabled(true);
-		//ImageView lockView = (ImageView)findViewById(R.id.send_total_lock);
-		//lockView.setImageResource(R.drawable.unlocked_darkgreen);
+		findViewById(R.id.edit_text_total_amount).setEnabled(false);
 	}
 
 	@Override

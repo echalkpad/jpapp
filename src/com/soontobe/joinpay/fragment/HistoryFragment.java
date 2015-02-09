@@ -123,6 +123,10 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		}
 		
 		mHistoryLayout = (ListView)mCurrentView.findViewById(android.R.id.list);
+		ArrayList<String> itemsList = new ArrayList<String> ();
+        itemsList.add("Loading transactions...") ;
+		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.confirm_page_item_none, R.id.activity_confirm_pay_text, itemsList);
+		mHistoryLayout.setAdapter(adapter);
 		if(mAsyncTask == null){
 			Log.d("history", "mAsyncTask is null");
 			mAsyncTask = new CheckViewUpdateAsyncTask();
