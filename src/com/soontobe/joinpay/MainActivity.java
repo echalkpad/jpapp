@@ -167,33 +167,23 @@ public class MainActivity extends Activity{
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void onButtonClick(View view){
+	public void onButtonClick(View view){		//join pay button
 		Log.d("button", "join pay click");
 		startActivity(new Intent(this, RadarViewActivity.class));
-		//finish(); //Close current activity
 	}
 	
-	public void onButton0Click(View view){
+	public void onCheckPointsClicked(View view){		//check points point
 		Log.d("button", "click button 0");
 		startActivity(new Intent(this, PointBalance.class));
-		//finish(); //Close current activity
 	}
-
-	/*public void onStartServiceClick(View v){
-		Intent i = new Intent(getBaseContext(), MessageRetrievalService.class);;
-		if(!mIsServiceStarted){
-			startService(i);
-			Log.d("Service", "started");
-			mIsServiceStarted = true;
-		} else {
-			stopService(i);
-			Log.d("Service", "stopped");
-			mIsServiceStarted = false;
-		}
-	}*/
 
 	public void onCitiAccountClicked(View view) {
 		startActivity(new Intent(this, CitiAccountActivity.class));		
+	}
+	
+	public void onLogoutClicked(View view) {
+		startActivity(new Intent(this, LoginActivity.class));
+		finish();
 	}
 	
 	@Override

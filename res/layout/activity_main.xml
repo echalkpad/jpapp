@@ -20,17 +20,10 @@
             android:textSize="22sp"
             android:gravity="center"
             />
-        <Button 
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center|right"
-            android:background="@drawable/cross_normal"
-            android:layout_marginRight="8dp"
-            android:visibility="gone"
-            />
         
     </FrameLayout>       
    
+    <!-- Buttons -->
     <Button
         android:id="@+id/button0"
         style="@style/ButtonTheme"
@@ -38,7 +31,7 @@
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:layout_gravity="center_horizontal"
-        android:onClick="onButton0Click"
+        android:onClick="onCheckPointsClicked"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
         android:text="Check Points" 
@@ -69,7 +62,7 @@
         android:text="Citi Account" 
        />
     
-    <!--  Break -->
+    <!-- Break -->
     <View
 	    android:layout_width="fill_parent"
 	    android:layout_height="2dp"
@@ -80,6 +73,7 @@
         style="@style/ButtonTheme"
         android:layout_width="250dp"
         android:layout_height="40dp"
+        android:onClick="onLogoutClicked"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
         android:text="Logout" 

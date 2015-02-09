@@ -139,7 +139,7 @@ public class CitiAccountActivity extends Activity {
 				currentView = View.inflate(thisContext, R.layout.layout_citi_account, rootLayout);
 				((TextView)currentView.findViewById(R.id.TextView_account_name)).setText(account_name);
 				((TextView)currentView.findViewById(R.id.TextView_account_number)).setText(account_number);
-				((TextView)currentView.findViewById(R.id.TextView_account_balance)).setText(balance);
+				((TextView)currentView.findViewById(R.id.TextView_account_balance)).setText("$" + balance);
 				((TextView)currentView.findViewById(R.id.TextView_account_firstname)).setText(first_name);
 				((TextView)currentView.findViewById(R.id.TextView_account_lastname)).setText(last_name);
 			}

@@ -637,50 +637,10 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 
 	public abstract ArrayList<String[]> getPaymentInfo();
 
-	private class OnTotalMoneyFocusChangeListener implements
-			OnFocusChangeListener {
-		private float oldAmount;
-
+	private class OnTotalMoneyFocusChangeListener implements OnFocusChangeListener {
 		@Override
 		public void onFocusChange(View v, boolean hasFocus) {
-			//dsh testing removal
-			  /*if (hasFocus) {
-				oldAmount = 0.0f;
-				try {
-					oldAmount = Float.valueOf(((EditText) v).getEditableText().toString());
-				} catch (NumberFormatException e) {
-					oldAmount = 0.0f;
-				}
-				Log.d("TotalMoneyAmount", "" + oldAmount);
-				return;
-			}
-			
-			float currentAmount = 0.0f;
-			try {
-				currentAmount = Float.valueOf(((EditText) v).getEditableText().toString());
-			} catch (NumberFormatException e) {
-				;
-			}
-
-			ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
-			int size = targetUserIndex.size();
-			float splitAmount = (currentAmount - oldAmount) / (float) size;
-			for (Integer index : targetUserIndex) {
-				if (index == -1) {
-					float oldUserAmount = myUserInfo.getAmountOfMoney();
-					myUserInfo.setAmountOfMoney(oldUserAmount + splitAmount);
-					mSelfBubble.setUserInfo(myUserInfo);
-				} else {
-					float oldUserAmount = mUserInfoList.get(index)
-							.getAmountOfMoney();
-					mUserInfoList.get(index).setAmountOfMoney(
-							oldUserAmount + splitAmount);
-					mUserBubbles.get(index).setUserInfo(
-							mUserInfoList.get(index));
-				}
-			}
-
-			oldAmount = currentAmount;*/
+			splitMoney();
 		}
 	}
 

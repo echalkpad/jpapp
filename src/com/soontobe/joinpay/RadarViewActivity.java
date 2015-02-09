@@ -62,43 +62,34 @@ implements OnTabChangeListener, TransactionFragment.OnFragmentInteractionListene
 HistoryFragment.OnFragmentInteractionListener {
 
 	final String serviceContext = "RadarViewActivity";
-	
 	private TabHost mTabHost;
-	//private int mCurrentTab;
 	private SendFragment mSendFragment;
 	private RequestFragment mRequestFragment;
 	private HistoryFragment mHistoryFragment;
-
 	public static final String JUMP_KEY = "_jump";
 	private static final String TAG = "RadarViewActivity";
-	//private static final String TAG_SEND = "tab_send";
 	private static final String TAG_REQUEST = "tab_request";
 	private static final String TAG_HISTORY = "tab_history";
-
+	
 	private static final int contactListRequestCode = 1;
 	private static final int proceedToConfirmRequestCode = 2;
 	public static final int historyRequestCode = 3;
-//	private static final int sendTab = 0;
 	private static final int requestTab = 0;
 	private static final int historyTab = 1;
 	private static final int COMPLETED = 0;
 	public nearbyUsersAsyncTask mAsyncTaskNearby = null;
 
 	private ArrayList<String[]> paymentInfo;
-
 	public Map<String, Boolean> lockInfo;
-
 	WebConnector webConnector;
 	private ArrayList<String> fileNameList; 	// posttestserver
 	private int visitedFilesCount = 0; 			// posttestserver
 	private Set<String> onlineNameList = new HashSet<String>();
-
 	final static int maxPositions = PositionHandler.MAX_USER_SUPPORTED;
 	
 	ArrayList<Integer> usedPositionsListSendFragment = new ArrayList<Integer>();
 	ArrayList<Integer> usedPositionsListRequestFragment = new ArrayList<Integer>();
 	ArrayList<String> namesOnScreen = new ArrayList<String>();
-	
 	WebConnector WebConnector;
 
 	@Override
@@ -106,40 +97,22 @@ HistoryFragment.OnFragmentInteractionListener {
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_radar_view);
-		//mSendFragment = new SendFragment();
-		//mRequestFragment = new RequestFragment();
-		//mHistoryFragment = new HistoryFragment();
 		MainActivity.context = this;
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		setupTabs();
 		mTabHost.setOnTabChangedListener(this);
 
-		//Receive jump command
-		//Intent intent = getIntent();
-		//int jump_target = intent.getIntExtra(JUMP_KEY, 0);
-		//if(jump_target == historyRequestCode){
-		//	mCurrentTab = historyTab;
-		//}
-
 		if (savedInstanceState != null) {
 			Log.d("history","resuming history fragment");
-//			Log.d("send","resuming history fragment");
 			Log.d("request","resuming history fragment");
 			mHistoryFragment = (HistoryFragment) getFragmentManager().findFragmentByTag(TAG_HISTORY);
-//			mSendFragment = (SendFragment) getFragmentManager().findFragmentByTag(TAG_SEND);
 			mRequestFragment = (RequestFragment) getFragmentManager().findFragmentByTag(TAG_REQUEST);
 		} else {
 			Log.d("history","creating history fragment");
-//			Log.d("send","creating send fragment");
 			Log.d("request","creating request fragment");
 			mHistoryFragment = new HistoryFragment();
-//			mSendFragment = new SendFragment();
 			mRequestFragment = new RequestFragment();
 		}
-		 
-		//mCurrentTab = requestTab;
-//		mTabHost.setCurrentTab(sendTab);
-//		getFragmentManager().beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
 		
 		mTabHost.setCurrentTab(requestTab);
 		getFragmentManager().beginTransaction().replace(R.id.tab_request, mRequestFragment, TAG_REQUEST).commit();
@@ -317,7 +290,6 @@ HistoryFragment.OnFragmentInteractionListener {
 	private void setupTabs() {
 		// Setup tabs
 		mTabHost.setup();
-//		mTabHost.addTab(newTab(TAG_SEND, R.string.tab_send, R.id.tab_send));
 		mTabHost.addTab(newTab(TAG_REQUEST, R.string.tab_request, R.id.tab_request));
 		mTabHost.addTab(newTab(TAG_HISTORY, R.string.tab_history, R.id.tab_history));
 		mTabHost.setCurrentTab(requestTab);
@@ -343,17 +315,9 @@ HistoryFragment.OnFragmentInteractionListener {
 	public void onTabChanged(String tabId) {								//switches UI and backend processes for selected tab
 		//Log.d(TAG, "onTabChanged(): tabId=" + tabId);
 		FragmentManager fm = getFragmentManager();
-		/*if(TAG_SEND.equals(tabId)){
-			Log.d("tab", "changing tab to send");
-//			fm.beginTransaction().replace(R.id.tab_send, mSendFragment, TAG_SEND).commit();
-			mFragmentInitState[0] = true;
-			//mCurrentTab = 0;
-//			mSendFragment.setMyName(Constants.userName);
-		}
-		else*/ if (TAG_REQUEST.equals(tabId)){
+		if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
 			mFragmentInitState[1] = true;
-			//mCurrentTab = 1;
 			mRequestFragment.setMyName(Constants.userName);
 			if(mAsyncTaskNearby == null){							//start nearby task again if its dead
 				mAsyncTaskNearby = new nearbyUsersAsyncTask();
@@ -369,9 +333,7 @@ HistoryFragment.OnFragmentInteractionListener {
 				mAsyncTaskNearby.cancel(true);
 				mAsyncTaskNearby = null;
 			}
-			
 			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment, TAG_HISTORY).commit();
-			//mCurrentTab = 2;
 			
 			//Reset selected users and amounts
 			ArrayList<Integer> targetUserIndex = mRequestFragment.getUnlockedSelectedUserIndex();
@@ -426,7 +388,6 @@ HistoryFragment.OnFragmentInteractionListener {
 						}
 						if(!usedPositionsListSendFragment.contains(i)) {
 							Log.d("bubble", "adding user to position: " + i);
-//							mSendFragment.addContactToView(name, i);
 							mRequestFragment.addContactToView(name, i);
 							usedPositionsListSendFragment.add(i);
 							foundFree = true;
@@ -440,55 +401,6 @@ HistoryFragment.OnFragmentInteractionListener {
 						Toast.makeText(getApplicationContext(), "Maximum users reached", Toast.LENGTH_SHORT).show();
 					}
 				}
-				
-				/*dsh - removed, new code above adds to both tabs
-				 * switch(mCurrentTab){
-				case 0:
-					//Send
-					nameArray = data.getStringArrayExtra("name");
-					for(String name: nameArray){
-						int i;
-						for(i = maxPositions - 1; i >= 0; i--) {
-							if(!usedPositionsListSendFragment.contains(i)) {
-								mSendFragment.addContactToView(name,i);
-								usedPositionsListSendFragment.add(i);
-								break;	
-							} 
-						}
-						if(i < 0) {
-							Toast.makeText(getApplicationContext(), "Maximum users reached", Toast.LENGTH_SHORT).show();
-						}
-					}
-					//mSendFragment.addContactToView(data.getDataString());
-					break;
-				case 1:
-					//Request
-					nameArray = data.getStringArrayExtra("name");
-					for(String name: nameArray){
-						int i;
-						if(namesOnScreen.contains(name)) {
-							continue;
-						}
-						for(i = maxPositions - 1; i >= 0; i--) {
-							if(!usedPositionsListRequestFragment.contains(i)) {
-								namesOnScreen.add(name);
-								mRequestFragment.addContactToView(name,i);
-								usedPositionsListRequestFragment.add(i);
-								break;	
-							} 
-						}
-						if(i < 0) {
-							Toast.makeText(getApplicationContext(), "Maximum users reached", Toast.LENGTH_SHORT).show();
-						}
-						//						mRequestFragment.addContactToView(name);
-					}
-					//Request
-					break;
-				default:
-					break;
-				}*/
-				//TODO: Inform mSendFragment of mRequestFragment that we have new contact selected
-				// switch case.: mCurrentTab
 			} 
 		} else if (requestCode == proceedToConfirmRequestCode) {
 			if (resultCode == RESULT_OK) {
