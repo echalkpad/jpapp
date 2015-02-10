@@ -132,8 +132,8 @@ public class LoginActivity extends Activity {
 		public void onClick(View v) {
 			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 			JSONObject obj = new JSONObject();			
-			String usernameStr = mUsername.getText().toString();
-			String passStr = mPassword.getText().toString();
+			String usernameStr = mUsername.getText().toString().trim();
+			String passStr = mPassword.getText().toString().trim();
 			Boolean validInput = true;
 			
 			///// Verify Input /////

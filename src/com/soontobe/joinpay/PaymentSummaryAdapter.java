@@ -67,10 +67,10 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
 		TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm3);				//dsh to do, check this out again, why does it error sometimes
 		TextView transId = (TextView) rowView.findViewById(R.id.transacation_id);
-		TextView status = (TextView) rowView.findViewById(R.id.payment_status);
+		TextView statusView = (TextView) rowView.findViewById(R.id.payment_status);
 		Log.d("transBuilder", obj.toString());
 
-		boolean isPending = false;
+		String status = "-";
 		String to = Constants.userName;
 		String from = Constants.userName;
 		String groupNote = "";
@@ -82,7 +82,6 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			Log.e("transBuilder", "error getting type field");
 		}
 		Log.d("transBuilder", "building msg for type: " + type);
-		//if(type.equals("normal"))
 		try {
 			from = obj.getString("fromUser");
 		} catch(Exception e) {			
@@ -108,26 +107,34 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		} catch(Exception e) {
 			Log.d("transBuilder", "did not find amount field");
 		}
-		try{
-			isPending = !obj.getBoolean("authorized");
+		try {
+			status = obj.getString("status");
 		} catch(Exception e) {
-			Log.d("transBuilder", "did not find authorized field");
+			Log.d("transBuilder", "did not find amount field");
 		}
 		
-
 		Log.d("transBuilder", "to: " + to + ", from: " + from + ", " + type);
 		payerView.setText(from);
 		payeeView.setText(to);
 		groupNoteview.setText(groupNote);
-		if (isPending) {
-			status.setText("Pending");
-			status.setVisibility(View.VISIBLE);
+		if (status.equals("PENDING")) {
+			statusView.setText("Pending");
+			statusView.setVisibility(View.VISIBLE);
+		}
+		else if (status.equals("DENIED")) {
+			statusView.setText("Denied");
+			statusView.setVisibility(View.VISIBLE);
+		}
+		else if (status.equals("APPROVED")) {
+			statusView.setText("Approved");
+			statusView.setVisibility(View.VISIBLE);
+		}
+		else {
+			statusView.setText("");
+			statusView.setVisibility(View.GONE);
 		}
 		
-		//TableLayout tr = (TableLayout) rowView;
-		//tr.requestLayout();
-		
-		if(isPending && type.equals("sending")){
+		if(status.equals("PENDING") && type.equals("sending")){
 			Log.d("transBuilder", "its a sending, attaching");
 			decNeeded.setVisibility(View.VISIBLE);
 			rowView.setOnClickListener(new View.OnClickListener() {
@@ -180,6 +187,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 								dialog.dismiss();
 							}
 						});
+						
 						dialog.show();
 					}
 					catch(Exception e){
@@ -200,23 +208,25 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 	///////////////// Confirm/Deny the Push Msg /////////////////
 	public void transAction(boolean action, String id){
 		final String serviceContext = "transAction";
-		if(action){															//only authorize if true...  later we will revisit this and send different REST call
-			Intent intent = new Intent(context, RESTCalls.class);
-			JSONObject obj = new JSONObject();
-			try {
-				obj.put("username", Constants.userName);
-			} catch (JSONException e) {
-				Toast.makeText(context, "Error creating JSON", Toast.LENGTH_SHORT).show();
-			}
-	
-			String url = Constants.baseURL + "/authorize/" + id;
-			intent.putExtra("method","put");
-			intent.putExtra("url",url);
-			intent.putExtra("body", obj.toString());
-			intent.putExtra("context", serviceContext);
-			Log.d("dialog", "starting rest service for dialog: " + action);
-			getContext().startService(intent);
+		Intent intent = new Intent(context, RESTCalls.class);
+		JSONObject obj = new JSONObject();
+		try {
+			obj.put("username", Constants.userName);
+		} catch (JSONException e) {
+			Toast.makeText(context, "Error creating JSON", Toast.LENGTH_SHORT).show();
 		}
+
+		String url = Constants.baseURL + "/transactions";// + id;
+		if(action) url += "/approve";
+		else url += "/deny";
+		url += "/" + id;
+		
+		intent.putExtra("method","put");
+		intent.putExtra("url",url);
+		intent.putExtra("body", obj.toString());
+		intent.putExtra("context", serviceContext);
+		Log.d("dialog", "starting rest service for dialog: " + action);
+		getContext().startService(intent);
 	}
 	
 	@Override

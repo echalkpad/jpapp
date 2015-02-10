@@ -168,6 +168,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				}
 				else if(httpCode == 200){										//200 = all good
 					Toast.makeText(getActivity(), "Success", Toast.LENGTH_SHORT).show();
+					checkPendingInfo(); 										//UI update
 				}
 				else{															//??? = error, do nothing
 					Log.e("dialog", "response not understoood");
@@ -184,6 +185,9 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 0);
 				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
+				ArrayList<JSONObject> listPendingIn = new ArrayList<JSONObject>();
+				ArrayList<JSONObject> listPendingOut = new ArrayList<JSONObject>();
+				ArrayList<JSONObject> listDone = new ArrayList<JSONObject>();
 				String message = "error";
 				try {
 					JSONObject obj = new JSONObject(response);
@@ -214,7 +218,10 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 							for(int i = 0; i < arrIn.length(); i++) {
 								JSONObject obj1 = arrIn.getJSONObject(i);
 								obj1.put("type","requesting");					//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
-								list.add(obj1);
+								if(obj1.has("status") && obj1.getString("status").equals("PENDING")){
+									listPendingIn.add(obj1);
+								}
+								else listDone.add(obj1);						//list.add(obj1);
 							}
 						}
 						
@@ -224,7 +231,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 							for(int i = 0; i < arrOut.length(); i++) {
 								JSONObject obj1 = arrOut.getJSONObject(i);
 								obj1.put("type","sending");						//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
-								list.add(obj1);
+								//list.add(obj1);
+								if(obj1.has("status") && obj1.getString("status").equals("PENDING")){
+									listPendingOut.add(obj1);
+								}
+								else listDone.add(obj1);
 							}
 						}
 					}
@@ -236,6 +247,19 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				else{															//??? = error, do nothing
 					Log.e("history", "response not understoood");
 					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
+				}
+				
+				Log.d("history", "there are " + listPendingOut.size() + " pending out trans");
+				Log.d("history", "there are " + listPendingIn.size() + " pending in trans");
+				Log.d("history", "there are " + listDone.size() + " done trans");
+				for(JSONObject obj : listPendingOut){
+					list.add(obj);
+				}
+				for(JSONObject obj : listPendingIn){
+					list.add(obj);
+				}
+				for(JSONObject obj : listDone){
+					list.add(obj);
 				}
 				addTransaction(list);											//adding empty list is okay
 			}

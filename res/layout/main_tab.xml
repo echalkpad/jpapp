@@ -95,11 +95,12 @@
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
                   android:layout_centerVertical="true"
-                  android:hint="this is a group note"
+                  android:hint="Set a group note"
                   android:background="#ffffff"
                   android:paddingLeft="8dp"
                   android:textSize="14dp"
                   android:textColor="#000"
+                  android:textColorHint="#555"
                   android:singleLine="true" />
           </RelativeLayout>
           
@@ -140,7 +141,7 @@
          android:layout_height="30dp"
          android:layout_centerVertical="true"
          android:layout_toRightOf="@+id/dollar_sign"
-         android:textColorHint="#000"
+         android:textColorHint="#555"
          android:gravity="center"
          android:hint="Total"
          android:enabled="false"

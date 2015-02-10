@@ -33,6 +33,18 @@
 	           android:layout_weight="0.5"
 	           />
   	</LinearLayout>
+  	
+	<!-- Welcome -->
+	<TextView 
+	     android:id="@+id/welcome_user_name"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:text="Welcome User"
+         android:textColor="#ffffff"
+         android:textSize="18sp"
+         android:layout_marginTop="20dp"
+         android:gravity="center"
+         />
    
     <!-- Buttons -->
     <Button
@@ -85,7 +97,7 @@
     <View
 	    android:layout_width="fill_parent"
 	    android:layout_height="2dp"
-	    android:layout_marginBottom="100dp"/>
+	    android:layout_marginBottom="80dp"/>
 
     <Button
         android:id="@+id/button_logout"

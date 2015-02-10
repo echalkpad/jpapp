@@ -190,6 +190,9 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			currentAmount = 0.0f;
 			//Log.e("money","can't get float from string");
 		}
+		if(currentAmount == 0.0f) mSendMoneyButton.setEnabled(false);
+		else mSendMoneyButton.setEnabled(true);
+
 		Log.d("money", "recalculting split!, locked amount: $" + totalLockedAmount + ", " + currentAmount);
 		ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 		int size = targetUserIndex.size();
@@ -692,7 +695,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	public void updateSelectedUserNumber() {
 		int selectedUserNum = getSelectedUserSize();
 		mSelectCountText.setText(String.valueOf(selectedUserNum));
-		if (selectedUserNum > 0 && !getTotalLockState()) {
+		if (selectedUserNum > 0) {
 			mTotalAmount.setEnabled(true);
 			mSendMoneyButton.setEnabled(true);
 		} else {
@@ -747,6 +750,9 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			mUserBubbles.get(i).setUserInfo(mUserInfoList.get(i));
 		}
 		mSelectCountText.setText("0");
+		
+		mTotalAmount.setEnabled(false);
+		mSendMoneyButton.setEnabled(false);
 	}
 
 	/**

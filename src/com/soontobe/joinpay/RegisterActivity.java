@@ -91,9 +91,9 @@ public class RegisterActivity extends Activity {
 			usernameText = (EditText) findViewById(R.id.editText_username);
 			passText = (EditText) findViewById(R.id.editText_password);
 			confirmPassText = (EditText) findViewById(R.id.editText_passwordConfirm);
-			String usernameStr = usernameText.getText().toString();
-			String passStr = passText.getText().toString();
-			String confirmPassStr = confirmPassText.getText().toString();
+			String usernameStr = usernameText.getText().toString().trim();
+			String passStr = passText.getText().toString().trim();
+			String confirmPassStr = confirmPassText.getText().toString().trim();
 			Boolean validInput = true;
 			tempUser = usernameStr;
 			
