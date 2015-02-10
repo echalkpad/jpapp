@@ -95,10 +95,11 @@
                   android:layout_width="fill_parent"
                   android:layout_height="fill_parent"
                   android:layout_centerVertical="true"
+                  android:hint="this is a group note"
                   android:background="#ffffff"
-                  android:hint="What&apos;s it for"
                   android:paddingLeft="8dp"
-                  android:textSize="16dp"
+                  android:textSize="14dp"
+                  android:textColor="#000"
                   android:singleLine="true" />
           </RelativeLayout>
           

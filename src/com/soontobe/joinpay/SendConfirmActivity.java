@@ -95,14 +95,20 @@ public class SendConfirmActivity extends ListActivity {
 	private void setListView() {
 		ListView list = getListView();
 		boolean isHistory = false;
-		
+		String groupNote = "";
 		ArrayList<JSONObject> obj = new ArrayList<JSONObject>();
+		
 		for (String[] sa : paymentInfo){										//iter over each payment detail, build JSON
 			try {
 				JSONObject tmp = new JSONObject();								//reset
 				for(int i=0; i < sa.length; i++){
 					if(i == 0) {
 						if(sa[i].equals("normal")) tmp.put("type", sa[i]);
+						else if(sa[i].equals("group_note")){
+							Log.d("payment", "got a group note, adding it in");
+							groupNote = sa[i+1];
+							break;
+						}
 						else break;												//if its not normal, skip 
 					}
 					if(i == 1) tmp.put("description", sa[i]);
@@ -110,7 +116,8 @@ public class SendConfirmActivity extends ListActivity {
 					if(i == 3) tmp.put("toUser", sa[i]);
 					if(i == 4) tmp.put("amount", sa[i]);
 					if(i == 5){
-						tmp.put("type", sa[i]);
+						tmp.put("type", sa[i]);									//take over the type field...
+						tmp.put("description", groupNote);
 						obj.add(tmp);											//all good, add it
 					}
 				}
@@ -118,13 +125,14 @@ public class SendConfirmActivity extends ListActivity {
 			catch (JSONException e) {
 				e.printStackTrace();
 			}
-			
 		}
+		
 		if(obj.size() > 0){
 			Log.d("payment", "jsonarray: " + obj);
 			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, obj, isHistory);
 			list.setAdapter(adapter);
 		}
+		else Log.d("payment", "jsonarray is size 0");
 	}
 
 	public void backToSendInfo(View v) {
@@ -134,10 +142,12 @@ public class SendConfirmActivity extends ListActivity {
 	public void proceedToConfirmSend(View v) {
 		ArrayList<String> users = new ArrayList<String>();
 		ArrayList<String> amount = new ArrayList<String>();
+		String groupNote = "";
 		objTransaction = new JSONObject();
 		Integer targetIndex = 0;
 		Boolean check = false;
 		findViewById(R.id.transaction_confirm_button).setEnabled(false);
+		Log.d("paymentBuilder", "procced to confirm send fired");
 		Constants.debug(paymentInfo);
 		for(int i=0; i < paymentInfo.size() - 1; i++) {
 			check = false;
@@ -161,6 +171,10 @@ public class SendConfirmActivity extends ListActivity {
 					amount.add(paymentInfo.get(i)[4]);
 				}
 			}
+			else if(paymentInfo.get(i)[0].equals("group_note")){
+				Log.d("paymentBuilder", "got a group note, adding it in" + paymentInfo.get(i)[1]);
+				groupNote = paymentInfo.get(i)[1];
+			}
 		}
 		
 		Constants.debug(users);
@@ -179,7 +193,7 @@ public class SendConfirmActivity extends ListActivity {
 		
 		try {
 			objTransaction.put("charges", arr);
-			objTransaction.put("total", paymentInfo.get(paymentInfo.size() - 1)[3]);
+			objTransaction.put("description", groupNote);
 		} catch (JSONException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

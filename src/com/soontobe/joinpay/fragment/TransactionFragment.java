@@ -56,10 +56,10 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	public static RadarUserView mSelfBubble;
 	private View mCurrentView;
 	private BigBubblePopupWindow mBigBubble;
-	protected TextView mSelectCountText; // Number of selected user
+	protected static TextView mSelectCountText; // Number of selected user
 	public static EditText mTotalAmount;
 	public static Button mSendMoneyButton;
-	protected EditText mGroupNote;
+	protected static EditText mGroupNote;
 	public static float totalLockedAmount;
 
 	public static UserInfo myUserInfo;
@@ -176,8 +176,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			}
 		});
 
-		mGroupNote
-				.setOnFocusChangeListener(new OnGroupNoteFocusChangeListener());
+		mGroupNote.setOnFocusChangeListener(new OnGroupNoteFocusChangeListener());
 	}	
 	
 	
@@ -730,7 +729,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	/**
 	 * This function will clear all money amounts including the total amount.
 	 */
-	public void clearUserMoneyAmount() {
+	public static void clearUserMoneyAmount() {
 		myUserInfo.setAmountOfMoney(0.0f);
 		myUserInfo.setSelecetd(false);
 		mTotalAmount.setText("");
@@ -740,6 +739,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		myUserInfo.setPersonalNote("");
 		mSelfBubble.setUserInfo(myUserInfo);
 		for (int i = 0; i < mUserInfoList.size(); i++) {
+			mUserInfoList.get(i).setLocked(false);
 			mUserInfoList.get(i).setAmountOfMoney(0.0f);
 			mUserInfoList.get(i).setPublicNote(groupNote);
 			mUserInfoList.get(i).setPersonalNote("");

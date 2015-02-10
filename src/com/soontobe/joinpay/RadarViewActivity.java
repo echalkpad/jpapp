@@ -351,7 +351,10 @@ HistoryFragment.OnFragmentInteractionListener {
 			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment, TAG_HISTORY).commit();
 			
 			//Reset selected users and amounts
-			ArrayList<Integer> targetUserIndex = mRequestFragment.getUnlockedSelectedUserIndex();
+			onClickClearButton(mTabHost);
+			
+			//Reset selected users and amounts
+			/*ArrayList<Integer> targetUserIndex = mRequestFragment.getUnlockedSelectedUserIndex();
 			for (Integer index : targetUserIndex) {
 				if (index == -1) {
 					Log.d("money", "clearing self money");
@@ -364,7 +367,7 @@ HistoryFragment.OnFragmentInteractionListener {
 					mRequestFragment.mUserBubbles.get(index).setSelectState(false);
 					mRequestFragment.mUserBubbles.get(index).switchExpandPanel(false);
 				}
-			}
+			}*/
 		}
 		else {
 			Log.w("RadarViewActivity_onTabChanged", "Cannot find tab id=" + tabId);

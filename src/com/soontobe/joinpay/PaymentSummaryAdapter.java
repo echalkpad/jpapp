@@ -42,84 +42,6 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 	 *  type: group_note
 	 */
 	private final ArrayList<JSONObject> values;
-
-	/*
-	 * isHistory: true if this list view is shown in History, false if in transaction confirmation view
-	 */
-/*	public PaymentSummaryAdapter(Context context, List<String[]> values, boolean isHistory) {
-		super(context, R.layout.confirm_page_item, values);
-		this.context = context;
-		this.values = (ArrayList<String[]>) values;
-		this.isHistory = isHistory;
-	} 
-	
-	@Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		LayoutInflater inflater = (LayoutInflater) context
-				.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView;
-		if (values.get(position)[0].equals("normal")) {
-			rowView = inflater.inflate(R.layout.confirm_page_item, parent, false);
-			TextView personalNoteView = (TextView) rowView.findViewById(R.id.confirm_personal_note_normal);
-			TextView payerView = (TextView) rowView.findViewById(R.id.activity_confirm_payer);
-			TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
-			TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm);
-			personalNoteView.setText(values.get(position)[1]);
-			payerView.setText(values.get(position)[2]);
-			payeeView.setText(values.get(position)[3]);
-			amountView.setText(values.get(position)[4]);
-
-			TableLayout tr = (TableLayout) rowView;
-			boolean hasPersonalNote = false;
-			boolean isPending = false;
-			String pendingString = values.get(position)[5];
-			
-			// Initiator pays himself/herself
-			if (values.get(position)[2].equals(values.get(position)[3])) {
-				payerView.setText("You paid");
-				payerView.setTextColor(Color.rgb(0xb3, 0xb3, 0xb3));
-				amountView.setTextColor(Color.rgb(0xb3, 0xb3, 0xb3));
-				LinearLayout item = (LinearLayout) rowView.findViewById(R.id.activity_confirm_pay_item_layout);
-				item.removeView(item.findViewById(R.id.activity_confirm_pay_text));
-				item.removeView(payeeView);
-				item.requestLayout();
-			}
-
-			if (values.get(position)[1].length() > 0) {	//	without personal note
-				hasPersonalNote = true;
-			}
-			
-			if (pendingString.equals("isPending") && isHistory) {
-				TextView tv = (TextView) tr.findViewById(R.id.payment_status);
-				tv.setText("Pending");
-				isPending = true;
-			}
-
-			if (hasPersonalNote == false && isPending == false) {
-				tr.removeView(tr.findViewById(R.id.confirm_item_second_row));
-			}
-			tr.requestLayout();
-
-		} else if (values.get(position)[0].equals("summary")) {
-			rowView = inflater.inflate(R.layout.confirm_page_total, parent, false);
-			TextView dateView = (TextView) rowView.findViewById(R.id.activity_confirm_date);
-			TextView numOfPeopleView = (TextView) rowView.findViewById(R.id.activity_confirm_num_ppl);
-			TextView totalAmountView = (TextView) rowView.findViewById(R.id.activity_confirm_total);
-			dateView.setText(values.get(position)[1]);
-			numOfPeopleView.setText(values.get(position)[2]);
-			totalAmountView.setText(values.get(position)[3]);
-		} else if (values.get(position)[0].equals("group_note")) {
-			rowView = inflater.inflate(R.layout.confirm_page_group_note, parent, false);
-			TextView groupNoteView = (TextView) rowView.findViewById(R.id.confirm_group_note);
-			groupNoteView.setText(values.get(position)[1]);
-		} else {
-			Log.e("ConfirmPageArrayAdapter", "Wrong value type");
-			rowView = inflater.inflate(R.layout.confirm_page_item, parent, false);
-		}
-
-		return rowView;
-	}
-	*/
 	
 	public PaymentSummaryAdapter(Context context, List<JSONObject> values, boolean isHistory) {
 		super(context, R.layout.confirm_page_item, values);
@@ -139,7 +61,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		} else {
 			rowView = convertView;
 		}
-		//TextView personalNoteView = (TextView) rowView.findViewById(R.id.confirm_personal_note_normal2);
+		TextView groupNoteview = (TextView) rowView.findViewById(R.id.confirm_personal_note_normal2);
 		TextView decNeeded = (TextView) rowView.findViewById(R.id.decisionNeeded);
 		TextView payerView = (TextView) rowView.findViewById(R.id.activity_confirm_payer);
 		TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
@@ -151,6 +73,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		boolean isPending = false;
 		String to = Constants.userName;
 		String from = Constants.userName;
+		String groupNote = "";
 		String type = "-";
 		
 		try {
@@ -158,6 +81,8 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		} catch (JSONException e2) {
 			Log.e("transBuilder", "error getting type field");
 		}
+		Log.d("transBuilder", "building msg for type: " + type);
+		//if(type.equals("normal"))
 		try {
 			from = obj.getString("fromUser");
 		} catch(Exception e) {			
@@ -167,6 +92,11 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			to = obj.getString("toUser");
 		} catch(Exception e) {			
 			to = Constants.userName;
+		}
+		try {
+			groupNote = obj.getString("description");
+		} catch(Exception e) {			
+			Log.d("transBuilder", "did not find group note field");
 		}
 		try {
 			transId.setText(obj.getString("_id"));
@@ -183,10 +113,12 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		} catch(Exception e) {
 			Log.d("transBuilder", "did not find authorized field");
 		}
+		
 
 		Log.d("transBuilder", "to: " + to + ", from: " + from + ", " + type);
 		payerView.setText(from);
 		payeeView.setText(to);
+		groupNoteview.setText(groupNote);
 		if (isPending) {
 			status.setText("Pending");
 			status.setVisibility(View.VISIBLE);

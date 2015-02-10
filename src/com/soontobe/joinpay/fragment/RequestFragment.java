@@ -17,6 +17,14 @@ public class RequestFragment extends TransactionFragment {
 	public ArrayList<String[]> getPaymentInfo() {
 		ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
 		Log.d("paymentInfo","requesting to: " + Constants.userName);
+		
+		
+		String[] groupNote = {"group_note", mGroupNote.getText().toString()};
+		if (groupNote[1].length() > 0) {
+			Log.d("paymentInfo", "adding the group note: " + groupNote[1]);
+			paymentInfo.add(groupNote);
+		}
+		
 		for (UserInfo info : mUserInfoList) {
 			if (info.isSelecetd()) {
 				if(!info.getUserName().equals(Constants.userName)){			//shouldn't be possible, just double check
@@ -29,23 +37,12 @@ public class RequestFragment extends TransactionFragment {
 			}
 		}
 		
-		/* Doesn't make sense to send money to ourselves */
-		/*if (myUserInfo.isSelecetd()) {
-			String[] item = {"normal", myUserInfo.getPersonalNote(), myUserInfo.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",myUserInfo.getAmountOfMoney()), "notPending", "request"};
-			paymentInfo.add(item);
-		}*/
-
-		String[] groupNote = {"group_note", mGroupNote.getText().toString() };
-		if (groupNote[1].length() > 0) paymentInfo.add(groupNote);
-
-
 		Calendar c = Calendar.getInstance();
 		SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy  HH:mm:ss");
 		String strDate = sdf.format(c.getTime());
 
 		String[] summary = {"summary", strDate, String.valueOf(getSelectedUserSize()), "$ " + mTotalAmount.getText().toString()};
 		paymentInfo.add(summary);
-		/* example */
 //		{
 //			{"normal", "", "Luna", "Itziar", "$ 500", "Pending"},
 //			{"normal", "Pay one extra beer", "Patrick", "Itziar", "$ 30", "Pending"},   //	name, amount, personal note
