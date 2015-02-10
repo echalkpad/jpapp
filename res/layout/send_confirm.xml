@@ -2,7 +2,7 @@
     android:id="@+id/send_confirm_activity"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#c2d42d"
+    style="@style/NormalBgTheme"
     android:orientation="vertical" >
 
     <LinearLayout
@@ -24,7 +24,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Send"
+                android:text="Request"
                 android:textStyle="bold"
                 android:textColor="#ffffff"
                 android:textSize="24dp" />
@@ -36,7 +36,7 @@
                 android:layout_centerVertical="true"
                 android:layout_margin="5dp"
                 android:layout_toRightOf="@+id/title_transaction_confirm"
-                android:background="@drawable/pencil_white"
+                android:background="@drawable/group_white"
                 android:onClick="backToSendInfo" />
         </RelativeLayout>
 
@@ -59,23 +59,23 @@
     <RelativeLayout
         android:id="@+id/send_confirm_button_layout"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="60dp"
         android:layout_alignParentBottom="true"
-        android:background="#5fc991"
-        android:paddingBottom="10dp"
-        android:paddingRight="10dp" >
+        style="@style/DarkBgTheme" >
 
         <Button
             android:id="@+id/transaction_confirm_button"
             style="@style/ButtonTheme"
             android:layout_width="100dp"
-            android:layout_height="45dp"
+            android:layout_height="40dp"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:background="@drawable/selector_button"
             android:gravity="center"
+            android:layout_gravity="center"
+            android:layout_marginRight="10dp"
             android:onClick="proceedToConfirmSend"
-            android:text="Request" />
+            android:text="Confirm" />
     </RelativeLayout>
 
 </RelativeLayout>

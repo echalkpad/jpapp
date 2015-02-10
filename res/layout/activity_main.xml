@@ -6,22 +6,33 @@
     android:background="@drawable/shape_main_background"
     tools:context="com.soontobe.joinpay.MainActivity" >
 	
-    <FrameLayout 
-        android:layout_width="fill_parent"
-        android:layout_height="45dp"
-        style="@style/DarkBgTheme"
-        >
-        
-        <TextView 
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:text="Welcome"
-            android:textColor="#ffffff"
-            android:textSize="22sp"
-            android:gravity="center"
-            />
-        
-    </FrameLayout>       
+    <!--  Logo -->
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    style="@style/DarkBgTheme"
+	    android:layout_marginTop="0dp">
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="Join"
+	           android:textColor="#ffffff"
+	           android:textSize="50sp"
+	           android:gravity="right"
+	           android:layout_weight="0.5"
+	           />
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="Pay"
+	           android:textColor="#ffffff"
+	           android:textStyle="bold"
+	           android:textSize="50sp"
+	           android:gravity="left"
+	           android:layout_weight="0.5"
+	           />
+  	</LinearLayout>
    
     <!-- Buttons -->
     <Button
@@ -47,7 +58,7 @@
         android:onClick="onButtonClick"
         android:background="@drawable/selector_button"
         android:textSize="18sp"
-        android:text="JoinPay" />  
+        android:text="Enter" />  
         
     <Button
         android:id="@+id/button_citiAccount"
@@ -62,11 +73,19 @@
         android:text="Citi Account" 
        />
     
+    <TextView 
+          android:id="@+id/citiLink"
+          android:text="link here"
+          android:layout_width="fill_parent"
+          android:layout_height="50dp"
+          android:gravity="center"
+          android:textColor="#ffffff"/>
+    
     <!-- Break -->
     <View
 	    android:layout_width="fill_parent"
 	    android:layout_height="2dp"
-	    android:layout_marginBottom="200dp"/>
+	    android:layout_marginBottom="100dp"/>
 
     <Button
         android:id="@+id/button_logout"

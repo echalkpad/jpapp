@@ -137,11 +137,11 @@ public class LoginActivity extends Activity {
 			Boolean validInput = true;
 			
 			///// Verify Input /////
-			if(validInput && passStr.length() < 4){
+			if(validInput && passStr.length() < 1){
 				Log.e("login", "Password is too short, try harder");
 				validInput = false;
 			}
-			if(validInput && usernameStr.length() < 4){
+			if(validInput && usernameStr.length() < 3){
 				Log.e("login", "Username is too short, try harder");
 				validInput = false;
 			}

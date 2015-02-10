@@ -9,6 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
+import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -26,15 +29,25 @@ public class CitiAccountActivity extends Activity {
 	EditText mUsername;
 	EditText mPassword;
 	View currentView;
+	MovementMethod test;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
+		
 		setContentView(R.layout.activity_citi_account);
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(bcReceiver, restIntentFilter);
 		thisContext = getApplicationContext();
 		getAccountInfo(Constants.userName);
+		
+		/*setContentView(R.layout.layout_create_account);
+		setContentView(R.layout.layout_create_account);
+		TextView link = (TextView) findViewById(R.id.citiLink);
+	    String linkText = "Visit the <a href='http://stackoverflow.com'>StackOverflow</a> web page.";
+	    link.setText(Html.fromHtml(linkText));
+	    link.setMovementMethod(LinkMovementMethod.getInstance());*/
+		
 		
 	}
 	
@@ -65,6 +78,13 @@ public class CitiAccountActivity extends Activity {
 								currentView = View.inflate(thisContext, R.layout.layout_create_account, rootLayout);
 								mUsername = (EditText) currentView.findViewById(R.id.editText_account_username);
 								mPassword = (EditText) currentView.findViewById(R.id.editText_account_password);
+								
+								/*TextView link = (TextView) currentView.findViewById(R.id.citiLink);
+							    String linkText = "Visit the <a href='http://stackoverflow.com'>StackOverflow</a> web page.";
+							    link.setText(Html.fromHtml(linkText));
+							    link.setMovementMethod(test);
+							    link.setMovementMethod(LinkMovementMethod.getInstance());*/
+								
 								Button linkButton = (Button) currentView.findViewById(R.id.button_link);
 								linkButton.setOnClickListener(onLinkClicked);
 							}
@@ -176,6 +196,7 @@ public class CitiAccountActivity extends Activity {
 	private void getAccountInfo(String username) {
 		String url = Constants.baseURL + "/myAccount";
 		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
+		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
 		intent.putExtra("method","get");
 		intent.putExtra("url",url);
 //		intent.putExtra("body", );

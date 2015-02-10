@@ -8,8 +8,8 @@
     <FrameLayout 
         android:layout_width="fill_parent"
         android:layout_height="45dp"
-        android:background="#7ac66c"
-        >
+        style="@style/DarkBgTheme">
+        
         <TextView 
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
@@ -57,4 +57,13 @@
         android:background="@drawable/selector_button"
         android:textSize="18sp"
         android:text="Link" />
+      
+      <TextView 
+          android:id="@+id/citiLink"
+          android:text="link here"
+          android:layout_width="fill_parent"
+          android:layout_height="50dp"
+          android:gravity="center"
+          android:textColor="#ffffff"
+          android:visibility="gone"/>
 </LinearLayout>

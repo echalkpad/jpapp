@@ -15,6 +15,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Html;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,6 +42,10 @@ public class MainActivity extends Activity{
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  					//No Title Bar
 		setContentView(R.layout.activity_main);
 		mIsServiceStarted = false;
+		TextView link = (TextView) findViewById(R.id.citiLink);
+	    String linkText = "Don't have a citi account? <a href='http://citi-online-banking.mybluemix.net/'>Sign Up Here</a>";
+	    link.setText(Html.fromHtml(linkText));
+	    link.setMovementMethod(LinkMovementMethod.getInstance());
 				
 		///////////////////////////////////////////////////
 		/////////////////  IBM Push Code  ///////////////// 

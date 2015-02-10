@@ -70,7 +70,6 @@ public class SendLocation extends Service {
 				obj.put("latitude", "" + location.getLatitude());
 				obj.put("longitude", "" + location.getLongitude());
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 			
