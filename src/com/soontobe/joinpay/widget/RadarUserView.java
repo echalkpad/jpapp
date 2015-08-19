@@ -311,14 +311,14 @@ public class RadarUserView extends FrameLayout {
 		if(!visible){
 			mYellowCircle.setVisibility(View.INVISIBLE);
 			for (int i=0; i<mSideButtons.length; i++){
-//				mGreenCircle[i].setVisibility(View.INVISIBLE);
+				if(i == 2) continue;
 				mSideButtons[i].setVisibility(View.INVISIBLE);
 			}
 			mIsPanelExpanded = false;
 		} else {
 			mYellowCircle.setVisibility(View.VISIBLE);
 			for (int i=0; i<mSideButtons.length; i++){
-//				mGreenCircle[i].setVisibility(View.VISIBLE);
+				if(i == 2) continue;
 				mSideButtons[i].setVisibility(View.VISIBLE);
 			}
 			mIsPanelExpanded = true;

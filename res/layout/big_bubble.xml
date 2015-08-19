@@ -69,6 +69,7 @@
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="10dp"
                 android:src="@drawable/person_darkgrey"
+                android:visibility="gone"
                 />
             
             <TextView 
@@ -77,6 +78,7 @@
             	android:layout_height="wrap_content"
             	android:text="private note"
             	android:textSize="12sp"
+            	android:visibility="gone" 
             />
             
             <EditText 
@@ -84,9 +86,9 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
-                android:visibility="gone"
                 android:singleLine="true"
                 android:hint="Personal message..."
+                android:visibility="gone" 
               />
         </LinearLayout>
         
@@ -95,7 +97,7 @@
             android:layout_height="48dp"
             android:orientation="horizontal"
             android:layout_gravity="center|top"
-            android:layout_marginTop="190dp"
+            android:layout_marginTop="140dp"
             android:gravity="center_horizontal"
             >
             <Button

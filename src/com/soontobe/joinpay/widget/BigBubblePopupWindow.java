@@ -80,20 +80,20 @@ public class BigBubblePopupWindow extends PopupWindow {
 			}
 		});
 		
-		mEditPersonalNote = (EditText)contentView.findViewById(R.id.edittext_private_note_inbubble);
-		mEditPersonalNote.setOnFocusChangeListener(new PersonalNoteChangeListener());
+		//mEditPersonalNote = (EditText)contentView.findViewById(R.id.edittext_private_note_inbubble);
+		//mEditPersonalNote.setOnFocusChangeListener(new PersonalNoteChangeListener());
 
-		mTextPersonalNote = (TextView)contentView.findViewById(R.id.textview_private_note_inbubble);
-		mTextPersonalNote.setOnClickListener(new OnClickListener() {
+		//mTextPersonalNote = (TextView)contentView.findViewById(R.id.textview_private_note_inbubble);
+		/*mTextPersonalNote.setOnClickListener(new OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				mTextPersonalNote.setVisibility(View.GONE);
-				mEditPersonalNote.setVisibility(View.VISIBLE);
+				//mTextPersonalNote.setVisibility(View.GONE);
+				//mEditPersonalNote.setVisibility(View.VISIBLE);
 				if(null == mUserInfo) return;
 				String personalNote = mUserInfo.getPersonalNote();
 				if (null != personalNote && !personalNote.isEmpty()) mEditPersonalNote.setText(personalNote);
 			}
-		});
+		});*/
 		
 		mTextPublicNote = (TextView)contentView.findViewById(R.id.textview_public_note_inbubble);
 		mTextView = (TextView)contentView.findViewById(R.id.textview_name_inbubble);
@@ -156,12 +156,12 @@ public class BigBubblePopupWindow extends PopupWindow {
 		} else {
 			mTextPublicNote.setText("Group note not set yet.");
 		}
-		if(isPersonalNoteEmpty()){
+		/*if(isPersonalNoteEmpty()){
 			mTextPersonalNote.setVisibility(View.GONE);
 			mEditPersonalNote.setVisibility(View.VISIBLE);
 		} else {
 			mTextPersonalNote.setText(userInfo.getPersonalNote());
-		}
+		}*/
 	}
 
 	private void initDonutChart() {
@@ -235,7 +235,7 @@ public class BigBubblePopupWindow extends PopupWindow {
 		TransactionFragment.splitMoney();
 	}
 
-	private class PersonalNoteChangeListener implements View.OnFocusChangeListener{
+	/*private class PersonalNoteChangeListener implements View.OnFocusChangeListener{
 
 		@Override
 		public void onFocusChange(View v, boolean hasFocus) {
@@ -254,5 +254,5 @@ public class BigBubblePopupWindow extends PopupWindow {
 				mTextPersonalNote.setText(currNote);
 			}
 		}
-	}
+	}*/
 }

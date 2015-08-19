@@ -8,57 +8,54 @@
         android:id="@+id/imgview_adjpanel_yellow"
         android:layout_width="106.7dp"
         android:layout_height="106.7dp"
-        android:layout_marginLeft="13.7dp"
-        android:layout_marginTop="13.7dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="16dp"
         android:src="@drawable/shape_small_circle" />
 	
     <!-- Top button -->
     <ImageButton 
         android:id="@+id/button_adjpanel_top"
-        android:layout_width="32.7dp"
-        android:layout_height="32.7dp"
-        android:layout_marginLeft="52.7dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="52dp"
         android:src="@drawable/unlocked_white"
         android:scaleType="fitCenter"
         android:padding="4dp"
         android:background="@drawable/shape_small_button_circle"
         />
     
-    <!-- Left button -->
-
-    <ImageButton 
+    <!-- Left Button -->
+    <ImageButton
         android:id="@+id/button_adjpanel_left"
-        android:layout_width="32.7dp"
-        android:layout_height="32.7dp"
-        android:layout_marginTop="50.7dp"
-        android:src="@drawable/pencil_white"
-        android:scaleType="fitCenter"
-        android:padding="4dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="75dp"
         android:background="@drawable/shape_small_button_circle"
-        />
+        android:padding="4dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/pencil_white" />
     
     <!-- Bottom button -->
-   
     <ImageButton 
         android:id="@+id/button_adjpanel_bottom"
-        android:layout_width="32.7dp"
-        android:layout_height="32.7dp"
-        android:layout_marginLeft="52.7dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="52dp"
         android:layout_gravity="bottom"
         android:src="@drawable/add_person_white"
         android:scaleType="fitCenter"
         android:padding="4dp"
         android:background="@drawable/shape_small_button_circle"
+       	android:visibility="invisible"
         />
     
     <!-- Right button -->
-    
-    <ImageButton 
+    <ImageButton
         android:id="@+id/button_adjpanel_right"
         android:layout_gravity="end"
-        android:layout_width="32.7dp"
-        android:layout_height="32.7dp"
-        android:layout_marginTop="50.7dp"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="75dp"
         android:background="@drawable/shape_small_button_circle"
         android:src="@drawable/cross_white"
         android:scaleType="fitCenter"
@@ -68,10 +65,10 @@
     <!-- Center border and big button -->
     <Button 
         android:id="@+id/button_adjpanel_center"
-        android:layout_width="69.3dp"
-        android:layout_height="69.3dp"
-        android:layout_marginTop="33.3dp"
-        android:layout_marginLeft="33.3dp"
+        android:layout_width="69dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="33dp"
         android:background="@drawable/shape_circle_white_w_border"
         />
     <TextView 
