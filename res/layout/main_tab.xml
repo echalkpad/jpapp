@@ -19,6 +19,7 @@
 		    android:layout_width="match_parent"
 		    android:layout_height="fill_parent"
 		    android:orientation="vertical"
+		    android:layout_gravity="bottom|center"
 		    >
 		    
 	    	<FrameLayout
@@ -29,11 +30,10 @@
 	               >
 	             
 	              <com.soontobe.joinpay.widget.ResizableImageView
-		          	    android:layout_width="fill_parent"
-		          	    android:layout_height="fill_parent"
-		          	    android:scaleType="centerCrop"
-		          	    android:src="@drawable/radar_bg" 
-		          	    />
+	                  android:layout_width="fill_parent"
+	                  android:layout_height="755dp"
+	                  android:scaleType="centerCrop"
+	                  android:src="@drawable/radar_bg" />
 		        
 		          	<ImageButton
 		              	android:id="@+id/contact_button"
