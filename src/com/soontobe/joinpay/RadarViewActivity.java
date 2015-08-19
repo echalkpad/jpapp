@@ -4,14 +4,12 @@ package com.soontobe.joinpay;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
+import android.annotation.SuppressLint;
 import android.app.FragmentManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -34,14 +32,11 @@ import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TabHost;
 import android.widget.Toast;
 import android.widget.TabHost.OnTabChangeListener;
 import android.widget.TabHost.TabSpec;
-import android.widget.TabWidget;
 import android.widget.TextView;
-
 import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.fragment.HistoryFragment;
 import com.soontobe.joinpay.fragment.RequestFragment;
@@ -272,6 +267,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	private void setEventListeners() {
 		Button btn = (Button) findViewById(R.id.btn_radar_view_back);
 		btn.setOnTouchListener(new OnTouchListener() {						//cosmetic function only
+			@SuppressLint("ClickableViewAccessibility")
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;
@@ -377,7 +373,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		if (tabId.equals("tab_history")) {
 			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));
 		} else {
-			TabWidget tabWidget = mTabHost.getTabWidget();
+			//TabWidget tabWidget = mTabHost.getTabWidget();
 			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
 		}
 

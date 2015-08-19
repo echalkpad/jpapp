@@ -2,7 +2,7 @@ package com.soontobe.joinpay.fragment;
 
 import java.util.ArrayList;
 import java.util.Random;
-
+import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
@@ -28,7 +28,6 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.PopupWindow.OnDismissListener;
 import android.widget.TextView;
-
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.PositionHandler;
 import com.soontobe.joinpay.R;
@@ -56,16 +55,14 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	public static RadarUserView mSelfBubble;
 	private View mCurrentView;
 	private BigBubblePopupWindow mBigBubble;
-	protected static TextView mSelectCountText; // Number of selected user
+	protected static TextView mSelectCountText; 					//Number of selected user
 	public static EditText mTotalAmount;
 	public static Button mSendMoneyButton;
 	protected static EditText mGroupNote;
-	public static float totalLockedAmount;
-
+	public static int totalLockedAmount;
 	public static UserInfo myUserInfo;
-	public static ArrayList<UserInfo> mUserInfoList; // User info list except for myself
-	protected ArrayList<Integer> mUserPositions; // User info list except for myself
-	private float mOldMoneyAmount; // Record for old money amount (//TODO:USE DATABASE)
+	public static ArrayList<UserInfo> mUserInfoList; 				//User info list except for myself
+	protected ArrayList<Integer> mUserPositions; 					//User info list except for myself
 
 	public TransactionFragment() {
 		// Required empty public constructor
@@ -144,7 +141,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 				public void OnClick(View v, boolean isSelected) {
 					myUserInfo.setSelecetd(isSelected);
 					updateSelectedUserNumber();
-					Editable edit = mTotalAmount.getText();
+					//Editable edit = mTotalAmount.getText();
 					splitMoney();
 				}
 		});
@@ -161,8 +158,6 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mUserInfoList = new ArrayList<UserInfo>();
 		mUserBubbles = new ArrayList<RadarUserView>();
 		mUserPositions = new ArrayList<Integer>();
-		// mPositionHandler = new PositionHandler();
-
 		mTotalAmount.setOnFocusChangeListener(new OnTotalMoneyFocusChangeListener());
 		mTotalAmount.addTextChangedListener(new TextWatcher() {
 			
@@ -179,45 +174,86 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mGroupNote.setOnFocusChangeListener(new OnGroupNoteFocusChangeListener());
 	}	
 	
+	//convert string that has dollars and decimal point to integer of pennies
+	public static int stringToPennies(String str){
+		int pennies = 0;
+		int int_dollars = 0;
+		int int_change = 0;
+		int pos = str.indexOf('.');														//find decimal position
+		if(pos >= 0){																	//input has decimal, ie: $15.10
+			String dollars = str.substring(0, pos);
+			String change = str.substring(pos+1);
+			try {int_dollars = Integer.parseInt(dollars);}
+			catch(Exception e){}
+			if(change.length() <= 1) change += '0';										//input has 1 decimal... ie: $15.1
+			if(change.length() >= 3) change = change.substring(0, 2);					//only 2 digits allowed... no fractions of a penny
+			try{int_change = Integer.parseInt(change);}
+			catch(Exception e){}
+			pennies = int_dollars * 100 + int_change;
+		}
+		else{																			//input has NO decimal, ie: $15
+			try {int_dollars = Integer.parseInt(str);}
+			catch(Exception e){}
+		}
+		pennies = int_dollars * 100 + int_change;
+		//Log.d("money", "PENNIES: " + pennies);
+		return pennies;
+	}
+	
+	//convert integer of pennies to string with dollar and decimal point
+	public static String penniesToString(int pennies){
+		String str = "";
+		String dollars = "0";
+		String change = "0";
+		String str_pennies = Integer.toString(pennies);
+		if(pennies >= 100){														//there are dollars, ie: 100 = $1.00
+			dollars = str_pennies.substring(0, str_pennies.length() - 2);
+			change = str_pennies.substring(str_pennies.length() - 2);
+		}
+		else if(pennies >= 10){													//there are NO dollars, 2 digits, ie: 20 = $0.20
+			dollars = "0";
+			change = str_pennies;
+		}
+		else if(pennies >= 10){													//there are NO dollars, 1 digit, ie: 5 = $0.5
+			dollars = "0";
+			change = "0" + str_pennies;
+		}
+		
+		str = dollars + '.' + change;
+		//Log.d("money", "(dollars): " + dollars + ", (change): " + change);
+		return str;
+	}
 	
 	//// Split the Total Bill - evenly between currently selected users ////
 	public static void splitMoney(){
 		Editable edit = mTotalAmount.getText();
-		float currentAmount = 0.0f;
-		try {
-			currentAmount = Float.valueOf(edit.toString());
-		} catch (NumberFormatException e) {
-			currentAmount = 0.0f;
-			//Log.e("money","can't get float from string");
-		}
-		if(currentAmount == 0.0f) mSendMoneyButton.setEnabled(false);
+		int totalPennies = stringToPennies(edit.toString());
+		
+		if(totalPennies == 0) mSendMoneyButton.setEnabled(false);
 		else mSendMoneyButton.setEnabled(true);
 
-		Log.d("money", "recalculting split!, locked amount: $" + totalLockedAmount + ", " + currentAmount);
+		Log.d("money", "recalculting split!, locked amount: " + totalLockedAmount + ", totalPennies: " + totalPennies);
 		ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 		int size = targetUserIndex.size();
 		if(size > 0){
-			int safeTotal = (int) ((currentAmount - totalLockedAmount) * 100);					//converting to pennies to avoid floating point errors, should really store setAmountOfMoney as float too... <- TO DO
-			int safeSplit = (int) (safeTotal / size);
-			//int safeSplit = (int) Math.ceil((float)safeTotal / (float)size);
+			int safeTotal = totalPennies - totalLockedAmount;										//remove locked amount, divide the rest evenly
+			int safeSplit = (int) (safeTotal / size);												//the largest amount that we can evenly split between users
 			int safeCheckRounding = safeSplit * size;
 			int roundErrorRecover = 0;
-			Log.d("money","(pennies) total: " + safeTotal + " splitTotal: " + safeCheckRounding + ", #:" + targetUserIndex.size());
-			Log.d("money","(pennies) split: " + safeSplit);
-			
-			float pay = (float)safeSplit / 100;
+			Log.d("money","(pennies) total: " + safeTotal + " == splitTotal: " + safeCheckRounding + ", #:" + targetUserIndex.size() + ", split: " + safeSplit);
+						
 			int i = 1;
 			//// Divide the total equally ////
 			for(Integer index : targetUserIndex) {
 				if(index == -1) {
-					myUserInfo.setAmountOfMoney(pay);
+					myUserInfo.setAmountOfMoney(safeSplit);
 					mSelfBubble.setUserInfo(myUserInfo);
-					Log.d("money", "user: " + myUserInfo.getUserName() + " $" + pay);
+					Log.d("money", "[initial] user: " + myUserInfo.getUserName() + " $" + penniesToString(safeSplit));
 				}
 				else {
-					mUserInfoList.get(index).setAmountOfMoney(pay);
+					mUserInfoList.get(index).setAmountOfMoney(safeSplit);
 					mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
-					Log.d("money", "user: " + mUserInfoList.get(index).getUserName() + " $" + pay + ", i:" + i);
+					Log.d("money", "[initial] user: " + mUserInfoList.get(index).getUserName() + " $" + penniesToString(safeSplit) + ", i:" + i);
 				}
 				i++;
 			}
@@ -225,21 +261,21 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			//// Divide the rounding error remainder ////
 			if(safeCheckRounding != safeTotal){
 				roundErrorRecover = safeTotal - safeCheckRounding;
-				Log.d("money", "total is not evenly divisable, round robin and divvy up the remainder 1 cent at a time");
+				Log.d("money", "total is not evenly divisable!, round robin and divvy up the remaining cent(s): " + roundErrorRecover);
+				safeSplit += 1;
 				for(Integer index : targetUserIndex) {
-					pay = ( (float)safeSplit + 1 ) / 100;									//pay 1 more cent
-					if(index == -1) {
-						myUserInfo.setAmountOfMoney(pay);
+					if(index == -1) {																//do self bubble first
+						myUserInfo.setAmountOfMoney(safeSplit);
 						mSelfBubble.setUserInfo(myUserInfo);
-						Log.d("money", "user: " + myUserInfo.getUserName() + " $" + pay);
+						Log.d("money", "[final] user: " + myUserInfo.getUserName() + " $" + penniesToString(safeSplit));
 					}
-					else {
-						mUserInfoList.get(index).setAmountOfMoney(pay);
+					else {																			//do other bubbles next
+						mUserInfoList.get(index).setAmountOfMoney(safeSplit);
 						mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
-						Log.d("money", "user: " + mUserInfoList.get(index).getUserName() + " $" + pay + " [final]");
+						Log.d("money", "[final] user: " + mUserInfoList.get(index).getUserName() + " $" + penniesToString(safeSplit));
 					}
 					roundErrorRecover--;
-					if(roundErrorRecover == 0) break;										//its all been divvied up, end
+					if(roundErrorRecover <= 0) break;												//its all been divvied up, end
 				}
 			}
 		}
@@ -265,14 +301,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	 * @param contactName
 	 */
 	public void addContactToView(String contactName, int position) {
-		if (!generateBubbles(1, position, contactName))
-			return;
-		/*for (UserInfo userInfo : mUserInfoList) {
-			if (contactName.equals(userInfo.getUserName())) {
-				Log.d("bubble", "contact already has bubble, skipping");
-				return;
-			}
-		}*/
+		if (!generateBubbles(1, position, contactName)) return;
 		int index = mUserInfoList.size() - 1;
 		mUserInfoList.get(index).setContactState(true);
 		mUserInfoList.get(index).setUserName(contactName);
@@ -304,6 +333,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	 * @param qty
 	 *            Amount of users to be generated.
 	 */
+	@SuppressLint("RtlHardcoded")
 	public boolean generateBubbles(int qty, int position, String username) {
 		Log.d("bubble", "starting generating bubble for: " + username);
 		if(position > PositionHandler.MAX_USER_SUPPORTED) {
@@ -412,8 +442,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	 * @param userInfo Pass UserInfo object in.
 	 */
 	public void showBigBubble(UserInfo userInfo) {
-		View popupView = getActivity().getLayoutInflater().inflate(
-				R.layout.big_bubble, null);
+		View popupView = getActivity().getLayoutInflater().inflate(R.layout.big_bubble, null);
 		mBigBubble = new BigBubblePopupWindow(popupView, null);
 		mBigBubble.setTouchable(true);
 		mBigBubble.setBackgroundDrawable(new BitmapDrawable()); // Outside
@@ -427,9 +456,6 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mBigBubble.setUserInfo(userInfo);
 		mBigBubble.showUserInfo();
 		mBigBubble.setOnDismissListener(new OnBigBubbleDismissListener());
-
-		mOldMoneyAmount = userInfo.getAmountOfMoney();
-
 		mBigBubble.showAtLocation(
 				getActivity().findViewById(R.id.btn_radar_view_back),
 				Gravity.CENTER | Gravity.TOP, 0, 200);
@@ -445,23 +471,20 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			if (index == -1) {
 				myUserInfo = userInfo;
 				mSelfBubble.setUserInfo(myUserInfo);
-				applyFurtherMoneyChange(index, mOldMoneyAmount,
-						myUserInfo.getAmountOfMoney());
+				//applyFurtherMoneyChange(index, mOldMoneyAmount, myUserInfo.getAmountOfMoney());
 			} else if (index == -2) {
-				Log.w("OnBigBubbleDismissListener", "Could not find user id="
-						+ userInfo.getUserId());
+				Log.w("OnBigBubbleDismissListener", "Could not find user id="+ userInfo.getUserId());
 			} else {
 				mUserInfoList.set(index, userInfo);
 				mUserBubbles.get(index).setUserInfo(userInfo);
-				applyFurtherMoneyChange(index, mOldMoneyAmount, mUserInfoList
-						.get(index).getAmountOfMoney());
+				//applyFurtherMoneyChange(index, mOldMoneyAmount, mUserInfoList.get(index).getAmountOfMoney());
 			}
 
 			Log.d("OnBigBubbleDismissListener", userInfo.toString());
 
 		}
 
-		private void applyFurtherMoneyChange(int indexOfUser, float oldAmount, float currentAmount) {		//dsh to do today!
+		/*private void applyFurtherMoneyChange(int indexOfUser, float oldAmount, float currentAmount) {
 			if (!getTotalLockState()) {
 				// Total amount is not locked
 				float moneyChanged = currentAmount - oldAmount;
@@ -472,19 +495,18 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 					oldTotalAmount = 0;
 				}
 				float newAmount = oldTotalAmount + moneyChanged;
-				//mTotalAmount.setText(String.format("%.2f", newAmount));
 			} else {
 				// Total amount is locked, split the balance to (unlocked && selected) users
 				float moneyChanged = currentAmount - oldAmount;
 				ArrayList<Integer> unlockedSelectedUserIndexList = getUnlockedSelectedUserIndex();
 				int size = unlockedSelectedUserIndexList.size() - 1; // except
 																		// me
-				float moneyToSplit = moneyChanged / (float) size;
+				int moneyToSplit = moneyChanged / (float) size;
 				for (int index : unlockedSelectedUserIndexList) {
 					if (indexOfUser == index)
 						continue;
 					if (-1 == index) {
-						float old = myUserInfo.getAmountOfMoney();
+						int old = myUserInfo.getAmountOfMoney();
 						myUserInfo.setAmountOfMoney(old - moneyToSplit);
 						mSelfBubble.setUserInfo(myUserInfo);
 						continue;
@@ -495,7 +517,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 					mUserBubbles.get(index).setUserInfo(mUserInfoList.get(index));
 				}
 			}
-		}
+		}*/
 
 	}
 
@@ -525,11 +547,9 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 
 			// generateBubbles(2);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-				mBubbleFrameLayout.getViewTreeObserver()
-						.removeOnGlobalLayoutListener(this);
+				mBubbleFrameLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 			else
-				mBubbleFrameLayout.getViewTreeObserver()
-						.removeGlobalOnLayoutListener(this);
+				mBubbleFrameLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
 		}
 
 	}
@@ -605,7 +625,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			mUserInfoList.get(indexOfBubble).setSelecetd(isSelected);
 			Log.d(getTag(), "User" + indexOfBubble + " select state = " + isSelected);
 			updateSelectedUserNumber();
-			Editable edit = mTotalAmount.getText();
+			//Editable edit = mTotalAmount.getText();
 			splitMoney();
 		}
 	}
@@ -733,7 +753,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	 * This function will clear all money amounts including the total amount.
 	 */
 	public static void clearUserMoneyAmount() {
-		myUserInfo.setAmountOfMoney(0.0f);
+		myUserInfo.setAmountOfMoney(0);
 		myUserInfo.setSelecetd(false);
 		mTotalAmount.setText("");
 		mGroupNote.setText("");
@@ -743,7 +763,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mSelfBubble.setUserInfo(myUserInfo);
 		for (int i = 0; i < mUserInfoList.size(); i++) {
 			mUserInfoList.get(i).setLocked(false);
-			mUserInfoList.get(i).setAmountOfMoney(0.0f);
+			mUserInfoList.get(i).setAmountOfMoney(0);
 			mUserInfoList.get(i).setPublicNote(groupNote);
 			mUserInfoList.get(i).setPersonalNote("");
 			mUserInfoList.get(i).setSelecetd(false);

@@ -10,7 +10,7 @@
     <FrameLayout 
         android:layout_width="fill_parent"
         android:layout_height="45dp"
-        android:background="#7ac66c"
+        style="@style/DarkBgTheme"
         >
         <TextView 
             android:id="@+id/point_header"
@@ -27,6 +27,8 @@
     <EditText
         android:id="@+id/editText_username"
         android:hint="Username"
+        android:textColor="#fff"
+        android:textColorHint="#ccc"
         android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -36,6 +38,8 @@
     <EditText
         android:id="@+id/editText_password"
         android:hint="Password"
+        android:textColor="#fff"
+        android:textColorHint="#ccc"
         android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -45,6 +49,8 @@
     <EditText
         android:id="@+id/editText_passwordConfirm"
         android:hint="Confirm Password"
+        android:textColor="#fff"
+        android:textColorHint="#ccc"
         android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -227,25 +227,24 @@ public class RadarUserView extends FrameLayout {
 	/**
 	 * Set amount of money
 	 * 
-	 * @param amountOfMoney If this value is 0.0f, the amount of money will be hided.
+	 * @param amountOfMoney If this value is 0, the amount of money will be hided.
 	 */
 	
-	public void setMoneyAmount(float amountOfMoney) {
-		if(amountOfMoney < 0.01f){
+	public void setMoneyAmount(int amountOfMoney) {
+		if(amountOfMoney == 0){
 			//Hide money amount and reset view
 			mMoneyText.setVisibility(View.GONE);
 			mDollarText.setVisibility(View.GONE);
-			mNameText.setTextSize(18.0f);	//enlarge text
+			mNameText.setTextSize(18.0f);															//enlarge text
 			
 			FrameLayout.LayoutParams params = new LayoutParams(mNameText.getLayoutParams());
-			//params.height = params.height + 20;
 			params.height = android.view.ViewGroup.LayoutParams.WRAP_CONTENT;
 			params.gravity = Gravity.CENTER;
 			params.setMargins(0, 0, 0, 0);
 			mNameText.setLayoutParams(params);
 		} else {
-			mMoneyText.setText(String.format("%.2f", amountOfMoney));
-			//Restore default layout with mondy amount
+			mMoneyText.setText(TransactionFragment.penniesToString(amountOfMoney));					//set the user's money amount per bubble here!
+			//Restore default layout with money amount
 			mMoneyText.setVisibility(View.VISIBLE);
 			mDollarText.setVisibility(View.VISIBLE);
 			mNameText.setTextSize(14.0f);

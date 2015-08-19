@@ -65,7 +65,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 		TextView decNeeded = (TextView) rowView.findViewById(R.id.decisionNeeded);
 		TextView payerView = (TextView) rowView.findViewById(R.id.activity_confirm_payer);
 		TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
-		TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm3);				//dsh to do, check this out again, why does it error sometimes
+		TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm3);
 		TextView transId = (TextView) rowView.findViewById(R.id.transacation_id);
 		TextView statusView = (TextView) rowView.findViewById(R.id.payment_status);
 		Log.d("transBuilder", obj.toString());
@@ -93,7 +93,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			to = Constants.userName;
 		}
 		try {
-			groupNote = obj.getString("description");
+			groupNote = obj.getString("description").trim();
 		} catch(Exception e) {			
 			Log.d("transBuilder", "did not find group note field");
 		}
@@ -103,7 +103,7 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 			Log.d("transBuilder", "did not find trans id field");
 		}
 		try {
-			amountView.setText(obj.getString("amount"));
+			amountView.setText(obj.getString("amount").trim());
 		} catch(Exception e) {
 			Log.d("transBuilder", "did not find amount field");
 		}

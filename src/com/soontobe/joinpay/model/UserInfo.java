@@ -10,7 +10,7 @@ public class UserInfo {
 	private String userName;
 	private String publicNote;
 	private String personalNote;
-	private float amountOfMoney;
+	private int amountOfMoney;
 	private boolean isMyself; // Is this user just myself
 	private boolean isContact; // Is this user a contact of mine
 	private boolean isLocked; // Lock status of this user
@@ -19,7 +19,7 @@ public class UserInfo {
 	public UserInfo() {
 		isContact = false;
 		isMyself = false;
-		amountOfMoney = 0.0f;
+		amountOfMoney = 0;
 		userName = "";
 		publicNote = "";
 		personalNote = "";
@@ -89,11 +89,11 @@ public class UserInfo {
 		this.userName = userName;
 	}
 
-	public float getAmountOfMoney() {
+	public int getAmountOfMoney() {
 		return amountOfMoney;
 	}
 
-	public void setAmountOfMoney(float amountOfMoney) {
+	public void setAmountOfMoney(int amountOfMoney) {
 		this.amountOfMoney = amountOfMoney;
 	}
 

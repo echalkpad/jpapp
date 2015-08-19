@@ -1,5 +1,7 @@
 package com.soontobe.joinpay;
 
+import java.text.DecimalFormat;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -143,9 +145,12 @@ public class CitiAccountActivity extends Activity {
 			return;
 		}
 		
+		double amount = Double.parseDouble(balance_temp);
+		DecimalFormat formatter = new DecimalFormat("#,###.00");
+		Log.d("citi", formatter.format(amount));
 		final String account_name = account_name_temp;
 		final String account_number = account_number_temp;
-		final String balance = balance_temp;
+		final String balance = formatter.format(amount);
 		final String first_name = first_name_temp;
 		final String last_name = last_name_temp;
 		runOnUiThread(new Runnable() {
@@ -181,6 +186,7 @@ public class CitiAccountActivity extends Activity {
 				e.printStackTrace();
 			}
 			
+			Log.d("citi", authpair.toString());
 			String url = Constants.baseURL + "/registerAccount";
 			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 			intent.putExtra("method","post");

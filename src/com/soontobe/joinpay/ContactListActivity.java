@@ -1,17 +1,14 @@
 package com.soontobe.joinpay;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
-
+import android.annotation.SuppressLint;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
@@ -56,6 +53,7 @@ public class ContactListActivity extends ListActivity {
 	private void setEventListeners() {
 		Button contactListAddButton = (Button) findViewById(R.id.contact_list_add_button);
 		contactListAddButton.setOnTouchListener(new OnTouchListener() {
+			@SuppressLint("ClickableViewAccessibility")
 			@Override
 			public boolean onTouch(View v, MotionEvent event) {
 				Button btn = (Button) v;

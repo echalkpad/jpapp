@@ -110,8 +110,7 @@ public class PendingTransactionItemView extends LinearLayout {
 	public void setPaymentInfo(ArrayList<String[]> info){
 		String[] groupNotes = info.get(1);
 		String groupNote;
-		if(null == groupNotes ||
-				groupNotes.length <= 0)
+		if(null == groupNotes || groupNotes.length <= 0)
 			groupNote = "";
 		else
 			groupNote = groupNotes[1];
@@ -136,7 +135,8 @@ public class PendingTransactionItemView extends LinearLayout {
 			this.setBackgroundResource(R.color.color_pending_item);
 			mButtonAccept.setVisibility(View.VISIBLE);
 			mButtonDecline.setVisibility(View.VISIBLE);
-		} else {
+		}
+		else {
 			mTextPayType.setText("paid");
 			mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
 			mTextRightName.setTypeface(null, Typeface.BOLD);
@@ -171,6 +171,4 @@ public class PendingTransactionItemView extends LinearLayout {
 	public void setTransactionId(int transactionId) {
 		this.transactionId = transactionId;
 	}
-	
-	
 }

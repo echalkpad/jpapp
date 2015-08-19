@@ -32,7 +32,6 @@ import android.widget.TextView;
  *
  */
 public class MainActivity extends Activity{
-	private boolean mIsServiceStarted;
 	private IBMPush push = null;
 	private IBMPushNotificationListener notificationlistener = null;
 	public static Context context;
@@ -41,7 +40,6 @@ public class MainActivity extends Activity{
 		super.onCreate(savedInstanceState);		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  					//No Title Bar
 		setContentView(R.layout.activity_main);
-		mIsServiceStarted = false;
 		TextView link = (TextView) findViewById(R.id.citiLink);
 	    String linkText = "Don't have a citi account? <a href='http://citi-online-banking.mybluemix.net/'>Sign Up Here</a>";
 	    link.setText(Html.fromHtml(linkText));

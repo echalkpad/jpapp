@@ -69,17 +69,13 @@ public class BigBubblePopupWindow extends PopupWindow {
 				if(sysEdit) Log.d("money", "sys changed amount");						//the code that populates the amount field will trigger this listener, but this should only run if a USER edited the field
 				else {
 					Log.d("money", "user changed amount");
-					Float currentMoney = 0.0f;
+					int currentMoney = 0;
 					try{
-						currentMoney = Float.valueOf(mEditText.getText().toString());
+						currentMoney = TransactionFragment.stringToPennies(mEditText.getText().toString());
 					} catch (NumberFormatException e){
-						currentMoney = 0.0f;
+						currentMoney = 0;
 					}
-					
-					//if (currentMoney != mUserInfo.getAmountOfMoney()){
-					//	Log.d("money", "user changed amount 2");
-						determineLock(currentMoney);
-					//}
+					determineLock(currentMoney);
 				}
 			}
 		});
@@ -138,15 +134,16 @@ public class BigBubblePopupWindow extends PopupWindow {
 			Log.w(TAG, "Please call setUserInfo first!");
 			return;
 		}
+		
 		UserInfo userInfo = mUserInfo;
 		mTextView.setText(userInfo.getUserName());
 		
-		float moneyAmount = userInfo.getAmountOfMoney();
+		int moneyAmount = userInfo.getAmountOfMoney();
 		sysEdit = true;
-		if(moneyAmount < 0.01f){
+		if(moneyAmount == 0){
 			mEditText.setText("");
 		} else {
-			mEditText.setText(String.format("%.2f", userInfo.getAmountOfMoney()));
+			mEditText.setText(TransactionFragment.penniesToString(userInfo.getAmountOfMoney()));
 		}
 		sysEdit = false;
 		
@@ -211,7 +208,7 @@ public class BigBubblePopupWindow extends PopupWindow {
 
 	}
 
-	private void determineLock(float moneyToSet){
+	private void determineLock(int moneyToSet){
 		Log.d("money","----------------- $" + moneyToSet);
 		if (mEditText.getText().toString().equals("")){ 													//unlock if blank
 			mUserInfo.setLocked(false);
@@ -225,12 +222,12 @@ public class BigBubblePopupWindow extends PopupWindow {
 			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();							//remove current amount of locked money
 			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
 			TransactionFragment.totalLockedAmount += moneyToSet;											//add new amount of locked money
-			Log.d("money","adding locked amount: " + moneyToSet);
+			Log.d("money","adding locked amount: " + TransactionFragment.penniesToString(moneyToSet));
 			
 			float total = Float.valueOf(TransactionFragment.mTotalAmount.getEditableText().toString());		//if locked amount is over total, raise total
 			if(moneyToSet > total){
-				TransactionFragment.mTotalAmount.setText(String.format("%.2f", moneyToSet));
-				Log.d("money","raised total to account for locked amount: " + moneyToSet);
+				TransactionFragment.mTotalAmount.setText(TransactionFragment.penniesToString(moneyToSet));
+				Log.d("money","raised total to account for locked amount: " + TransactionFragment.penniesToString(moneyToSet));
 			}
 		}
 		mUserInfo.setAmountOfMoney(moneyToSet);

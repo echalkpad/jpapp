@@ -100,7 +100,7 @@
                   android:paddingLeft="8dp"
                   android:textSize="14dp"
                   android:textColor="#000"
-                  android:textColorHint="#555"
+                  android:textColorHint="#ccc"
                   android:singleLine="true" />
           </RelativeLayout>
           
@@ -141,7 +141,7 @@
          android:layout_height="30dp"
          android:layout_centerVertical="true"
          android:layout_toRightOf="@+id/dollar_sign"
-         android:textColorHint="#555"
+         android:textColorHint="#777"
          android:gravity="center"
          android:hint="Total"
          android:enabled="false"
