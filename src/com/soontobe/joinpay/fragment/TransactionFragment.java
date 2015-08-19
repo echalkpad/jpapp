@@ -214,13 +214,13 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			dollars = "0";
 			change = str_pennies;
 		}
-		else if(pennies >= 10){													//there are NO dollars, 1 digit, ie: 5 = $0.5
+		else{																	//there are NO dollars, 1 digit, ie: 5 = $0.5
 			dollars = "0";
 			change = "0" + str_pennies;
 		}
 		
 		str = dollars + '.' + change;
-		//Log.d("money", "(dollars): " + dollars + ", (change): " + change);
+		//Log.d("money", "input: " + pennies + ", (dollars): " + dollars + ", (change): " + change);
 		return str;
 	}
 	
@@ -235,12 +235,13 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		Log.d("money", "recalculting split!, locked amount: " + totalLockedAmount + ", totalPennies: " + totalPennies);
 		ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 		int size = targetUserIndex.size();
-		if(size > 0){
+		if(size > 0){			
 			int safeTotal = totalPennies - totalLockedAmount;										//remove locked amount, divide the rest evenly
-			int safeSplit = (int) (safeTotal / size);												//the largest amount that we can evenly split between users
+			int safeSplit = safeTotal / size;														//the largest amount that we can evenly split between users
+			//if(safeTotal < size) safeSplit = 0;														//corner case... less than 1 penny per person, let the round robin handle it below
 			int safeCheckRounding = safeSplit * size;
 			int roundErrorRecover = 0;
-			Log.d("money","(pennies) total: " + safeTotal + " == splitTotal: " + safeCheckRounding + ", #:" + targetUserIndex.size() + ", split: " + safeSplit);
+			Log.d("money","(pennies) total: " + safeTotal + " == splitTotal: " + safeCheckRounding + ", #:" + size + ", split: " + safeSplit);
 						
 			int i = 1;
 			//// Divide the total equally ////

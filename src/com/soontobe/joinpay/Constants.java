@@ -21,7 +21,14 @@ public class Constants {
 		"mrshah",
 		"dshuffma",
 		"programsam",
-		"demo"
+		"demo",
+		"kostas",
+		"guy1",
+		"guy2",
+		"guy3",
+		"guy4",
+		"guy5",
+		"guy6"
 	};
 	
 	public static final String RESTRESP = "com.soontobe.RESTRESP";

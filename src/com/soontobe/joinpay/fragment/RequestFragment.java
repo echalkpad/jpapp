@@ -29,7 +29,7 @@ public class RequestFragment extends TransactionFragment {
 			if (info.isSelecetd()) {
 				if(!info.getUserName().equals(Constants.userName)){			//shouldn't be possible, just double check
 					if(info.getAmountOfMoney() > 0){
-						String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + String.format("%.2f",info.getAmountOfMoney()), "isPending", "requesting"};
+						String[] item = {"normal", info.getPersonalNote(), info.getUserName(), myUserInfo.getUserName(), "$ " + TransactionFragment.penniesToString(info.getAmountOfMoney()), "isPending", "requesting"};
 						paymentInfo.add(item);
 					}
 				}
@@ -43,15 +43,6 @@ public class RequestFragment extends TransactionFragment {
 
 		String[] summary = {"summary", strDate, String.valueOf(getSelectedUserSize()), "$ " + mTotalAmount.getText().toString()};
 		paymentInfo.add(summary);
-//		{
-//			{"normal", "", "Luna", "Itziar", "$ 500", "Pending"},
-//			{"normal", "Pay one extra beer", "Patrick", "Itziar", "$ 30", "Pending"},   //	name, amount, personal note
-//			{"normal", "", "asd", "Itziar", "$ 20", "Pending"},
-//			{"normal", "", "Itziar", "Itziar", "$ 20", ""},
-//			{"group_note", "This is a group note"},
-//			{"summary", "2014-11-14", "5", "$ 130"}
-//		}
-
 		return paymentInfo;
 	}
 }

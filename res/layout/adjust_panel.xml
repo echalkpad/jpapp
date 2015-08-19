@@ -55,7 +55,7 @@
     
     <ImageButton 
         android:id="@+id/button_adjpanel_right"
-        android:layout_gravity="right"
+        android:layout_gravity="end"
         android:layout_width="32.7dp"
         android:layout_height="32.7dp"
         android:layout_marginTop="50.7dp"
@@ -80,7 +80,7 @@
         android:layout_width="66.7dp"
         android:layout_height="18dp"
         android:textSize="12sp"
-        android:text="NAME"
+        android:text=""
         android:singleLine="true"
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
@@ -88,13 +88,13 @@
         />
     <TextView 
         android:id="@+id/textview_adjpanel_dollar"
-        android:layout_width="50dp"
+        android:layout_width="45dp"
         android:layout_height="19dp"
         android:textSize="12sp"
         android:textColor="#5cc38c"
         android:text="$"
         android:layout_gravity="center"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="10dp"
         />
     <TextView 
         android:id="@+id/textview_adjpanel_money"
@@ -102,7 +102,7 @@
         android:layout_width="66.7dp"
         android:layout_height="19dp"
         android:textSize="12sp"
-        android:text="24.20"
+        android:text=""
         android:textColor="#5cc38c"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"

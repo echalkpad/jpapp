@@ -398,6 +398,7 @@ HistoryFragment.OnFragmentInteractionListener {
 					for(int i=maxPositions - 1; i >= 0; i--) {
 						if(namesOnScreen.contains(name)) {
 							Toast.makeText(getApplicationContext(), "User '" + name + "' is already added", Toast.LENGTH_SHORT).show();
+							foundFree = true;
 							break;
 						}
 						if(!usedPositionsListSendFragment.contains(i)) {
@@ -414,6 +415,7 @@ HistoryFragment.OnFragmentInteractionListener {
 					}
 					if(!foundFree) {
 						Toast.makeText(getApplicationContext(), "Maximum users reached", Toast.LENGTH_SHORT).show();
+						break;
 					}
 				}
 			} 
