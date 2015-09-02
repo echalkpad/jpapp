@@ -6,15 +6,12 @@ import com.soontobe.joinpay.model.UserInfo;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.text.Editable;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -93,8 +90,7 @@ public class RadarUserView extends FrameLayout {
 	}
 	
 	@SuppressLint("NewApi")
-	public RadarUserView(Context context, AttributeSet attrs, int defStyleAttr,
-			int defStyleRes) {
+	public RadarUserView(Context context, AttributeSet attrs, int defStyleAttr, int defStyleRes) {
 		super(context, attrs, defStyleAttr);
 		LayoutInflater.from(context).inflate(R.layout.adjust_panel, this);
 		mIsPanelExpanded = false;
@@ -261,35 +257,23 @@ public class RadarUserView extends FrameLayout {
 		if (userType == 3){
 			//locked
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[3]);
-			mNameText.setTextColor(Color.parseColor("#FFFFFF"));
-			mMoneyText.setTextColor(Color.parseColor("#FFFFFF"));
-			mDollarText.setTextColor(Color.parseColor("#FFFFFF"));
 			mIsContact = true;
 			mIsMyself = false;
 		}
 		else if (userType == 1){
 			//contact
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[1]);
-			mNameText.setTextColor(Color.parseColor("#FFFFFF"));
-			mMoneyText.setTextColor(Color.parseColor("#FFFFFF"));
-			mDollarText.setTextColor(Color.parseColor("#FFFFFF"));
 			mIsContact = true;
 			mIsMyself = false;
 		}
 		else if(userType == 0) {
 			//user
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[0]);
-			//mNameText.setTextColor(Color.parseColor("#000000"));
-			//mMoneyText.setTextColor(Color.parseColor("#5bc48c"));
-			//mDollarText.setTextColor(Color.parseColor("#5bc48c"));
 			mIsContact = false;
 			mIsMyself = false;
 		} else {
 			//myself
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[2]);
-			mNameText.setTextColor(Color.parseColor("#ffffff"));
-			mMoneyText.setTextColor(Color.parseColor("#ffffff"));
-			mDollarText.setTextColor(Color.parseColor("#ffffff"));
 			mIsContact = false;
 			mIsMyself = true;
 		}

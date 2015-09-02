@@ -8,7 +8,6 @@ import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.model.UserInfo;
 
-import android.graphics.Color;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -28,9 +27,6 @@ import android.widget.TextView;
 public class BigBubblePopupWindow extends PopupWindow {
 	final public int LAYOUT_ID = R.id.layout_big_bubble;
 	final public String TAG = "BIG_BUBBLE";
-	//								 {other user,big circle, purple?,dark blue?}
-	//final public String[] COLOR_MAP = {"#99CC00", "#FFBB33", "#AA66CC", "#0000AA"}; //TODO: ...
-	//final public String[] COLOR_MAP = {"#002E6B", "#002E6B", "#AA66CC", "#0000AA"}; //TODO: ...
 	private UserInfo mUserInfo;
 	private PieGraph mPieGraph;	  				//Outer torus which will be further developed to show the ratio of different types of transaction
 	private Button mLockButton;   				//Lock button
@@ -186,10 +182,8 @@ public class BigBubblePopupWindow extends PopupWindow {
 		for(Float value: values){
 			Log.d(TAG, "i=" + i);
 			pieSlice = new PieSlice();
-			//pieSlice.setColor(Color.parseColor(COLOR_MAP[i++]));
 			pieSlice.setValue(value);
 			mPieGraph.addSlice(pieSlice);
-			//if(i >= COLOR_MAP.length) i = 0; //In case of over-length
 		}
 	}
 

@@ -1,15 +1,13 @@
 package com.soontobe.joinpay;
 
 import java.util.List;
-
 import bolts.Continuation;
 import bolts.Task;
-
 import com.ibm.mobile.services.core.IBMBluemix;
 import com.ibm.mobile.services.push.IBMPush;
 import com.ibm.mobile.services.push.IBMPushNotificationListener;
 import com.ibm.mobile.services.push.IBMSimplePushNotification;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -35,6 +33,7 @@ public class MainActivity extends Activity{
 	private IBMPush push = null;
 	private IBMPushNotificationListener notificationlistener = null;
 	public static Context context;
+	@SuppressLint("DefaultLocale")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);		

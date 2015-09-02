@@ -3,9 +3,7 @@ package com.soontobe.joinpay;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,12 +24,9 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
 import android.widget.TabHost;
 import android.widget.Toast;
 import android.widget.TabHost.OnTabChangeListener;
@@ -40,7 +35,6 @@ import android.widget.TextView;
 import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.fragment.HistoryFragment;
 import com.soontobe.joinpay.fragment.RequestFragment;
-import com.soontobe.joinpay.fragment.SendFragment;
 
 /**
  * 
@@ -58,7 +52,6 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	final String serviceContext = "RadarViewActivity";
 	private TabHost mTabHost;
-	private SendFragment mSendFragment;
 	private RequestFragment mRequestFragment;
 	private HistoryFragment mHistoryFragment;
 	public static final String JUMP_KEY = "_jump";
@@ -76,16 +69,11 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	private ArrayList<String[]> paymentInfo;
 	public Map<String, Boolean> lockInfo;
-	WebConnector webConnector;
-	private ArrayList<String> fileNameList; 	// posttestserver
-	private int visitedFilesCount = 0; 			// posttestserver
-	private Set<String> onlineNameList = new HashSet<String>();
 	final static int maxPositions = PositionHandler.MAX_USER_SUPPORTED;
 	
 	ArrayList<Integer> usedPositionsListSendFragment = new ArrayList<Integer>();
 	ArrayList<Integer> usedPositionsListRequestFragment = new ArrayList<Integer>();
 	ArrayList<String> namesOnScreen = new ArrayList<String>();
-	WebConnector WebConnector;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +203,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		}
 	};
 	
+	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler(){
 		@Override
 		public void handleMessage(Message msg){
@@ -277,7 +266,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		mTabHost.setCurrentTab(requestTab);
 		mTabHost.setCurrentTab(historyTab);
 		
-		mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));		//light navy blue? FOUND COLOR IN CODE
+		mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));		//light navy blue
 		//mTabHost.setCurrentTab(0);
 	}
 
@@ -319,22 +308,6 @@ HistoryFragment.OnFragmentInteractionListener {
 			
 			//Reset selected users and amounts
 			onClickClearButton(mTabHost);
-			
-			//Reset selected users and amounts
-			/*ArrayList<Integer> targetUserIndex = mRequestFragment.getUnlockedSelectedUserIndex();
-			for (Integer index : targetUserIndex) {
-				if (index == -1) {
-					Log.d("money", "clearing self money");
-					mRequestFragment.myUserInfo.setAmountOfMoney(0);
-					mRequestFragment.mSelfBubble.setUserInfo(mRequestFragment.myUserInfo);
-				} else {
-					Log.d("money", "clearing money");
-					mRequestFragment.mUserInfoList.get(index).setAmountOfMoney(0);
-					mRequestFragment.mUserBubbles.get(index).setUserInfo(mRequestFragment.mUserInfoList.get(index));
-					mRequestFragment.mUserBubbles.get(index).setSelectState(false);
-					mRequestFragment.mUserBubbles.get(index).switchExpandPanel(false);
-				}
-			}*/
 		}
 		else {
 			Log.w("RadarViewActivity_onTabChanged", "Cannot find tab id=" + tabId);
@@ -342,7 +315,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 		// change history tab color. Should be refactored later.
 		if (tabId.equals("tab_history")) {
-			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));//light navy blue? FOUND COLOR IN CODE
+			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));//light navy blue
 		} else {
 			//TabWidget tabWidget = mTabHost.getTabWidget();
 			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
@@ -438,7 +411,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	}
 
 	public void onClickClearButton(View v){
-		mRequestFragment.clearUserMoneyAmount();
+		TransactionFragment.clearUserMoneyAmount();
 
 		//Clear total lock state
 		lockInfo.put("total", false);

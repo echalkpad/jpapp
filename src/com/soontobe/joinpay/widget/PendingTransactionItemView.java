@@ -5,10 +5,8 @@ import java.util.ArrayList;
 import com.soontobe.joinpay.R;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -31,10 +29,10 @@ public class PendingTransactionItemView extends LinearLayout {
 	private TextView mTextNote;			//Group note and private note
 	private TextView mTextMoneyAmount;
 	private TextView mTextDate;
-	private TextView mTextTime;
+	//private TextView mTextTime;
 	private Button mButtonAccept;
 	private Button mButtonDecline;
-	private LinearLayout mCurrentLayout;
+	//private LinearLayout mCurrentLayout;
 	
 	OnAcceptButtonClickListener acceptButtonClickListener = null;
 	OnDeclineButtonClickListener declineButtonClickListener = null;
@@ -69,7 +67,7 @@ public class PendingTransactionItemView extends LinearLayout {
 		mTextRightName= (TextView)findViewById(R.id.textview_right_name);
 		mTextNote = (TextView)findViewById(R.id.textview_payment_note);
 		mTextMoneyAmount = (TextView)findViewById(R.id.textview_money_amount);
-		mTextTime = (TextView)findViewById(R.id.textview_pending_time);
+		//mTextTime = (TextView)findViewById(R.id.textview_pending_time);
 		mButtonAccept = (Button)findViewById(R.id.button_accept_transaction);
 		mButtonAccept.setOnClickListener(new OnClickListener() {
 			
@@ -96,7 +94,6 @@ public class PendingTransactionItemView extends LinearLayout {
 		mButtonAccept.setVisibility(View.INVISIBLE);
 		mButtonDecline.setVisibility(View.INVISIBLE);
 		mTextPayType.setText("paid");
-		//mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
 		this.setBackgroundResource(R.color.color_pending_item_done);
 	}
 	
@@ -138,7 +135,6 @@ public class PendingTransactionItemView extends LinearLayout {
 		}
 		else {
 			mTextPayType.setText("paid");
-			//mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
 			mTextRightName.setTypeface(null, Typeface.BOLD);
 			this.setBackgroundResource(R.color.color_pending_item_done);
 			mButtonAccept.setVisibility(View.INVISIBLE);

@@ -33,7 +33,8 @@ public class Constants {
 	
 	public static final String RESTRESP = "com.soontobe.RESTRESP";
 	public static String loginToken;
-	public static String baseURL = "http://j-pay.mybluemix.net";
+	//public static String baseURL = "http://j-pay.mybluemix.net";
+	public static String baseURL = "http://join-pay.mybluemix.net";
 	public static String appSecret = "8c55c943843f34c14672d6f36cfe4fe3f6961d1d";
 	public static String appKey = "3fdaeee4-d711-4ffe-9681-6afee65a120a";
 	
