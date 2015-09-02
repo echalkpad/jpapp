@@ -43,7 +43,7 @@
             android:layout_height="20dp"
             android:layout_gravity="center_vertical|left"
             android:layout_marginLeft="5dp"
-            android:src="@drawable/search_green" />
+            android:src="@drawable/search" />
 			
 		<Button
             android:id="@+id/button_clear_contact_search_input"

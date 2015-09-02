@@ -40,8 +40,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text=" Pays "
-                android:textColor="#5fc991"
-                android:textStyle="bold"/>
+                style="@style/AccentTextTheme"/>
 
             <TextView
                 android:id="@+id/activity_confirm_payee"

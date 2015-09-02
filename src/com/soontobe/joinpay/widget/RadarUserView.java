@@ -279,9 +279,9 @@ public class RadarUserView extends FrameLayout {
 		else if(userType == 0) {
 			//user
 			mCenterButton.setBackgroundResource(CENTER_BUTTON_BKG_ID[0]);
-			mNameText.setTextColor(Color.parseColor("#000000"));
-			mMoneyText.setTextColor(Color.parseColor("#5bc48c"));
-			mDollarText.setTextColor(Color.parseColor("#5bc48c"));
+			//mNameText.setTextColor(Color.parseColor("#000000"));
+			//mMoneyText.setTextColor(Color.parseColor("#5bc48c"));
+			//mDollarText.setTextColor(Color.parseColor("#5bc48c"));
 			mIsContact = false;
 			mIsMyself = false;
 		} else {

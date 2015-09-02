@@ -29,7 +29,7 @@
             android:text="will pay"
             android:textSize="16sp"
             android:layout_marginLeft="5dp"
-            android:textColor="#bdce26" />
+            style="@style/AccentTextTheme" />
         
         <TextView
             android:id="@+id/textview_right_name"
@@ -47,7 +47,7 @@
             android:layout_height="wrap_content"
             android:text="+$12.3"
             android:layout_alignParentRight="true"
-            android:textColor="#bdce26"
+            style="@style/AccentTextTheme"
             android:textSize="18sp"
         	/>
         

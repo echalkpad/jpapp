@@ -46,7 +46,8 @@ public class MainActivity extends Activity{
 	    link.setMovementMethod(LinkMovementMethod.getInstance());
 	    
 	    TextView userView = (TextView) findViewById(R.id.welcome_user_name);
-	    userView.setText("Welcome " + Constants.userName);
+	    String username = String.valueOf(Constants.userName.charAt(0)).toUpperCase() + Constants.userName.substring(1, Constants.userName.length());
+	    userView.setText("Welcome " + username);
 				
 		///////////////////////////////////////////////////
 		/////////////////  IBM Push Code  ///////////////// 

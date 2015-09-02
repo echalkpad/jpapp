@@ -13,7 +13,6 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.EditText;
@@ -29,15 +28,17 @@ import android.widget.TextView;
 public class BigBubblePopupWindow extends PopupWindow {
 	final public int LAYOUT_ID = R.id.layout_big_bubble;
 	final public String TAG = "BIG_BUBBLE";
-	final public String[] COLOR_MAP = {"#99CC00", "#FFBB33", "#AA66CC", "#0000AA"}; //TODO: ...
+	//								 {other user,big circle, purple?,dark blue?}
+	//final public String[] COLOR_MAP = {"#99CC00", "#FFBB33", "#AA66CC", "#0000AA"}; //TODO: ...
+	//final public String[] COLOR_MAP = {"#002E6B", "#002E6B", "#AA66CC", "#0000AA"}; //TODO: ...
 	private UserInfo mUserInfo;
 	private PieGraph mPieGraph;	  				//Outer torus which will be further developed to show the ratio of different types of transaction
 	private Button mLockButton;   				//Lock button
 	private EditText mEditText;   				//Amount of money
-	private EditText mEditPersonalNote;  		//Personal note editor
+	//private EditText mEditPersonalNote;  		//Personal note editor
 	private TextView mTextView; 			 	//Name
-	private TextView mTextPersonalNote;  	 	//Personal note label
-	private TextView mTextPublicNote;   	 	//Group note label
+	//private TextView mTextPersonalNote;  	 	//Personal note label
+	//private TextView mTextPublicNote;   	 	//Group note label
 	private boolean sysEdit = false;
 	
 	public UserInfo getUserInfo() {
@@ -95,7 +96,7 @@ public class BigBubblePopupWindow extends PopupWindow {
 			}
 		});*/
 		
-		mTextPublicNote = (TextView)contentView.findViewById(R.id.textview_public_note_inbubble);
+		//mTextPublicNote = (TextView)contentView.findViewById(R.id.textview_public_note_inbubble);
 		mTextView = (TextView)contentView.findViewById(R.id.textview_name_inbubble);
 
 		mUserInfo = userInfo;
@@ -148,14 +149,15 @@ public class BigBubblePopupWindow extends PopupWindow {
 		sysEdit = false;
 		
 		if(userInfo.isLocked()){
-			mLockButton.setBackgroundResource(R.drawable.locked_darkgreen);
+			mLockButton.setBackgroundResource(R.drawable.locked);
 		}
 		
-		if(!isPublicNoteEmpty()){
+		/*if(!isPublicNoteEmpty()){
 			mTextPublicNote.setText(userInfo.getPublicNote());
 		} else {
 			mTextPublicNote.setText("Group note not set yet.");
 		}
+		*/
 		/*if(isPersonalNoteEmpty()){
 			mTextPersonalNote.setVisibility(View.GONE);
 			mEditPersonalNote.setVisibility(View.VISIBLE);
@@ -184,10 +186,10 @@ public class BigBubblePopupWindow extends PopupWindow {
 		for(Float value: values){
 			Log.d(TAG, "i=" + i);
 			pieSlice = new PieSlice();
-			pieSlice.setColor(Color.parseColor(COLOR_MAP[i++]));
+			//pieSlice.setColor(Color.parseColor(COLOR_MAP[i++]));
 			pieSlice.setValue(value);
 			mPieGraph.addSlice(pieSlice);
-			if(i >= COLOR_MAP.length) i = 0; //In case of over-length
+			//if(i >= COLOR_MAP.length) i = 0; //In case of over-length
 		}
 	}
 
@@ -199,10 +201,10 @@ public class BigBubblePopupWindow extends PopupWindow {
 		public void onClick(View v) {
 			if (mUserInfo.isLocked()){ 						//Unlock
 				mUserInfo.setLocked(false);
-				mLockButton.setBackgroundResource(R.drawable.unlocked_darkgreen2);
+				mLockButton.setBackgroundResource(R.drawable.unlocked);
 			} else {
 				mUserInfo.setLocked(true);
-				mLockButton.setBackgroundResource(R.drawable.locked_darkgreen);
+				mLockButton.setBackgroundResource(R.drawable.locked);
 			}
 		}
 
@@ -212,19 +214,19 @@ public class BigBubblePopupWindow extends PopupWindow {
 		Log.d("money","----------------- $" + moneyToSet);
 		if (mEditText.getText().toString().equals("")){ 													//unlock if blank
 			mUserInfo.setLocked(false);
-			mLockButton.setBackgroundResource(R.drawable.unlocked_darkgreen2);
+			mLockButton.setBackgroundResource(R.drawable.unlocked);
 			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();
 			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
 			Log.d("money","removing locked amount: " + mUserInfo.getAmountOfMoney());
 		} else {																							//lock
 			mUserInfo.setLocked(true);
-			mLockButton.setBackgroundResource(R.drawable.locked_darkgreen);
+			mLockButton.setBackgroundResource(R.drawable.locked);
 			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();							//remove current amount of locked money
 			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
 			TransactionFragment.totalLockedAmount += moneyToSet;											//add new amount of locked money
 			Log.d("money","adding locked amount: " + TransactionFragment.penniesToString(moneyToSet));
 			
-			float total = Float.valueOf(TransactionFragment.mTotalAmount.getEditableText().toString());		//if locked amount is over total, raise total
+			int total =TransactionFragment.stringToPennies(TransactionFragment.mTotalAmount.getEditableText().toString());		//if locked amount is over total, raise total
 			if(moneyToSet > total){
 				TransactionFragment.mTotalAmount.setText(TransactionFragment.penniesToString(moneyToSet));
 				Log.d("money","raised total to account for locked amount: " + TransactionFragment.penniesToString(moneyToSet));

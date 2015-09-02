@@ -265,36 +265,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	}
 
 	private void setEventListeners() {
-		Button btn = (Button) findViewById(R.id.btn_radar_view_back);
-		btn.setOnTouchListener(new OnTouchListener() {						//cosmetic function only
-			@SuppressLint("ClickableViewAccessibility")
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Button btn = (Button) v;
-				// TODO Auto-generated method stub
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					btn.setBackgroundResource(R.drawable.arrow_active);
-				} else if (event.getAction() == MotionEvent.ACTION_UP) {
-					btn.setBackgroundResource(R.drawable.arrow_normal);
-				}
-				return false;
-			}
-		});
-
-		/*btn = (Button) findViewById(R.id.btn_radar_view_cross);
-		btn.setOnTouchListener(new OnTouchListener() {						//cosmetic function only
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				Button btn = (Button) v;
-				// TODO Auto-generated method stub
-				if (event.getAction() == MotionEvent.ACTION_DOWN) {
-					btn.setBackgroundResource(R.drawable.cross_active);
-				} else if (event.getAction() == MotionEvent.ACTION_UP) {
-					btn.setBackgroundResource(R.drawable.cross_normal);
-				}
-				return false;
-			}
-		});*/
+		
 	}	
 	
 
@@ -306,7 +277,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		mTabHost.setCurrentTab(requestTab);
 		mTabHost.setCurrentTab(historyTab);
 		
-		mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));
+		mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));		//light navy blue? FOUND COLOR IN CODE
 		//mTabHost.setCurrentTab(0);
 	}
 
@@ -371,7 +342,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 		// change history tab color. Should be refactored later.
 		if (tabId.equals("tab_history")) {
-			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));
+			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));//light navy blue? FOUND COLOR IN CODE
 		} else {
 			//TabWidget tabWidget = mTabHost.getTabWidget();
 			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
@@ -459,19 +430,6 @@ HistoryFragment.OnFragmentInteractionListener {
 		//Log.d("contactButtonOnClick", "clicked");
 		startActivityForResult(new Intent(this, ContactListActivity.class), contactListRequestCode);
 	}
-
-	/*public void setSendTotalLock(View v) {
-		ImageView iv = (ImageView) v;
-		if (lockInfo.get("total")) {
-			iv.setImageResource(R.drawable.unlocked_darkgreen);
-			lockInfo.put("total", false);
-			findViewById(R.id.edit_text_total_amount).setEnabled(true);
-		} else {
-			iv.setImageResource(R.drawable.locked_darkgreen);
-			lockInfo.put("total", true);
-			findViewById(R.id.edit_text_total_amount).setEnabled(false);
-		}
-	}*/
 
 	public void onClickBackButton(View v){
 		Intent i = new Intent(this, MainActivity.class);

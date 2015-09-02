@@ -7,8 +7,8 @@
     >
     
     <FrameLayout 
-        android:layout_width="280dp"
-        android:layout_height="280dp"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
         android:background="@drawable/shape_circle"
         >
         
@@ -27,7 +27,7 @@
             android:text="NAME HERE"
             android:layout_gravity="center|top"
             android:layout_marginTop="50dp"
-            android:textSize="18sp"
+            android:textSize="20sp"
             />
         
         <LinearLayout 
@@ -44,6 +44,7 @@
                 android:layout_marginLeft="2dp"
                 android:layout_marginRight="5dp"
                 android:src="@drawable/group_darkgrey"
+                android:visibility="gone"
                 />
             
             <TextView 
@@ -52,6 +53,7 @@
             	android:layout_height="wrap_content"
             	android:text="public note"
             	android:textSize="14sp"
+            	android:visibility="gone"
             />
         </LinearLayout>
         
@@ -97,14 +99,14 @@
             android:layout_height="48dp"
             android:orientation="horizontal"
             android:layout_gravity="center|top"
-            android:layout_marginTop="140dp"
+            android:layout_marginTop="100dp"
             android:gravity="center_horizontal"
             >
             <Button
                 android:id="@+id/button_lock_inbubble"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
-                android:background="@drawable/unlocked_darkgreen2"
+                android:background="@drawable/unlocked"
                 android:textSize="10dp"
                 />
             <TextView 

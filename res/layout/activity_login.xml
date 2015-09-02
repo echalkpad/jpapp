@@ -4,7 +4,8 @@
     android:layout_height="fill_parent"
     android:orientation="vertical"
     style="@style/NormalBgTheme"
-    tools:context="com.soontobe.joinpay.MainActivity" >
+    tools:context="com.soontobe.joinpay.MainActivity"
+    android:background="@drawable/joinpay_bg" >
  
     <!--  Logo -->
 	<LinearLayout

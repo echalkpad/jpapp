@@ -232,13 +232,17 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		if(totalPennies == 0) mSendMoneyButton.setEnabled(false);
 		else mSendMoneyButton.setEnabled(true);
 
-		Log.d("money", "recalculting split!, locked amount: " + totalLockedAmount + ", totalPennies: " + totalPennies);
+		Log.d("money", "---\nrecalculting split!, locked amount: " + totalLockedAmount + ", totalPennies: " + totalPennies);
 		ArrayList<Integer> targetUserIndex = getUnlockedSelectedUserIndex();
 		int size = targetUserIndex.size();
 		if(size > 0){			
 			int safeTotal = totalPennies - totalLockedAmount;										//remove locked amount, divide the rest evenly
+			if(safeTotal < 0){
+				safeTotal = 0;
+				mTotalAmount.setText(penniesToString(totalLockedAmount));
+			}
 			int safeSplit = safeTotal / size;														//the largest amount that we can evenly split between users
-			//if(safeTotal < size) safeSplit = 0;														//corner case... less than 1 penny per person, let the round robin handle it below
+			//if(safeTotal < size) safeSplit = 0;													//corner case... less than 1 penny per person, let the round robin handle it below
 			int safeCheckRounding = safeSplit * size;
 			int roundErrorRecover = 0;
 			Log.d("money","(pennies) total: " + safeTotal + " == splitTotal: " + safeCheckRounding + ", #:" + size + ", split: " + safeSplit);
@@ -458,7 +462,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mBigBubble.showUserInfo();
 		mBigBubble.setOnDismissListener(new OnBigBubbleDismissListener());
 		mBigBubble.showAtLocation(
-				getActivity().findViewById(R.id.btn_radar_view_back),
+				getActivity().findViewById(R.id.radar_view_title),
 				Gravity.CENTER | Gravity.TOP, 0, 200);
 	}
 
@@ -758,6 +762,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		myUserInfo.setSelecetd(false);
 		mTotalAmount.setText("");
 		mGroupNote.setText("");
+		totalLockedAmount = 0;
 		String groupNote = "";
 		myUserInfo.setPublicNote(groupNote);
 		myUserInfo.setPersonalNote("");

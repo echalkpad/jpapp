@@ -18,14 +18,6 @@
             android:textSize="22sp"
             android:gravity="center"
             />
-        <Button 
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center|right"
-            android:background="@drawable/cross_normal"
-            android:layout_marginRight="8dp"
-            android:visibility="gone"
-            />
         
     </FrameLayout>       
     

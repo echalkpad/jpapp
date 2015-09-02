@@ -96,7 +96,7 @@ public class PendingTransactionItemView extends LinearLayout {
 		mButtonAccept.setVisibility(View.INVISIBLE);
 		mButtonDecline.setVisibility(View.INVISIBLE);
 		mTextPayType.setText("paid");
-		mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
+		//mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
 		this.setBackgroundResource(R.color.color_pending_item_done);
 	}
 	
@@ -138,7 +138,7 @@ public class PendingTransactionItemView extends LinearLayout {
 		}
 		else {
 			mTextPayType.setText("paid");
-			mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
+			//mTextPayType.setTextColor(Color.parseColor("#88bfa3"));
 			mTextRightName.setTypeface(null, Typeface.BOLD);
 			this.setBackgroundResource(R.color.color_pending_item_done);
 			mButtonAccept.setVisibility(View.INVISIBLE);

@@ -82,13 +82,14 @@
         android:layout_gravity="center"
         android:layout_marginBottom="8dp"
         android:gravity="center_horizontal"
+        android:textColor="#ffffff"
         />
     <TextView 
         android:id="@+id/textview_adjpanel_dollar"
         android:layout_width="45dp"
         android:layout_height="19dp"
         android:textSize="12sp"
-        android:textColor="#5cc38c"
+        android:textColor="#ffffff"
         android:text="$"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
@@ -100,10 +101,10 @@
         android:layout_height="19dp"
         android:textSize="12sp"
         android:text=""
-        android:textColor="#5cc38c"
         android:layout_gravity="center"
         android:layout_marginTop="10dp"
         android:gravity="center_horizontal"
+        android:textColor="#ffffff"
         />
     
 </FrameLayout>

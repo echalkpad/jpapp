@@ -18,14 +18,6 @@
             android:text="Citi Account"
             android:textColor="#ffffff"
             android:textSize="22sp" />
-
-        <Button
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:layout_gravity="center|right"
-            android:layout_marginRight="8dp"
-            android:background="@drawable/cross_normal"
-            android:visibility="gone" />
     </FrameLayout>
 
     
