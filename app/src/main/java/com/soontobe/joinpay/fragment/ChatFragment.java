@@ -29,7 +29,7 @@ public class ChatFragment extends Fragment {
     private WebView mWebView;
 
     /**
-     *
+     * TODO clean up this Fragment
      * @return
      */
     public static ChatFragment newInstance() {

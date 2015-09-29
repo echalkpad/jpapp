@@ -29,8 +29,8 @@
     <string name="citi_fallback_number">No Number Found</string>
     <string name="citi_fallback_holder">No Holder Found</string>
     <string name="citi_fallback_balance">No Balance Found</string>
-    <!-- TODO finish tagging Citi bank info screen -->
 
+    <!-- Misc. Values -->
     <string name="app_name">JoinPay</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>

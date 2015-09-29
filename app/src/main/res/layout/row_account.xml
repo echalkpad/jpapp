@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- This is the layout that AccountJSONAdapter uses to parse a list of user
+    accounts into a ListView -->
+<!-- TODO optimize the formatting to look better on the tablet -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -77,6 +80,8 @@
 
     </TableLayout>
 
+    <!-- This is here in case we decide we want to support accounts from multiple banks -->
+    <!-- The bank logo could be displayed to differentiate accounts -->
     <ImageView
         android:layout_width="@dimen/account_logo_width"
         android:layout_height="@dimen/account_logo_height"

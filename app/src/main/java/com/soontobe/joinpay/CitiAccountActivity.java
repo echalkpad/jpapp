@@ -28,6 +28,7 @@ import static com.soontobe.joinpay.R.id.accountListView;
 
 /**
  * CitiAccountActivity shows the current user a summary of their Citi account.
+ * TODO clean the code in this activity
  */
 public class CitiAccountActivity extends Activity {
 

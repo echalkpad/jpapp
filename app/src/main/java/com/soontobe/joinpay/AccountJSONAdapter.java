@@ -5,18 +5,16 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.text.DecimalFormat;
 
 /**
  * AccountJSONAdapter translates the data retrieved from the Citi bank APIs into a row_account
- * layout.  This
+ * layout.
  *
  * Created by Dale Avery on 9/29/2015.
  */
@@ -126,8 +124,10 @@ public class AccountJSONAdapter extends BaseAdapter {
         return convertView;
     }
 
-    // this is used so you only ever have to do
-    // inflation and finding by ID once ever per View
+    /**
+     * This is used so you only ever have to do inflation and finding by ID
+     * one per View.
+     */
     private static class ViewHolder {
         public TextView accNameTextView;
         public TextView accNumTextView;
