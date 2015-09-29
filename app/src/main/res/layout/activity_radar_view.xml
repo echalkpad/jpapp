@@ -70,6 +70,12 @@
                         android:layout_width="fill_parent"
                         android:layout_height="fill_parent" >
                     </FrameLayout>
+
+                    <FrameLayout
+                        android:id="@+id/tab_chat"
+                        android:layout_width="fill_parent"
+                        android:layout_height="fill_parent">
+                    </FrameLayout>
                 </FrameLayout>
             </LinearLayout>
         </TabHost>

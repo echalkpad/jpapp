@@ -10,6 +10,7 @@ import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -21,33 +22,28 @@ import org.json.JSONObject;
 
 import java.text.DecimalFormat;
 
+/**
+ * CitiAccountActivity shows the current user a summary of their Citi account.
+ */
 public class CitiAccountActivity extends Activity {
 
 	final static String ContextString = "CitiAccountActivity";
+    final static String TAG = "AccActivity";
 	Context thisContext;
 	EditText mUsername;
 	EditText mPassword;
 	View currentView;
-	MovementMethod test;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		// TODO Auto-generated method stub
 		super.onCreate(savedInstanceState);
-		
+        Log.d(TAG, "Creating CitiAccountActivity");
+        requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_citi_account);
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(bcReceiver, restIntentFilter);
 		thisContext = getApplicationContext();
 		getAccountInfo(Constants.userName);
-		
-		/*setContentView(R.layout.layout_create_account);
-		setContentView(R.layout.layout_create_account);
-		TextView link = (TextView) findViewById(R.id.citiLink);
-	    String linkText = "Visit the <a href='http://stackoverflow.com'>StackOverflow</a> web page.";
-	    link.setText(Html.fromHtml(linkText));
-	    link.setMovementMethod(LinkMovementMethod.getInstance());*/
-		
-		
 	}
 	
 	@Override
@@ -56,7 +52,7 @@ public class CitiAccountActivity extends Activity {
 			unregisterReceiver(bcReceiver);		//remove the receiver
 		}
 		catch(Exception e){}
-	    super.onStop();
+	    super.onDestroy();
 	}
 	
 	private BroadcastReceiver bcReceiver = new BroadcastReceiver() {
@@ -121,43 +117,47 @@ public class CitiAccountActivity extends Activity {
 			}
 		}
 	};
-	
+
+    /**
+     * Parses a JSON object containing user account information and populates it to the screen.
+     * @param accountDetails The account information to be parsed.
+     */
 	protected void showAccount(JSONObject accountDetails) {
 		String account_name_temp = "";
 		String account_number_temp = "";
 		String balance_temp = "";
 		String first_name_temp = "";
 		String last_name_temp = "";
+
+        // Attempt to parse the JSON object.
 		try {
 			JSONObject account = accountDetails.getJSONArray("accounts").getJSONObject(0);
-
 			account_name_temp = account.getString("account_name");
 			account_number_temp = account.getString("account_number");
 			balance_temp = account.getString("balance");
 			first_name_temp = accountDetails.getString("first_name");
 			last_name_temp = accountDetails.getString("last_name");
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			Log.e(TAG, "Failed to parse account information: " + e.getMessage());
 			return;
 		}
-		
+
+        // Format the account balance into a pretty string
 		double amount = Double.parseDouble(balance_temp);
 		DecimalFormat formatter = new DecimalFormat("#,###.00");
-		Log.d("citi", formatter.format(amount));
+		Log.d(TAG, formatter.format(amount));
 		final String account_name = account_name_temp;
 		final String account_number = account_number_temp;
 		final String balance = formatter.format(amount);
 		final String first_name = first_name_temp;
 		final String last_name = last_name_temp;
+
+        // Populate the Views with the account information.
 		runOnUiThread(new Runnable() {
 			
 			@Override
 			public void run() {
-/*				if(currentView != null) {
-					((ViewManager)currentView.getParent()).removeView(currentView);
-				}
-*/				FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
+                FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
 				currentView = View.inflate(thisContext, R.layout.layout_citi_account, rootLayout);
 				((TextView)currentView.findViewById(R.id.TextView_account_name)).setText(account_name);
 				((TextView)currentView.findViewById(R.id.TextView_account_number)).setText(account_number);

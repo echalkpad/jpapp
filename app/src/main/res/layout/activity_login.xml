@@ -16,7 +16,7 @@
 	  	<TextView 
 	           android:layout_width="wrap_content"
 	           android:layout_height="wrap_content"
-	           android:text="Join"
+	           android:text="@string/join"
 	           android:textColor="#ffffff"
 	           android:textSize="50sp"
 	           android:gravity="right"
@@ -25,13 +25,13 @@
 	  	<TextView 
 	           android:layout_width="wrap_content"
 	           android:layout_height="wrap_content"
-	           android:text="Pay"
+	           android:text="@string/pay"
 	           android:textColor="#ffffff"
 	           android:textStyle="bold"
 	           android:textSize="50sp"
 	           android:gravity="left"
 	           android:layout_weight="0.5"
-	           />
+            android:singleLine="false" />
   	</LinearLayout>
   	
 	<!--  Break -->
@@ -44,8 +44,8 @@
 	<!--  Input Fields -->    
     <EditText
         android:id="@+id/editText_username"
-        android:hint="username"
-        android:text="david"
+        android:hint="@string/user_hint"
+        android:text="@string/test_user"
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:padding="10dp"
@@ -61,8 +61,8 @@
 
     <EditText
         android:id="@+id/editText_password"
-        android:hint="password"
-        android:text="password"
+        android:hint="@string/password_hint"
+        android:text="@string/password_hint"
         android:layout_width="250dp"
         android:layout_height="50dp"
         android:padding="10dp"
@@ -83,7 +83,7 @@
         android:layout_gravity="center_horizontal"
         android:background="@drawable/selector_button"
         android:textSize="20sp"
-        android:text="Login" />
+        android:text="@string/button_login" />
     
     <!--  Break -->
     <View
@@ -100,7 +100,7 @@
         android:layout_gravity="center"
         android:background="@drawable/selector_button"
         android:textSize="14sp"
-        android:text="Need an account?" />
+        android:text="@string/button_account" />
    
     <!--  Break -->
     <View
@@ -113,6 +113,7 @@
         android:layout_width="45dp"
         android:layout_height="25dp"
         android:background="@drawable/citi"
-        android:layout_gravity="center" />
+        android:layout_gravity="center"
+        android:contentDescription="@string/citi_logo_desc" />
 
 </LinearLayout>

@@ -15,7 +15,7 @@ import java.util.ArrayList;
 */
 public class Constants {
 	public static String DemoMyName = "Lirong";
-	public static String userName;	
+	public static String userName = "no_user";
 	public static String transactionBeginTag = "<TransactionRecordBegin>";
 	public static String transactionEndTag = "<TransactionRecordEnd>";
 	public static String transactionIntiatorTag = "TheTransactionInitiatorIs";

@@ -14,9 +14,9 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
             android:gravity="center"
-            android:text="Citi Account"
-            android:textColor="#ffffff"
-            android:textSize="22sp" />
+            android:text="@string/citi_title"
+            android:textColor="@color/default_text"
+            android:textSize="@dimen/text_title_size" />
     </FrameLayout>
 
     
@@ -42,8 +42,8 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/textView1"
-		android:textColor="#fff"
-        android:text="Account Name: "
+		android:textColor="@color/default_text"
+        android:text="@string/citi_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -61,7 +61,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/TextView01"
-        android:text="Account Number: "
+        android:text="@string/citi_number"
         android:textAppearance="?android:attr/textAppearanceMedium"
         android:textColor="#fff" />
 

@@ -20,58 +20,63 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * TODO write a description for this activity
+ */
 public class LoginActivity extends Activity {
 	
 	final String serviceContext = "LoginActivity";
 	EditText mUsername;
 	EditText mPassword;
-	Button mLogin, butRegister;
+	Button mLogin, mRegister;  // The login and "Need an account?" buttons
 	private Boolean changedUser = false;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);  					//No Title Bar
+		requestWindowFeature(Window.FEATURE_NO_TITLE);		// No Title Bar
 		setContentView(R.layout.activity_login);
-		
+
+        // Acquire login screen elements.
 		mUsername = (EditText) findViewById(R.id.editText_username);
+        mPassword = (EditText) findViewById(R.id.editText_password);
+
+        // The password field should clear itself whenever the user name changes.
 		mUsername.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {}
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,int after) {}
-			@Override
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override
 			public void afterTextChanged(Editable s) {
 				changedUser = true;
 			}
 		});
-		mPassword = (EditText) findViewById(R.id.editText_password);
-		mPassword.setOnFocusChangeListener(new OnPasswordFocusChangeListener());
+		mPassword.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(changedUser && hasFocus) {
+                    mPassword.setText("");
+                    changedUser = false;
+                }
+            }
+        });
 		
 		mLogin = (Button) findViewById(R.id.button_login);
 		mLogin.setOnClickListener(loginClicked);
 		
-		butRegister = (Button) findViewById(R.id.button_register);
-		butRegister.setOnClickListener(registerClicked);
-	}
-	
-	private class OnPasswordFocusChangeListener implements
-		OnFocusChangeListener {
-		@Override
-		public void onFocusChange(View v, boolean hasFocus) {
-			if(changedUser){
-				mPassword.setText("");
-				changedUser = false;
-			}
-		}
+		mRegister = (Button) findViewById(R.id.button_register);
+		mRegister.setOnClickListener(registerClicked);
 	}
 	
 	@Override
 	protected void onStop(){
 		try{
-			unregisterReceiver(restResponseReceiver);		//remove the receiver
+			unregisterReceiver(restResponseReceiver);		// remove the receiver
 		}
-		catch(Exception e){}
+		catch(Exception e){
+            Log.e("loginActivity", "Failed to unregister receiver: " + e.getMessage());
+        }
 	    super.onStop();
 	}
 	
@@ -123,7 +128,10 @@ public class LoginActivity extends Activity {
 			}
 		}
 	};
-	
+
+    /**
+     * This object handles the process of logging the user in once the "Login" button is pressed.
+     */
 	View.OnClickListener loginClicked = new View.OnClickListener() {
 		
 		@Override
@@ -134,7 +142,7 @@ public class LoginActivity extends Activity {
 			String passStr = mPassword.getText().toString().trim();
 			Boolean validInput = true;
 			
-			///// Verify Input /////
+			// Validate the username and password and notify user if they are invalid
 			if(validInput && passStr.length() < 1){
 				Log.e("login", "Password is too short, try harder");
 				validInput = false;
@@ -151,12 +159,15 @@ public class LoginActivity extends Activity {
 			
 			///// Send Login /////
 			if(validInput){
+                Log.d("login", "Credentials validated locally. Beginning login process.");
 				findViewById(R.id.button_login).setEnabled(false);
-				Constants.userName = usernameStr;
+				Constants.userName = usernameStr; // Store current user name globally
+                // Pack user and password into a JSON object for the REST request.
 				try {
 					obj.put("username", Constants.userName);
 					obj.put("password", passStr);
 				} catch (JSONException e) {
+                    Log.e("login", "Failed to create user credential JSON: " + e.getMessage());
 					Toast.makeText(getApplicationContext(), "Error creating JSON", Toast.LENGTH_SHORT).show();
 				}
 	
@@ -166,22 +177,24 @@ public class LoginActivity extends Activity {
 				intent.putExtra("body", obj.toString());
 				intent.putExtra("context", serviceContext);
 	
-				Log.d("login", "starting Service");
+				Log.d("login", "starting REST service");
 				startService(intent);	
 				IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 				registerReceiver(restResponseReceiver, restIntentFilter);
 			}
 		}
 	};
-	
+
+    /**
+     * This object handles when the user presses the "Register" button.  This should take the user
+     * to a screen where they can create a Citi account.
+     */
 	View.OnClickListener registerClicked = new View.OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			Log.d("registerClicked", "starting activity");
+			Log.d("registerClicked", "starting registration activity");
 			startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
-			//Intent intentApplication = new Intent(getApplicationContext(), RegisterActivity.class);
-			//startActivity(intentApplication);
 		}
 	};
 

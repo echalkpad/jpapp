@@ -36,17 +36,25 @@ public class MainActivity extends Activity{
 	private IBMPush push = null;
 	private IBMPushNotificationListener notificationlistener = null;
 	public static Context context;
+
+	/**
+	 *
+	 * @param savedInstanceState
+	 */
 	@SuppressLint("DefaultLocale")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);		
-		requestWindowFeature(Window.FEATURE_NO_TITLE);  					//No Title Bar
+		requestWindowFeature(Window.FEATURE_NO_TITLE);	// No Title Bar
 		setContentView(R.layout.activity_main);
+
+		// Populate a URL to allow users to create a Citi Bank account
 		TextView link = (TextView) findViewById(R.id.citiLink);
 	    String linkText = "Don't have a citi account? <a href='http://citi-online-banking.mybluemix.net/'>Sign Up Here</a>";
 	    link.setText(Html.fromHtml(linkText));
 	    link.setMovementMethod(LinkMovementMethod.getInstance());
-	    
+
+		// Display a welcome message to the currently logged in user
 	    TextView userView = (TextView) findViewById(R.id.welcome_user_name);
 	    String username = String.valueOf(Constants.userName.charAt(0)).toUpperCase() + Constants.userName.substring(1, Constants.userName.length());
 	    userView.setText("Welcome " + username);

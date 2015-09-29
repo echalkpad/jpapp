@@ -27,6 +27,7 @@ import android.widget.TabHost.TabSpec;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.soontobe.joinpay.fragment.ChatFragment;
 import com.soontobe.joinpay.fragment.HistoryFragment;
 import com.soontobe.joinpay.fragment.RequestFragment;
 import com.soontobe.joinpay.fragment.TransactionFragment;
@@ -57,16 +58,19 @@ HistoryFragment.OnFragmentInteractionListener {
 	private TabHost mTabHost;
 	private RequestFragment mRequestFragment;
 	private HistoryFragment mHistoryFragment;
+	private ChatFragment mChatFragment;
 	public static final String JUMP_KEY = "_jump";
 	private static final String TAG = "RadarViewActivity";
 	private static final String TAG_REQUEST = "tab_request";
 	private static final String TAG_HISTORY = "tab_history";
+	private static final String TAG_CHAT = "tab_chat";
 	
 	private static final int contactListRequestCode = 1;
 	private static final int proceedToConfirmRequestCode = 2;
 	public static final int historyRequestCode = 3;
 	private static final int requestTab = 0;
 	private static final int historyTab = 1;
+	private static final int chatTab = 2;
 	private static final int COMPLETED = 0;
 	public nearbyUsersAsyncTask mAsyncTaskNearby = null;
 
@@ -81,7 +85,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
+        requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_radar_view);
 		MainActivity.context = this;
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
@@ -91,13 +95,17 @@ HistoryFragment.OnFragmentInteractionListener {
 		if (savedInstanceState != null) {
 			Log.d("history","resuming history fragment");
 			Log.d("request","resuming history fragment");
+			Log.d("chat", "resuming chat fragment");
 			mHistoryFragment = (HistoryFragment) getFragmentManager().findFragmentByTag(TAG_HISTORY);
 			mRequestFragment = (RequestFragment) getFragmentManager().findFragmentByTag(TAG_REQUEST);
+			mChatFragment = (ChatFragment) getFragmentManager().findFragmentByTag(TAG_CHAT);
 		} else {
 			Log.d("history","creating history fragment");
 			Log.d("request","creating request fragment");
+			Log.d("chat", "creating chat fragment");
 			mHistoryFragment = new HistoryFragment();
 			mRequestFragment = new RequestFragment();
+			mChatFragment = new ChatFragment();
 		}
 		
 		mTabHost.setCurrentTab(requestTab);
@@ -114,15 +122,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(restResponseReceiver, restIntentFilter);
 	}
-	
-	/*@Override
-	protected void onStart(){
-		super.onStart();
-		if(mAsyncTaskNearby == null){
-			mAsyncTaskNearby = new nearbyUsersAsyncTask();
-			mAsyncTaskNearby.execute();
-		}
-	}*/
+
 	@Override
 	protected void onStop(){
 		try{
@@ -258,7 +258,7 @@ HistoryFragment.OnFragmentInteractionListener {
 
 	private void setEventListeners() {
 		
-	}	
+	}
 	
 
 	private void setupTabs() {
@@ -266,11 +266,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		mTabHost.setup();
 		mTabHost.addTab(newTab(TAG_REQUEST, R.string.tab_request, R.id.tab_request));
 		mTabHost.addTab(newTab(TAG_HISTORY, R.string.tab_history, R.id.tab_history));
-		mTabHost.setCurrentTab(requestTab);
-		mTabHost.setCurrentTab(historyTab);
-		
-		mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));		//light navy blue
-		//mTabHost.setCurrentTab(0);
+		mTabHost.addTab(newTab(TAG_CHAT, R.string.tab_chat, R.id.tab_chat));
 	}
 
 	private TabSpec newTab(String tag, int labelId, int tabContentId) {
@@ -312,17 +308,29 @@ HistoryFragment.OnFragmentInteractionListener {
 			//Reset selected users and amounts
 			onClickClearButton(mTabHost);
 		}
+		else if (TAG_CHAT.equals(tabId)) {
+			Log.d("tab", "changing tab to chat");
+
+			if(mAsyncTaskNearby != null) {
+				Log.d("nearby", "stopping nearby task");
+				mAsyncTaskNearby.cancel(true);
+				mAsyncTaskNearby = null;
+			}
+
+			fm.beginTransaction().replace(R.id.tab_chat, mChatFragment, TAG_CHAT).commit();
+		}
 		else {
-			Log.w("RadarViewActivity_onTabChanged", "Cannot find tab id=" + tabId);
+			Log.w("RadViewAct_onTabChanged", "Cannot find tab id=" + tabId);
 		}
 
-		// change history tab color. Should be refactored later.
+		/*// change history tab color. Should be refactored later.
 		if (tabId.equals("tab_history")) {
 			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));//light navy blue
 		} else {
 			//TabWidget tabWidget = mTabHost.getTabWidget();
 			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
-		}
+		}*/
+
 
 	}
 
