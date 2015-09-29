@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="@dimen/account_row_height"
+    android:background="@drawable/borders">
+
+    <TableLayout
+        android:layout_width="@dimen/account_row_info_width"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="false"
+        android:layout_marginTop="@dimen/account_info_margins"
+        android:layout_marginRight="@dimen/account_info_margins"
+        android:layout_marginBottom="@dimen/account_info_margins"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_name"
+            android:id="@+id/accNameTitleTextView"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_default_name"
+            android:id="@+id/accNameTextView"
+            android:layout_marginLeft="@dimen/account_info_drop"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_acc_holder"
+            android:id="@+id/accHolderTitleTextView"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_default_acc_holder"
+            android:id="@+id/accHolderTextView"
+            android:layout_marginLeft="@dimen/account_info_drop"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_number"
+            android:id="@+id/accNumTitleTextView"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_default_number"
+            android:id="@+id/accNumTextView"
+            android:layout_marginLeft="@dimen/account_info_drop"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_balance"
+            android:id="@+id/accBalTitleTextView"
+            android:textColor="@color/default_text" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/citi_default_balance"
+            android:id="@+id/accBalTextView"
+            android:layout_marginLeft="@dimen/account_info_drop"
+            android:textColor="@color/default_text" />
+
+    </TableLayout>
+
+    <ImageView
+        android:layout_width="@dimen/account_logo_width"
+        android:layout_height="@dimen/account_logo_height"
+        android:id="@+id/bankLogoImageView"
+        android:src="@drawable/citi_large_white_square"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/account_info_logo_margin"
+        android:contentDescription="@string/citi_logo_desc"
+        android:scaleType="centerInside"/>
+
+</RelativeLayout>

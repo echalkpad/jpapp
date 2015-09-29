@@ -16,9 +16,19 @@
     <string name="citi_logo_desc">Citi Bank Logo</string>
 
     <!-- Citi Account Screen -->
-    <string name="citi_title">Your Citi Account Information</string>
-    <string name="citi_name">Account Name: </string>
-    <string name="citi_number">Account Number: </string>
+    <string name="citi_title">Your Account Information</string>
+    <string name="citi_name"><u>Account Name:</u></string>
+    <string name="citi_number"><u>Account Number:</u></string>
+    <string name="citi_acc_holder"><u>Account Holder:</u></string>
+    <string name="citi_balance"><u>Balance:</u></string>
+    <string name="citi_default_name">Account Name Here</string>
+    <string name="citi_default_number">XXXX-XXXXXX-XXXXX</string>
+    <string name="citi_default_acc_holder">Accountington Holderson</string>
+    <string name="citi_default_balance">$ XXXXX.XX</string>
+    <string name="citi_fallback_name">No Name Found</string>
+    <string name="citi_fallback_number">No Number Found</string>
+    <string name="citi_fallback_holder">No Holder Found</string>
+    <string name="citi_fallback_balance">No Balance Found</string>
     <!-- TODO finish tagging Citi bank info screen -->
 
     <string name="app_name">JoinPay</string>

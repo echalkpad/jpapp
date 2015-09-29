@@ -14,36 +14,57 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.text.DecimalFormat;
+
+import static com.soontobe.joinpay.R.id.accountListView;
 
 /**
  * CitiAccountActivity shows the current user a summary of their Citi account.
  */
 public class CitiAccountActivity extends Activity {
 
+	// For navigating the JSONs from the Citi API
+	private static final String TAG_ACCOUNTS = "accounts";
+    private static final String TAG_FIRST_NAME = "first_name";
+    private static final String TAG_LAST_NAME = "last_name";
+
 	final static String ContextString = "CitiAccountActivity";
-    final static String TAG = "AccActivity";
+    final static String TAG = "citi";
 	Context thisContext;
 	EditText mUsername;
 	EditText mPassword;
 	View currentView;
+
+	// For displaying the list of accounts.
+	private ListView mAccountListView;
+	private AccountJSONAdapter mAdapter;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         Log.d(TAG, "Creating CitiAccountActivity");
         requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
-		setContentView(R.layout.activity_citi_account);
+		setContentView(R.layout.layout_citi_account);
+
+        // Initialize the account list Views
+        mAccountListView = (ListView) findViewById(R.id.accountListView);
+        mAdapter = new AccountJSONAdapter(this, getLayoutInflater());
+        mAccountListView.setAdapter(mAdapter);
+
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(bcReceiver, restIntentFilter);
 		thisContext = getApplicationContext();
 		getAccountInfo(Constants.userName);
+
+
 	}
 	
 	@Override
@@ -123,6 +144,31 @@ public class CitiAccountActivity extends Activity {
      * @param accountDetails The account information to be parsed.
      */
 	protected void showAccount(JSONObject accountDetails) {
+
+		// Attempt to pull the users accounts from the given JSON
+		Log.d(TAG, "Parsing account details.");
+        JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
+		if(accounts == null) {
+			Log.e(TAG, "Tag:\"" + TAG_ACCOUNTS + "\" yielded no account information.");
+			return;
+		}
+
+        // Parse out the users name from the JSON
+        String first = accountDetails.optString(TAG_FIRST_NAME);
+        String last = accountDetails.optString(TAG_LAST_NAME);
+        String name = first + " " + last;
+        if(first == null || last == null) {
+            Log.e(TAG, "Tags:\"" + TAG_FIRST_NAME + "\" and \"" + TAG_LAST_NAME +
+                    "\" yielded \"" + name + "\"");
+            name = "@string/citi_fallback_holder";
+        }
+
+		// Update the adapter's dataset
+		mAdapter.updateData(accounts, name);
+
+		//
+
+		/*
 		String account_name_temp = "";
 		String account_number_temp = "";
 		String balance_temp = "";
@@ -166,6 +212,7 @@ public class CitiAccountActivity extends Activity {
 				((TextView)currentView.findViewById(R.id.TextView_account_lastname)).setText(last_name);
 			}
 		});
+		*/
 	}
 	
 	OnClickListener onLinkClicked = new View.OnClickListener() {

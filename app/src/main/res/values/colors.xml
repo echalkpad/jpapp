@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="default_text">#ffffff</color>
+    <color name="account_border">#ffffff</color>
     <dimen name="text_title_size">22sp</dimen>
 </resources>
