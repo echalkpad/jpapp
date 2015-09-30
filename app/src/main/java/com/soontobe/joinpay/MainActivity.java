@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Html;
+import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -22,6 +23,10 @@ import com.ibm.mobile.services.push.IBMPush;
 import com.ibm.mobile.services.push.IBMPushNotificationListener;
 import com.ibm.mobile.services.push.IBMSimplePushNotification;
 
+import org.jsoup.helper.DataUtil;
+
+import java.io.File;
+import java.util.Date;
 import java.util.List;
 
 import bolts.Continuation;
@@ -33,14 +38,12 @@ import bolts.Task;
  *
  */
 public class MainActivity extends Activity{
+
+	private static final String TAG = "main_screen";
 	private IBMPush push = null;
 	private IBMPushNotificationListener notificationlistener = null;
 	public static Context context;
 
-	/**
-	 *
-	 * @param savedInstanceState
-	 */
 	@SuppressLint("DefaultLocale")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -49,15 +52,19 @@ public class MainActivity extends Activity{
 		setContentView(R.layout.activity_main);
 
 		// Populate a URL to allow users to create a Citi Bank account
-		TextView link = (TextView) findViewById(R.id.citiLink);
-	    String linkText = "Don't have a citi account? <a href='http://citi-online-banking.mybluemix.net/'>Sign Up Here</a>";
-	    link.setText(Html.fromHtml(linkText));
+		TextView link = (TextView) findViewById(R.id.citiSignupTextView);
+	    String linkText = getString(R.string.signup_link);
+	    //link.setText(Html.fromHtml(linkText));
 	    link.setMovementMethod(LinkMovementMethod.getInstance());
 
 		// Display a welcome message to the currently logged in user
 	    TextView userView = (TextView) findViewById(R.id.welcome_user_name);
 	    String username = String.valueOf(Constants.userName.charAt(0)).toUpperCase() + Constants.userName.substring(1, Constants.userName.length());
 	    userView.setText("Welcome " + username);
+
+		// Flush the cache whenever the app is started, so that the chat tab stays
+		// up to date with the chat web page
+        clearCache(this, getResources().getInteger(R.integer.minutes_to_keep));
 				
 		///////////////////////////////////////////////////
 		/////////////////  IBM Push Code  ///////////////// 
@@ -166,6 +173,35 @@ public class MainActivity extends Activity{
 		});
 	}
 
+    static int clearCacheFolder(final File dir, final int numMinutes) {
+        int deletedFiles = 0;
+        if (dir != null && dir.isDirectory()) {
+            try {
+                for (File child : dir.listFiles()) {
+                    // Recursively delete subdirectories
+                    if(child.isDirectory())
+                        deletedFiles += clearCacheFolder(child, numMinutes);
+
+                    // Delete files and subdirectories in this dir
+                    // only empty dirs can be deleted, so subdirs are deleted recursively first
+                    if (child.lastModified() < new Date().getTime() - numMinutes * DateUtils.MINUTE_IN_MILLIS) {
+                        if(child.delete())
+                            deletedFiles++;
+                    }
+                }
+            } catch (Exception e) {
+                Log.e(TAG, String.format("Failed to clean the cache, error %s", e.getMessage()));
+            }
+        }
+        return deletedFiles;
+    }
+
+    public static void clearCache(final Context context, final int numMinutes) {
+        Log.i(TAG, String.format("Starting cache prune. Deleting files older than %d minutes", numMinutes));
+        int numDeletedFiles = clearCacheFolder(context.getCacheDir(), numMinutes);
+        Log.i(TAG, String.format("Cache pruning completed. %d files deleted", numDeletedFiles));
+    }
+
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
@@ -185,28 +221,50 @@ public class MainActivity extends Activity{
 		return super.onOptionsItemSelected(item);
 	}
 
-	public void onButtonClick(View view){		//join pay button
-		Log.d("button", "join pay click");
+	/**
+	 * This method is called when the user presses the "Enter" button.  It starts the radar
+	 * activity.
+	 * @param view The View that was clicked.
+	 */
+	public void onEnterClicked(View view){
+		Log.d(TAG, "\"" + getString(R.string.button_enter) + "\" clicked");
 		startActivity(new Intent(this, RadarViewActivity.class));
 	}
-	
-	public void onCheckPointsClicked(View view){		//check points point
-		Log.d("button", "click button 0");
+
+	/**
+	 * This method is called when the user presses the "check points" button.  It starts the
+	 * points summary activity.  Currently, this button is hidden and cannot be clicked.
+	 * @param view The View that was clicked.
+	 */
+	public void onCheckPointsClicked(View view){
+		Log.d(TAG, "\"" + getString(R.string.button_points) + "\" clicked");
 		startActivity(new Intent(this, PointBalance.class));
 	}
 
-	public void onCitiAccountClicked(View view) {
+	/**
+	 * This method is called when the user presses the "my accounts" button. It starts the
+	 * account activity.
+	 * @param view The View that was clicked.
+	 */
+	public void onAccountsClicked(View view) {
+		Log.d(TAG, "\"" + getString(R.string.button_accounts) + "\" clicked");
 		startActivity(new Intent(this, CitiAccountActivity.class));		
 	}
-	
+
+	/**
+	 * This method is called when the user presses the "logout" button.  It returns to the login
+	 * activity and ends this activity.
+	 * @param view The view that was clicked.
+	 */
 	public void onLogoutClicked(View view) {
+		Log.d(TAG, "\"" + getString(R.string.button_logout) + "\" clicked");
 		startActivity(new Intent(this, LoginActivity.class));
 		finish();
 	}
 	
 	@Override
 	protected void onStop() {
-		// TODO Auto-generated method stub
+		// Stop the activity
 		super.onStop();
 	}
 }

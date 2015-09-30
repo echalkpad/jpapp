@@ -6,8 +6,16 @@
 	<dimen name="tab_height">30dp</dimen>
     <dimen name="tab_padding">3dp</dimen>
     <dimen name="text_small">14sp</dimen>
-    <dimen name="text_default">17sp</dimen> 
+    <dimen name="text_default">17sp</dimen>
     <dimen name="list_item_height">30dp</dimen>
+
+    <!-- Default values that span the entire application -->
+    <dimen name="button_text_size">18sp</dimen>
+    <dimen name="text_large">20sp</dimen>
+
+    <!-- Main Landing Screen -->
+    <dimen name="landing_button_width">250dp</dimen>
+    <dimen name="landing_button_height">50dp</dimen>
 
     <!-- Citi Account Info Screen -->
     <dimen name="account_info_drop">60dp</dimen>

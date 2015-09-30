@@ -8,15 +8,26 @@
     android:layout_height="@dimen/account_row_height"
     android:background="@drawable/borders">
 
+    <ImageView
+        android:layout_width="@dimen/account_logo_width"
+        android:layout_height="@dimen/account_logo_height"
+        android:id="@+id/bankLogoImageView"
+        android:src="@drawable/citi_large_white_square"
+        android:layout_alignParentLeft="true"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="@dimen/account_info_logo_margin"
+        android:contentDescription="@string/citi_logo_desc"
+        android:scaleType="centerInside"/>
+
     <TableLayout
-        android:layout_width="@dimen/account_row_info_width"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:layout_alignParentLeft="false"
         android:layout_marginTop="@dimen/account_info_margins"
         android:layout_marginRight="@dimen/account_info_margins"
         android:layout_marginBottom="@dimen/account_info_margins"
         android:layout_centerVertical="true"
-        android:layout_alignParentRight="true">
+        android:layout_toRightOf="@id/bankLogoImageView"
+        android:layout_marginLeft="@dimen/account_info_margins">
 
         <TextView
             android:layout_width="wrap_content"
@@ -82,15 +93,5 @@
 
     <!-- This is here in case we decide we want to support accounts from multiple banks -->
     <!-- The bank logo could be displayed to differentiate accounts -->
-    <ImageView
-        android:layout_width="@dimen/account_logo_width"
-        android:layout_height="@dimen/account_logo_height"
-        android:id="@+id/bankLogoImageView"
-        android:src="@drawable/citi_large_white_square"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/account_info_logo_margin"
-        android:contentDescription="@string/citi_logo_desc"
-        android:scaleType="centerInside"/>
 
 </RelativeLayout>

@@ -27,4 +27,6 @@
         <attr name="barShowPopup" format="boolean"/>
     </declare-styleable>
 
+    <integer name="minutes_to_keep">60</integer>
+
 </resources>

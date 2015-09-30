@@ -100,7 +100,7 @@
         android:layout_gravity="center"
         android:background="@drawable/selector_button"
         android:textSize="14sp"
-        android:text="@string/button_account" />
+        android:text="@string/button_make_account" />
    
     <!--  Break -->
     <View
