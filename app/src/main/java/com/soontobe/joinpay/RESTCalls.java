@@ -14,6 +14,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
+import org.json.JSONArray;
 
 import java.io.IOException;
 import java.util.Locale;
@@ -40,6 +41,7 @@ public class RESTCalls extends IntentService {
 		final String url = intent.getStringExtra("url");
 		final String body = intent.getStringExtra("body");
 		final String context = intent.getStringExtra("context");
+		final String[] headers = intent.getStringArrayExtra("headers");
 		Log.d("rest", method + " " + url);
 		//Log.d("body", ""+body);
 		
@@ -49,6 +51,18 @@ public class RESTCalls extends IntentService {
 				if(Constants.loginToken != null) {
 					httpget.addHeader("sessionID", Constants.loginToken);
 				}
+
+                //// Add Headers ////
+                if(headers != null && headers.length >= 2) {
+                    for(int i=0; i < headers.length;){
+                        if(headers[i] != null && headers[i+1] != null) {
+                            httpget.addHeader(headers[i].toString(), headers[i + 1].toString());
+                            Log.d("rest", "added header '" + headers[i] + "' '" + headers[i + 1] + "'");
+                        }
+                        i += 2;
+                    }
+                }
+
 				ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 					@Override
 					public String handleResponse(HttpResponse response)
@@ -78,6 +92,18 @@ public class RESTCalls extends IntentService {
 				if(Constants.loginToken != null) {
 					post.addHeader("sessionID", Constants.loginToken);
 				}
+
+               //// Add Headers ////
+               if(headers != null && headers.length >= 2) {
+                    for(int i=0; i < headers.length;){
+                        if(headers[i] != null && headers[i+1] != null) {
+                            post.addHeader(headers[i].toString(), headers[i + 1].toString());
+                            Log.d("rest", "added header '" + headers[i] + "' '" + headers[i + 1] + "'");
+                        }
+                        i += 2;
+                    }
+                }
+
 				ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 					@Override
 					public String handleResponse(HttpResponse response)
@@ -109,6 +135,18 @@ public class RESTCalls extends IntentService {
 				if(Constants.loginToken != null) {
 					put.addHeader("sessionID", Constants.loginToken);
 				}
+
+                //// Add Headers ////
+                if(headers != null && headers.length >= 2) {
+                    for(int i=0; i < headers.length;){
+                        if(headers[i] != null && headers[i+1] != null) {
+                            put.addHeader(headers[i].toString(), headers[i + 1].toString());
+                            Log.d("rest", "added header '" + headers[i] + "' '" + headers[i + 1] + "'");
+                        }
+                        i += 2;
+                    }
+                }
+
 				ResponseHandler<String> responseHandler = new ResponseHandler<String>() {
 					@Override
 					public String handleResponse(HttpResponse response)

@@ -16,9 +16,12 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+import android.util.Base64;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.UnsupportedEncodingException;
 
 /**
  * TODO write a description for this activity
@@ -170,9 +173,21 @@ public class LoginActivity extends Activity {
                     Log.e("login", "Failed to create user credential JSON: " + e.getMessage());
 					Toast.makeText(getApplicationContext(), "Error creating JSON", Toast.LENGTH_SHORT).show();
 				}
-	
+
+                ///// Basic Auth Stuff /////
+                byte [] data = null;
+                try{
+                    data = (Constants.userName + ":" + passStr).getBytes("UTF-8");                  //convert to byte array
+                }catch(UnsupportedEncodingException e1){
+
+                }
+                String base64 = Base64.encodeToString(data, Base64.DEFAULT).trim();                  //convert to base64 encoding
+                String [] header = {"Authorization", "Basic " + base64};
+
+                //// Build Req ////
 				String url = Constants.baseURL + "/login";
 				intent.putExtra("method","post");
+                intent.putExtra("headers", header);
 				intent.putExtra("url",url);
 				intent.putExtra("body", obj.toString());
 				intent.putExtra("context", serviceContext);
