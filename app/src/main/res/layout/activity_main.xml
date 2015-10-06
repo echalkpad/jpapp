@@ -1,0 +1,123 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@drawable/shape_main_background"
+    tools:context="com.soontobe.joinpay.MainActivity" >
+	
+    <!--  Logo -->
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    style="@style/DarkBgTheme"
+	    android:layout_marginTop="0dp">
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="@string/join"
+	           android:textColor="@color/default_text"
+	           android:textSize="50sp"
+	           android:gravity="right"
+	           android:layout_weight="0.5"
+	           />
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="@string/pay"
+	           android:textColor="@color/default_text"
+	           android:textStyle="bold"
+	           android:textSize="50sp"
+	           android:gravity="left"
+	           android:layout_weight="0.5"
+	           />
+  	</LinearLayout>
+  	
+	<!-- Welcome -->
+	<TextView 
+	     android:id="@+id/welcome_user_name"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:text="@string/welcome_message"
+         android:textColor="@color/default_text"
+         android:textSize="@dimen/text_large"
+         android:layout_marginTop="20dp"
+         android:gravity="center"
+         />
+   
+    <!-- Buttons -->
+    <Button
+        android:id="@+id/pointsButton"
+        style="@style/ButtonTheme"
+        android:layout_marginTop="15dp"
+        android:layout_width="@dimen/landing_button_width"
+        android:layout_height="@dimen/landing_button_height"
+        android:layout_gravity="center_horizontal"
+        android:onClick="onCheckPointsClicked"
+        android:background="@drawable/selector_button"
+        android:textSize="@dimen/button_text_size"
+        android:text="@string/button_points"
+        android:visibility="gone"/>
+    
+    <Button
+        android:id="@+id/enterButton"
+        style="@style/ButtonTheme"
+        android:layout_marginTop="15dp"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:onClick="onEnterClicked"
+        android:background="@drawable/selector_button"
+        android:textSize="@dimen/button_text_size"
+        android:text="@string/button_enter" />
+        
+    <Button
+        android:id="@+id/accountsButton"
+        style="@style/ButtonTheme"
+        android:layout_marginTop="15dp"
+        android:layout_width="@dimen/landing_button_width"
+        android:layout_height="@dimen/landing_button_height"
+        android:layout_gravity="center_horizontal"
+        android:onClick="onAccountsClicked"
+        android:background="@drawable/selector_button"
+        android:textSize="@dimen/button_text_size"
+        android:text="@string/button_accounts"
+       />
+    
+    <TextView 
+          android:id="@+id/citiSignupTextView"
+          android:text="@string/signup_link"
+          android:layout_width="fill_parent"
+          android:layout_height="50dp"
+          android:gravity="center"
+          android:textColor="@color/default_text"
+        android:textSize="@dimen/text_default" />
+    
+    <!-- Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginBottom="80dp"/>
+
+    <Button
+        android:id="@+id/logoutButton"
+        style="@style/ButtonTheme"
+        android:layout_width="@dimen/landing_button_width"
+        android:layout_height="@dimen/landing_button_height"
+        android:onClick="onLogoutClicked"
+        android:background="@drawable/selector_button"
+        android:textSize="@dimen/button_text_size"
+        android:text="@string/button_logout"
+        android:layout_marginBottom="50dp"
+        android:layout_gravity="bottom|center"
+       />
+    
+    <!--  Citi Logo -->
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="25dp"
+        android:background="@drawable/citi"
+        android:layout_gravity="bottom|center"
+        android:contentDescription="@string/citi_logo_desc" />
+</LinearLayout>

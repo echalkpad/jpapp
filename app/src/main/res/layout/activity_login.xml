@@ -1,0 +1,119 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    style="@style/NormalBgTheme"
+    tools:context="com.soontobe.joinpay.MainActivity"
+    android:background="@drawable/joinpay_bg" >
+ 
+    <!--  Logo -->
+	<LinearLayout
+	    android:layout_width="fill_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="horizontal"
+	    android:layout_marginTop="70dp">
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="@string/join"
+	           android:textColor="#ffffff"
+	           android:textSize="50sp"
+	           android:gravity="right"
+	           android:layout_weight="0.5"
+	           />
+	  	<TextView 
+	           android:layout_width="wrap_content"
+	           android:layout_height="wrap_content"
+	           android:text="@string/pay"
+	           android:textColor="#ffffff"
+	           android:textStyle="bold"
+	           android:textSize="50sp"
+	           android:gravity="left"
+	           android:layout_weight="0.5"
+            android:singleLine="false" />
+  	</LinearLayout>
+  	
+	<!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginBottom="20dp"
+	    />  
+	    
+	<!--  Input Fields -->    
+    <EditText
+        android:id="@+id/editText_username"
+        android:hint="@string/user_hint"
+        android:text="@string/test_user"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:background="#ffffff"
+        android:textColorHint="#cccccc"
+        android:textColor="#3B6DAC"
+        android:layout_marginBottom="15dp"
+        android:ems="10" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editText_password"
+        android:hint="@string/password_hint"
+        android:text="@string/password_hint"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:layout_gravity="center"
+        android:background="#ffffff"
+        android:textColor="#3B6DAC"
+        android:textColorHint="#cccccc"
+        android:ems="10"
+        android:inputType="textPassword" />
+    
+    <!--  Login Button -->
+    <Button
+        android:id="@+id/button_login"
+        style="@style/ButtonTheme"
+        android:layout_marginTop="25dp"
+        android:layout_width="140dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/selector_button"
+        android:textSize="20sp"
+        android:text="@string/button_login" />
+    
+    <!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginBottom="15dp"/>
+    
+    <!--  Register Button -->
+    <Button
+        android:id="@+id/button_register"
+        style="@style/ButtonTheme"
+        android:layout_width="140dp"
+        android:layout_height="40dp"
+        android:layout_gravity="center"
+        android:background="@drawable/selector_button"
+        android:textSize="14sp"
+        android:text="@string/button_make_account" />
+   
+    <!--  Break -->
+    <View
+	    android:layout_width="fill_parent"
+	    android:layout_height="2dp"
+	    android:layout_marginBottom="75dp"/>
+    
+    <!--  Citi Logo -->
+    <ImageView
+        android:layout_width="45dp"
+        android:layout_height="25dp"
+        android:background="@drawable/citi"
+        android:layout_gravity="center"
+        android:contentDescription="@string/citi_logo_desc" />
+
+</LinearLayout>

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="138dp"
+    android:layout_height="138dp" >
+    
+    <!-- Yellow circle background -->
+    <ImageView
+        android:id="@+id/imgview_adjpanel_yellow"
+        android:layout_width="106.7dp"
+        android:layout_height="106.7dp"
+        android:layout_marginLeft="14dp"
+        android:layout_marginTop="16dp"
+        android:src="@drawable/shape_small_circle" />
+	
+    <!-- Top button -->
+    <ImageButton 
+        android:id="@+id/button_adjpanel_top"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="52dp"
+        android:src="@drawable/unlocked_white"
+        android:scaleType="fitCenter"
+        android:padding="4dp"
+        android:background="@drawable/shape_small_button_circle"
+        />
+    
+    <!-- Left Button -->
+    <ImageButton
+        android:id="@+id/button_adjpanel_left"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="75dp"
+        android:background="@drawable/shape_small_button_circle"
+        android:padding="4dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/pencil_white" />
+    
+    <!-- Bottom button -->
+    <ImageButton 
+        android:id="@+id/button_adjpanel_bottom"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginLeft="52dp"
+        android:layout_gravity="bottom"
+        android:src="@drawable/add_person_white"
+        android:scaleType="fitCenter"
+        android:padding="4dp"
+        android:background="@drawable/shape_small_button_circle"
+       	android:visibility="invisible"
+        />
+    
+    <!-- Right button -->
+    <ImageButton
+        android:id="@+id/button_adjpanel_right"
+        android:layout_gravity="end"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="75dp"
+        android:background="@drawable/shape_small_button_circle"
+        android:src="@drawable/cross_white"
+        android:scaleType="fitCenter"
+        android:padding="4dp"
+        />
+    
+    <!-- Center border and big button -->
+    <Button 
+        android:id="@+id/button_adjpanel_center"
+        android:layout_width="69dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="33dp"
+        android:background="@drawable/shape_circle_white_w_border"
+        />
+    <TextView 
+        android:id="@+id/textview_adjpanel_name"
+        android:focusable="false"
+        android:layout_width="66.7dp"
+        android:layout_height="18dp"
+        android:textSize="12sp"
+        android:text=""
+        android:singleLine="true"
+        android:layout_gravity="center"
+        android:layout_marginBottom="8dp"
+        android:gravity="center_horizontal"
+        android:textColor="#ffffff"
+        />
+    <TextView 
+        android:id="@+id/textview_adjpanel_dollar"
+        android:layout_width="45dp"
+        android:layout_height="19dp"
+        android:textSize="12sp"
+        android:textColor="#ffffff"
+        android:text="$"
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        />
+    <TextView 
+        android:id="@+id/textview_adjpanel_money"
+        android:focusable="false"
+        android:layout_width="66.7dp"
+        android:layout_height="19dp"
+        android:textSize="12sp"
+        android:text=""
+        android:layout_gravity="center"
+        android:layout_marginTop="10dp"
+        android:gravity="center_horizontal"
+        android:textColor="#ffffff"
+        />
+    
+</FrameLayout>

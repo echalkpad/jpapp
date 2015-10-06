@@ -1,0 +1,62 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:background="@drawable/shape_main_background">
+	
+    <FrameLayout 
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        style="@style/DarkBgTheme">
+        
+        <TextView 
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:text="Link Citi Account"
+            android:textColor="#ffffff"
+            android:textSize="22sp"
+            android:gravity="center"
+            />
+        
+    </FrameLayout>       
+    
+    <EditText
+        android:id="@+id/editText_account_username"
+        android:hint="Citibank username"
+        android:textColorHint="#cccccc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10" >
+
+        <requestFocus />
+    </EditText>
+
+    <EditText
+        android:id="@+id/editText_account_password"
+        android:hint="Citibank password"
+        android:textColorHint="#cccccc"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPassword" />
+    
+      <Button
+        android:id="@+id/button_link"
+        style="@style/ButtonTheme"
+        android:layout_marginTop="15dp"
+        android:layout_width="250dp"
+        android:layout_height="50dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/selector_button"
+        android:textSize="18sp"
+        android:text="Link" />
+      
+      <TextView 
+          android:id="@+id/citiLink"
+          android:text="link here"
+          android:layout_width="fill_parent"
+          android:layout_height="50dp"
+          android:gravity="center"
+          android:textColor="#ffffff"
+          android:visibility="gone"/>
+</LinearLayout>

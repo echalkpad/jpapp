@@ -1,0 +1,189 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#fcfcfc"
+    android:orientation="vertical"
+    android:focusableInTouchMode="true" 
+    tools:context="com.soontobe.joinpay.fragment.SendFragment"
+    >
+
+    <com.soontobe.joinpay.widget.UntouchableScrollView
+         android:layout_height="fill_parent"
+         android:layout_width="fill_parent"
+         android:layout_above="@+id/group_note_bar"
+         android:scrollbars="none"
+         >
+		<LinearLayout 
+		    android:layout_width="match_parent"
+		    android:layout_height="fill_parent"
+		    android:orientation="vertical"
+		    android:layout_gravity="bottom|center"
+		    >
+		    
+	    	<FrameLayout
+	              android:id="@+id/layout_send_frag_bubbles"
+	              android:layout_width="fill_parent"
+	              android:layout_height="fill_parent"
+	              android:focusableInTouchMode="true"
+	               >
+	             
+	              <com.soontobe.joinpay.widget.ResizableImageView
+	                  android:layout_width="fill_parent"
+	                  android:layout_height="755dp"
+	                  android:scaleType="centerCrop"
+	                  android:src="@drawable/radar_bg" />
+		        
+		          	<ImageButton
+		              	android:id="@+id/contact_button"
+		              	android:layout_width="62dp"
+		              	android:layout_height="62dp"
+		              	android:layout_gravity="center|top"
+		              	android:layout_marginTop="20dp"
+	             		android:background="@drawable/shape_circle_gray"
+		              	android:gravity="center"
+		              	android:onClick="contactButtonOnClick"
+		              	android:padding="15dp"
+		              	android:scaleType="fitCenter"
+		              	android:src="@drawable/add_white"
+		              	android:textColor="#fcfcfc"
+		              	android:textSize="36dp" />
+	
+		          	<com.soontobe.joinpay.widget.RadarUserView
+		              	android:id="@+id/user_bubble_myself"
+		              	android:layout_width="wrap_content"
+		              	android:layout_height="wrap_content"
+		              	android:layout_gravity="bottom|center">
+		          	</com.soontobe.joinpay.widget.RadarUserView>
+	
+			</FrameLayout>
+		
+		</LinearLayout>
+	            
+	</com.soontobe.joinpay.widget.UntouchableScrollView>
+     
+
+     <!-- Group note bar -->
+     <RelativeLayout
+          android:id="@+id/group_note_bar"
+          android:background="#e3e3e2"
+          android:layout_width="fill_parent"
+          android:layout_height="wrap_content"
+          android:layout_above="@+id/radar_view_bottom_bar"
+          android:paddingTop="6dp"
+          android:paddingBottom="6dp"
+          android:paddingLeft="15dp"
+          android:paddingRight="10dp" >
+
+          <ImageView
+              android:id="@+id/icon_group_note"
+              android:layout_width="25dp"
+              android:layout_height="25dp"
+              android:layout_centerVertical="true"
+              android:src="@drawable/group_white" />
+
+          <RelativeLayout
+              android:layout_width="fill_parent"
+              android:layout_height="26dp"
+              android:layout_toRightOf="@id/icon_group_note"
+              android:paddingLeft="10dp"
+              android:paddingRight="10dp" >
+
+              <EditText
+                  android:id="@+id/group_note"
+                  android:layout_width="fill_parent"
+                  android:layout_height="fill_parent"
+                  android:layout_centerVertical="true"
+                  android:hint="Set a group note"
+                  android:background="#ffffff"
+                  android:paddingLeft="8dp"
+                  android:textSize="14dp"
+                  android:textColor="#000"
+                  android:textColorHint="#ccc"
+                  android:singleLine="true" />
+          </RelativeLayout>
+          
+      </RelativeLayout>
+      
+<!-- Bottom Bar -->
+	<RelativeLayout
+         android:id="@+id/radar_view_bottom_bar"
+         android:layout_width="fill_parent"
+         android:layout_height="wrap_content"
+         android:layout_alignParentBottom="true"
+         android:orientation="horizontal"
+         android:paddingLeft="5dp"
+         android:paddingRight="10dp" 
+         style="@style/NormalBgTheme"
+         >
+
+	<Button
+          android:id="@+id/btn_radar_view_cross"
+          android:layout_width="40dp"
+          android:layout_height="40dp"
+          android:background="@drawable/cross_border"
+          android:gravity="left"
+          android:layout_marginRight="15dp"
+          android:onClick="onClickClearButton" />
+
+	<ImageView
+          android:id="@+id/dollar_sign"
+          android:layout_width="25dp"
+          android:layout_height="25dp"
+          android:layout_centerVertical="true"
+          android:layout_toRightOf="@id/btn_radar_view_cross"
+          android:src="@drawable/dollar_white" />
+
+     <EditText
+         android:id="@+id/edit_text_total_amount"
+         android:layout_width="100dp"
+         android:layout_height="30dp"
+         android:layout_centerVertical="true"
+         android:layout_toRightOf="@+id/dollar_sign"
+         android:textColorHint="#777"
+         android:gravity="center"
+         android:hint="Total"
+         android:enabled="false"
+         android:inputType="numberDecimal"
+         android:background="@drawable/custom_button" />
+
+      <RelativeLayout
+          android:layout_width="60dp"
+          android:layout_height="25dp"
+          android:layout_centerVertical="true"
+          android:layout_toRightOf="@+id/edit_text_total_amount"
+          android:paddingLeft="10dp"
+          android:paddingRight="5dp" >
+
+             <ImageView
+                 android:id="@+id/send_pane_single_person_icon"
+                 android:layout_width="25dp"
+                 android:layout_height="fill_parent"
+                 android:src="@drawable/person_white" />
+
+             <TextView
+                 android:id="@+id/send_num_of_people"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+                 android:layout_centerVertical="true"
+                 android:layout_toRightOf="@+id/send_pane_single_person_icon"
+                 android:text="0"
+                 android:textColor="#FFFFFF"
+                 android:textSize="20dp" />
+         </RelativeLayout>
+
+         <Button
+             android:id="@+id/send_money_next"
+             style="@style/ButtonTheme"
+             android:layout_width="70dp"
+             android:layout_height="30dp"
+             android:layout_alignParentRight="true"
+             android:layout_centerVertical="true"
+             android:background="@drawable/selector_button"
+             android:onClick="proceedToConfirm"
+             android:enabled="false"
+             android:text="Next" />
+     </RelativeLayout>
+
+ </RelativeLayout>

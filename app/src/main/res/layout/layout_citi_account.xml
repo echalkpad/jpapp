@@ -1,0 +1,32 @@
+<!-- This layout displays a list of user accounts -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@drawable/shape_main_background"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:id="@+id/frameLayout1"
+        android:layout_width="fill_parent"
+        android:layout_height="45dp"
+        style="@style/DarkBgTheme" >
+
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:gravity="center"
+            android:text="@string/citi_title"
+            android:textColor="@color/default_text"
+            android:textSize="@dimen/text_title_size" />
+
+    </FrameLayout>
+
+    <!-- This is where accounts are parsed and displayed by AccountJSONAdapter -->
+    <ListView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/accountListView"
+        android:layout_marginTop="@dimen/account_title_frame_height" />
+
+
+</RelativeLayout>
