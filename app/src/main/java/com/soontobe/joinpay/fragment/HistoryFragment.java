@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
@@ -40,48 +41,30 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
 /**
- * It is one of the three fragments in the radar view activity. It shows a readable list of transaction records.
+ * This Fragment displays a list of user transactions.
  */
-public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
+public class HistoryFragment extends Fragment {
 	final String serviceContext = "HistoryFragment";
-	//private OnFragmentInteractionListener mListener;
+
+    // For logging
+    private static final String TAG = "history";
+
 	private View mCurrentView;
 	private LayoutInflater mInflater;
-	private ArrayList<ArrayList<String[]>> paymentInfoList;
-	private ListView mHistoryLayout;
-	private ArrayList<PendingTransactionItemView> mPendingTIVList;
-	private ArrayList<ArrayList<String []>> mPendingInfoList;
-	private ArrayList<Integer> mPendingInfoTypeList;	//0-Transaction, 1-Notification
-	public CheckViewUpdateAsyncTask mAsyncTask = null;
-	private static final int COMPLETED = 0;
-	
-	@SuppressLint("HandlerLeak")
-	private Handler mHandler = new Handler(){
-		@Override
-		public void handleMessage(Message msg){
-			if(msg.what == COMPLETED) {
-				try{
-					Log.d("history", "checking pending info");
-					checkPendingInfo(); 						//UI update
-				} catch (Exception e){
-					Log.e("history", "error with checking pending info");
-					e.printStackTrace();
-				}
-			}
-			else Log.d("history", "msg is not complete");
-		}
-	};
+
+    // What we use to show the transaction history to the user;
+    private ListView mHistoryLayout;
+    private PaymentSummaryAdapter mAdapter; // For beautifying transactions
+    private ArrayList<Transaction> mTransactions; // The transactions themselves
+    private ProgressBar spinner; // So we can turn the thing on and off during requests
 
 	public HistoryFragment() {
 		// Required empty public constructor
-		paymentInfoList = new ArrayList<ArrayList<String[]>>();
-		mPendingInfoList = new ArrayList<ArrayList<String[]>>();
-		mPendingTIVList = new ArrayList<PendingTransactionItemView>();
-		mPendingInfoTypeList = new ArrayList<Integer>();
 	}
 
 	@Override
@@ -103,11 +86,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	
 	@Override
 	public void onDestroy() {
-		Log.d("history", "destroying history fragment");
-		if(mAsyncTask != null){
-			mAsyncTask.cancel(true);
-			mAsyncTask = null;
-		}
+		Log.d(TAG, "destroying history fragment");
 	    getActivity().unregisterReceiver(restResponseReceiver);		//remove the receiver
 		super.onDestroy();
 	}
@@ -119,7 +98,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		Log.d("history", "creating history view");
+		Log.d(TAG, "creating history view");
 		if(mCurrentView == null) mCurrentView = inflater.inflate(R.layout.fragment_history, container, false);
 		
 		ViewGroup parent = (ViewGroup) mCurrentView.getParent(); 
@@ -128,26 +107,33 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		}
 
 		mInflater = inflater;
-		
-		mHistoryLayout = (ListView)mCurrentView.findViewById(android.R.id.list);
-		ArrayList<String> itemsList = new ArrayList<String> ();
-        itemsList.add("Loading transactions...") ;
-		ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.confirm_page_item_none, R.id.activity_confirm_pay_text, itemsList);
-		mHistoryLayout.setAdapter(adapter);
-		if(mAsyncTask == null){
-			Log.d("history", "mAsyncTask is null");
-			mAsyncTask = new CheckViewUpdateAsyncTask();
-			mAsyncTask.execute();
-		}
-		else Log.d("history", "mAsyncTask is NOT null");
-		
-		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+
+        // Grab the loading spinner so we can turn it off
+        spinner = (ProgressBar) mCurrentView.findViewById(R.id.hist_prog_bar);
+        spinner.setVisibility(View.VISIBLE); // Start the spinner until data is acquired
+
+        // Setup transaction list to receive new transactions
+		mHistoryLayout = (ListView)mCurrentView.findViewById(R.id.trans_list);
+        mTransactions = new ArrayList<>();
+        mAdapter = new PaymentSummaryAdapter(inflater.getContext(), mTransactions, inflater);
+		mHistoryLayout.setAdapter(mAdapter);
+
+        // Configure activity to only receive transaction history updates
+		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP); // Transaction updates are REST responses
 		getActivity().registerReceiver(restResponseReceiver, restIntentFilter);
+
+        // Update the transaction history
+        checkPendingInfo();
+
 		return mCurrentView;
 	}
-	
+
+    /**
+     * This handles intents that are fired off elsewhere in the application, specifically those
+     * that relate to collecting transactions
+     */
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
-		
+		// TODO clean this HORRIBLE MESS, THISCODEHASNOHONOR
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String receivedServiceContext = intent.getStringExtra("context");
@@ -242,23 +228,28 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 						}
 					}
 					catch (JSONException e) {
-						Log.e("history", "Error parsing JSON response");
+						Log.e(TAG, "Error parsing JSON response");
 						Toast.makeText(getActivity(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
 					}
 				}
 				else{															//??? = error, do nothing
-					Log.e("history", "response not understoood");
+					Log.e(TAG, "response not understood");
 					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 				}
 
-				Log.d("history", "there are " + list.size() + " transactions");
-				Object[] arr = list.toArray();
-				Arrays.sort(arr, Transaction.dateComparator(false));
-				addTransaction(Arrays.asList(arr));											//adding empty list is okay
+				Log.d(TAG, "there are " + list.size() + " transactions");
+                Collections.sort(list, Transaction.dateComparator(false));
+                mAdapter = new PaymentSummaryAdapter(context, list, mInflater);
+                mHistoryLayout.setAdapter(mAdapter);
+                mAdapter.notifyDataSetChanged();
+                spinner.setVisibility(View.GONE);  // Shut off the progress bar, we have data
 			}
 		}
 	};
-	
+
+    /**
+     * Submits an Intent which collects the user's transaction history from the JoinPay APIs.
+     */
 	private void checkPendingInfo() {
 		Intent intent = new Intent(getActivity().getApplicationContext(), RESTCalls.class);
 		String url = Constants.baseURL + "/transactions";
@@ -268,50 +259,13 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		Log.d("transBuilder", "getting pending transactions");
 		getActivity().startService(intent);
 	}
-	
-	public void addTransaction(List list){
-		if(list.size() > 0){												//build the list with the transactions
-			Log.d("transBuilder", "adding transaction");
-			//PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
-            PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), list, mInflater);
-			mHistoryLayout.setAdapter(adapter);
-		}
-		else{															//if its empty, build list with 1 item that says such
-			ArrayList<String> itemsList = new ArrayList<String> ();
-            itemsList.add("No transactions yet!") ;
-			ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.confirm_page_item_none, R.id.activity_confirm_pay_text, itemsList);
-			mHistoryLayout.setAdapter(adapter);
-		}
-	}
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 	}
-	
-	/**
-	 * Add a transaction note to history view
-	 * @param info
-	 */
-	public void addTransactionNoteItem(ArrayList<String[]> info){
-		PendingTransactionItemView pItemView = new PendingTransactionItemView(getActivity());
-		int index = mPendingTIVList.size();
-		pItemView.setPaymentInfo(info);
-		pItemView.setAcceptButtonClickListener(new OnPendingItemAcceptedListener(index));
-		pItemView.setDeclineButtonClickListener(new OnPendingItemDeclinedListener(index));
-		mPendingTIVList.add(pItemView);
-	}
-	
-	/**
-	 * Add pending transaction info to list
-	 * @param info
-	 */
-	public void addPendingTransItem(ArrayList<String[]> info){
-		mPendingInfoList.add(info);
-		mPendingInfoTypeList.add(1);
-	}
 
-	/**
+    /**
 	 * This interface must be implemented by activities that contain this
 	 * fragment to allow an interaction in this fragment to be communicated to
 	 * the activity and potentially other fragments contained in that activity.
@@ -323,95 +277,5 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	public interface OnFragmentInteractionListener {
 		// TODO: Update argument type and name
 		public void onFragmentInteraction(Uri uri);
-	}
-
-	@Override
-	public Loader<Void> onCreateLoader(int arg0, Bundle arg1) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public void onLoadFinished(Loader<Void> arg0, Void arg1) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
-	public void onLoaderReset(Loader<Void> arg0) {
-		// TODO Auto-generated method stub
-
-	}
-
-	public void setNewRecordNotification(ArrayList<String []> newPaymentInfo) {
-		paymentInfoList.add(newPaymentInfo);
-		mPendingInfoTypeList.add(0);
-	}
-	
-	private class OnPendingItemAcceptedListener implements OnAcceptButtonClickListener{
-		private int index;
-		
-		public OnPendingItemAcceptedListener(int _index){
-			index = _index;
-		}
-		
-		@Override
-		public void OnClick(View v) {			
-			String confirmMsg = "Confirm the payment?";
-			new AlertDialog.Builder(getActivity())
-				.setMessage(confirmMsg)
-				.setPositiveButton("OK", new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						mPendingTIVList.get(index).setAccepted();
-					}
-				})
-				.setNegativeButton("Don\'t allow", new OnClickListener() {
-					
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						return;
-					}
-				})
-				.show();
-		}
-	}
-	
-	private class OnPendingItemDeclinedListener implements OnDeclineButtonClickListener{
-		private int index;
-		
-		public OnPendingItemDeclinedListener(int _index){
-			index = _index;
-		}
-		
-		@Override
-		public void OnClick(View v) {
-			mPendingTIVList.get(index).setDeclined();
-		}
-	}
-	
-	/**
-	 * Check for ui change every 5 seconds
-	 */
-	private class CheckViewUpdateAsyncTask extends AsyncTask<Void, Void, Void>{
-		
-		@Override
-		protected Void doInBackground(Void... params) {
-			Log.d("history", "STARTED history");
-			while(true){				
-				try {
-					Log.d("history", "running new history task");
-					Message msg = new Message();
-					msg.what = COMPLETED;
-					mHandler.sendMessage(msg);
-					Thread.sleep(5000);
-				} catch (InterruptedException e) {
-					Log.d("history", "STOPPED history");			//not really an error, the stop method might interrupt it
-					//e.printStackTrace();
-					break;
-				}
-			}
-			return null;
-		}
 	}
 }

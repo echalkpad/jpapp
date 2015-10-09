@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This is the dialog that appears whenever a push msg is received, such
+**** as when a user receives a charge -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/push_msg_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/push_msg_text"
+        android:text = "@string/push_msg_placeholder"
+        android:textSize = "@dimen/push_msg_text_size"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="10dp" />
+
+    <Button
+        android:id="@+id/push_dialog_button"
+        android:layout_height="wrap_content"
+        android:text="@string/push_msg_cancel"
+        android:layout_weight="1"
+        android:layout_margin="@dimen/push_msg_button_margin"
+        android:layout_width="wrap_content"
+        android:layout_gravity="center_horizontal" />
+
+</LinearLayout>

@@ -59,7 +59,8 @@ public class MainActivity extends Activity{
 		// Flush the cache whenever the app is started, so that the chat tab stays
 		// up to date with the chat web page
         clearCache(this, getResources().getInteger(R.integer.minutes_to_keep));
-				
+
+		// TODO break this up to make it more readable
 		///////////////////////////////////////////////////
 		/////////////////  IBM Push Code  ///////////////// 
 		///////////////////////////////////////////////////
@@ -83,12 +84,12 @@ public class MainActivity extends Activity{
 						///////////////// Open Approve / Deny Dialog /////////////////
 						try{
 							final Dialog dialog = new Dialog(context);
-							dialog.setContentView(R.layout.dialog);
+							dialog.setContentView(R.layout.push_msg_dialog);
 							dialog.setTitle("New Message");
-							TextView text = (TextView) dialog.findViewById(R.id.dialogueText);
+							TextView text = (TextView) dialog.findViewById(R.id.push_msg_text);
 							text.setText(message.getAlert());
 				 
-							Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
+							Button dialogButtonCancel = (Button) dialog.findViewById(R.id.push_dialog_button);
 							dialogButtonCancel.setOnClickListener(new OnClickListener() {
 								@Override
 								public void onClick(View v) {

@@ -42,22 +42,35 @@
             android:visibility="invisible" />
     </FrameLayout>
 
-  
 
-     <ListView
-         android:id="@android:id/list"
-         android:layout_width="match_parent"
-         android:layout_height="fill_parent"
-         android:layout_marginBottom="15dp"
-         android:layout_marginLeft="15dp"
-         android:layout_marginRight="15dp"
-         android:background="#ffffff"
-         android:orientation="vertical"
-         android:paddingBottom="10dp"
-         android:paddingTop="10dp"
-         android:paddingLeft="3dp"
-         android:paddingRight="3dp">
-     </ListView>
-   
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ListView
+            android:id="@+id/trans_list"
+            android:layout_width="match_parent"
+            android:layout_height="fill_parent"
+            android:layout_marginBottom="15dp"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:background="#ffffff"
+            android:orientation="vertical"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:paddingLeft="3dp"
+            android:paddingRight="3dp">
+        </ListView>
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/hist_prog_bar"
+            android:layout_gravity="center_horizontal"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true" />
+    </RelativeLayout>
+
 
 </LinearLayout>
