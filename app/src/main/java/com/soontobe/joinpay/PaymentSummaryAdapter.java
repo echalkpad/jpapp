@@ -8,225 +8,131 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
 /**
- * This class is an adapter for the layout of the transaction summary view or history view.
- *
+ * This class adapts a list of transactions into a pretty layout for a ListView.
+ * Created by Dale Avery on 10/8/2015.
  */
-public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
-	private final Context context;
-	/*
-	 * [][0]: type
-	 * 
-	 *  type: normal/normal_pn
-	 *  	[1] personal note
-	 *  	[2] payer
-	 *  	[3] payee
-	 *  	[4] amount
-	 *  
-	 *  type: summary
-	 *  	[1] date (and maybe time)
-	 *  	[2] # of ppl
-	 *  	[3] total amount
-	 *  
-	 *  type: group_note
-	 */
-	private final ArrayList<JSONObject> values;
-	
-	public PaymentSummaryAdapter(Context context, List<JSONObject> values, boolean isHistory) {
-		super(context, R.layout.confirm_page_item, values);
+public class PaymentSummaryAdapter extends BaseAdapter {
+
+    private static final String TAG = "transaction_adapter";
+    private Context context;
+	private ArrayList<Transaction> values;
+	private LayoutInflater mInflater;
+
+    /**
+     * Constructs a new PaymentSummaryAdapter with the given data.
+     * @param context The context in which the PaymentSummaryAdapter is operating.
+     * @param values The transactions that the adapter will beautify.
+     * @param inflater The inflater used to inflate layouts for transactions.
+     */
+	public PaymentSummaryAdapter(Context context, Collection<Transaction> values,
+                                 LayoutInflater inflater) {
 		this.context = context;
-		this.values = (ArrayList<JSONObject>) values;
+		this.values = new ArrayList<>(values);
+		this.mInflater = inflater;
 	}
-	
-	@Override
+
+    @Override
+    public Object getItem(int position) {
+        return values.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-		View rowView;
-		JSONObject obj = values.get(position);
-		
-		Log.d("transBuilder", "-----------------");
-		if(convertView == null) {
-			rowView = inflater.inflate(R.layout.confirm_page_item, parent, false);
+		ViewHolder holder;
+
+		// check if the view already exists
+		// if so, no need to inflate and findViewById again!
+		if (convertView == null) {
+            Log.d(TAG, "convertView doesn't exist, inflating layout");
+			// Inflate the custom row layout from your XML.
+			convertView = mInflater.inflate(R.layout.confirm_page_item, null);
+
+			// create a new "Holder" with subviews
+			holder = new ViewHolder();
+			holder.groupNoteview = (TextView) convertView.findViewById(R.id.confirm_personal_note_normal2);
+			holder.decNeeded = (TextView) convertView.findViewById(R.id.decisionNeeded);
+			holder.payerView = (TextView) convertView.findViewById(R.id.activity_confirm_payer);
+			holder.payeeView = (TextView) convertView.findViewById(R.id.activity_confirm_payee);
+			holder.amountView = (TextView) convertView.findViewById(R.id.amount_confirm3);
+			holder.transId = (TextView) convertView.findViewById(R.id.transacation_id);
+			holder.statusView = (TextView) convertView.findViewById(R.id.payment_status);
+            holder.date = (TextView) convertView.findViewById(R.id.trans_date);
+
+			// hang onto this holder for future recyclage
+			convertView.setTag(holder);
 		} else {
-			rowView = convertView;
-		}
-		TextView groupNoteview = (TextView) rowView.findViewById(R.id.confirm_personal_note_normal2);
-		TextView decNeeded = (TextView) rowView.findViewById(R.id.decisionNeeded);
-		TextView payerView = (TextView) rowView.findViewById(R.id.activity_confirm_payer);
-		TextView payeeView = (TextView) rowView.findViewById(R.id.activity_confirm_payee);
-		TextView amountView = (TextView) rowView.findViewById(R.id.amount_confirm3);
-		TextView transId = (TextView) rowView.findViewById(R.id.transacation_id);
-		TextView statusView = (TextView) rowView.findViewById(R.id.payment_status);
-		Log.d("transBuilder", obj.toString());
 
-		String status = "-";
-		String to = Constants.userName;
-		String from = Constants.userName;
-		String groupNote = "";
-		String type = "-";
-		
-		try {
-			type = obj.getString("type");
-		} catch (JSONException e2) {
-			Log.e("transBuilder", "error getting type field");
-		}
-		Log.d("transBuilder", "building msg for type: " + type);
-		try {
-			from = obj.getString("fromUser");
-		} catch(Exception e) {			
-			from = Constants.userName;
-		}
-		try {
-			to = obj.getString("toUser");
-		} catch(Exception e) {			
-			to = Constants.userName;
-		}
-		try {
-			groupNote = obj.getString("description").trim();
-		} catch(Exception e) {			
-			Log.d("transBuilder", "did not find group note field");
-		}
-		try {
-			transId.setText(obj.getString("_id"));
-		} catch (JSONException e1) {
-			Log.d("transBuilder", "did not find trans id field");
-		}
-		try {
-			amountView.setText(obj.getString("amount").trim());
-		} catch(Exception e) {
-			Log.d("transBuilder", "did not find amount field");
-		}
-		try {
-			status = obj.getString("status");
-		} catch(Exception e) {
-			Log.d("transBuilder", "did not find amount field");
-		}
-		
-		Log.d("transBuilder", "to: " + to + ", from: " + from + ", " + type);
-		payerView.setText(from);
-		payeeView.setText(to);
-		groupNoteview.setText(groupNote);
-		if (status.equals("PENDING")) {
-			statusView.setText("Pending");
-			statusView.setVisibility(View.VISIBLE);
-		}
-		else if (status.equals("DENIED")) {
-			statusView.setText("Denied");
-			statusView.setVisibility(View.VISIBLE);
-		}
-		else if (status.equals("APPROVED")) {
-			statusView.setText("Approved");
-			statusView.setVisibility(View.VISIBLE);
-		}
-		else {
-			statusView.setText("");
-			statusView.setVisibility(View.GONE);
-		}
-		
-		if(status.equals("PENDING") && type.equals("sending")){
-			Log.d("transBuilder", "its a sending, attaching");
-			decNeeded.setVisibility(View.VISIBLE);
-			rowView.setOnClickListener(new View.OnClickListener() {
-				
-				@Override
-				public void onClick(View v) {
-					TextView transId = (TextView)  v.findViewById(R.id.transacation_id);
-					TextView payeeView = (TextView)  v.findViewById(R.id.activity_confirm_payee);
-					Log.d("dialog", "transacation from view: " + transId.getText());
-					
-					///////////////// Open Approve / Deny Dialog /////////////////
-					try{
-						final Dialog dialog = new Dialog(context);
-						dialog.setContentView(R.layout.dialog);
-						dialog.setTitle("Approve pending transacation?");
-						TextView text = (TextView) dialog.findViewById(R.id.text);
-						text.setText("Sending money to " + payeeView.getText());
-						TextView hidden = (TextView) dialog.findViewById(R.id.hidden);
-						hidden.setText(transId.getText());
-						Log.d("dialog", "dialog now has trans: " + transId.getText());
-						
-						TextView dialogButtonPOS = (TextView) dialog.findViewById(R.id.dialogButtonPOS);
-						dialogButtonPOS.setVisibility(1);
-						dialogButtonPOS.setOnClickListener(new OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
-								Log.d("dialog", "user approved: " + transId.getText());
-								dialog.dismiss();
-								transAction(true, (String) transId.getText());
-							}
-						});
-						
-						TextView dialogButtonNEG = (TextView) dialog.findViewById(R.id.dialogButtonNEG);
-						dialogButtonNEG.setVisibility(1);
-						dialogButtonNEG.setOnClickListener(new OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								TextView transId = (TextView)  dialog.findViewById(R.id.hidden);
-								Log.d("dialog", "user denied: " + transId.getText());
-								dialog.dismiss();
-								transAction(false, (String) transId.getText());
-							}
-						});
-						
-						Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
-						dialogButtonCancel.setOnClickListener(new OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								dialog.dismiss();
-							}
-						});
-						
-						dialog.show();
-					}
-					catch(Exception e){
-						Log.e("dialog","dialog error");
-						e.printStackTrace();
-					}
-				}
-				
-			});
-		}
-		else {
-			Log.d("transBuilder", "its requesting, do nothing");
-			decNeeded.setVisibility(View.GONE);
-		}
-		return rowView;
-	}
-	
-	///////////////// Confirm/Deny the Push Msg /////////////////
-	public void transAction(boolean action, String id){
-		final String serviceContext = "transAction";
-		Intent intent = new Intent(context, RESTCalls.class);
-		JSONObject obj = new JSONObject();
-		try {
-			obj.put("username", Constants.userName);
-		} catch (JSONException e) {
-			Toast.makeText(context, "Error creating JSON", Toast.LENGTH_SHORT).show();
+			// skip all the expensive inflation/findViewById
+			// and just get the holder you already made
+            Log.d(TAG, "convertView already exists, collecting ViewHolder");
+			holder = (ViewHolder) convertView.getTag();
 		}
 
-		String url = Constants.baseURL + "/transactions";// + id;
-		if(action) url += "/approve";
-		else url += "/deny";
-		url += "/" + id;
-		
-		intent.putExtra("method","put");
-		intent.putExtra("url",url);
-		intent.putExtra("body", obj.toString());
-		intent.putExtra("context", serviceContext);
-		Log.d("dialog", "starting rest service for dialog: " + action);
-		getContext().startService(intent);
+        // Collect the data to adapt to this View
+        Transaction trans = (Transaction) getItem(position);
+		Log.d(TAG, String.format("Building view for Transaction: %s", trans));
+
+        // Update view to reflect transaction
+        Log.d(TAG, "Updating view to match transaction");
+		holder.transId.setText(trans.getId());
+		holder.amountView.setText(trans.getAmount());
+		holder.payerView.setText(trans.getFromUser());
+		holder.payeeView.setText(trans.getToUser());
+		holder.groupNoteview.setText(trans.getDescription());
+        holder.date.setText(trans.prettyDate().toString());
+
+        // Attempt to identify and show the status of the transaction
+		if (trans.getStatus().equals(Transaction.STATUS.PENDING)) {
+			holder.statusView.setText(context.getText(R.string.trans_pending));
+			holder.statusView.setVisibility(View.VISIBLE);
+		}
+		else if (trans.getStatus().equals(Transaction.STATUS.DENIED)) {
+			holder.statusView.setText(context.getText(R.string.trans_denied));
+			holder.statusView.setVisibility(View.VISIBLE);
+		}
+		else if (trans.getStatus().equals(Transaction.STATUS.APPROVED)) {
+			holder.statusView.setText(context.getText(R.string.trans_approved));
+			holder.statusView.setVisibility(View.VISIBLE);
+		}
+		else {
+            Log.e(TAG, String.format("Transaction status \'%s\' could not be identified",
+                    trans.getStatus()));
+			holder.statusView.setText("");
+			holder.statusView.setVisibility(View.GONE);
+		}
+
+        // Outgoing transactions should be approvable/deniable
+		if(trans.getStatus().equals(Transaction.STATUS.PENDING) &&
+                trans.getType().equals(Transaction.TYPE.SENDING)){
+			Log.d(TAG, "It's a sending transaction, attaching listener");
+            ViewListener listener = new ViewListener(context, trans.getId());
+			holder.decNeeded.setVisibility(View.VISIBLE); // Mark the transaction for the user
+			convertView.setOnClickListener(listener);
+		}
+		else {
+            // Other transactions don't need to be marked
+			Log.d(TAG, "It's not a sending transaction");
+			holder.decNeeded.setVisibility(View.GONE);
+		}
+		return convertView;
 	}
 	
 	@Override
@@ -234,4 +140,133 @@ public class PaymentSummaryAdapter extends ArrayAdapter<JSONObject> {
 	    return values.size();
 	}
 
+	/**
+	 * This inner class helps collect Views for the getView() method above.
+	 */
+	private class ViewHolder {
+		public TextView groupNoteview;
+		public TextView decNeeded;
+		public TextView payerView;
+		public TextView payeeView;
+		public TextView amountView;
+		public TextView transId;
+		public TextView statusView;
+        public TextView date;
+	}
+
+    /**
+     * This helper class handles when a user clicks on a transaction
+     * on the history screen.
+     */
+    private class ViewListener implements View.OnClickListener {
+
+        private static final String TAG = "trans_dialog";
+
+        private String transactionID;
+
+        private Context mContext;
+
+        public ViewListener(Context context, String transactionID) {
+            mContext = context;
+            this.transactionID = transactionID;
+        }
+
+        @Override
+        public void onClick(View v) {
+            String transId = (((TextView)  v.findViewById(R.id.transacation_id)).getText()).toString();
+            if(!transId.equals(transactionID)) {
+                Log.e(TAG, String.format("Transaction ID mismatch: ListenerID: %s | TransID: %s",
+                        transactionID, transId));
+                return;
+            }
+            Log.d(TAG, "Clicked on transaction: " + transId);
+
+            ///////////////// Open Approve / Deny Dialog /////////////////
+            try{
+                Log.d(TAG, "Creating dialog for transaction: " + transactionID);
+                final Dialog dialog = new Dialog(mContext);
+                dialog.setContentView(R.layout.dialog);
+                dialog.setTitle(mContext.getResources().getText(R.string.trans_dialog_title));
+
+                // Collect Views from the dialog
+                TextView text = (TextView) dialog.findViewById(R.id.dialogueText);
+                Button buttonPos = (Button) dialog.findViewById(R.id.dialogButtonPOS);
+                Button buttonNeg = (Button) dialog.findViewById(R.id.dialogButtonNEG);
+                Button buttonDis = (Button) dialog.findViewById(R.id.dialogButtonCancel);
+
+                // Communicate to user that transaction is processing
+                String payee = (((TextView)  v.findViewById(R.id.activity_confirm_payee)).getText()).toString();
+                text.setText(String.format(mContext.getResources().getString(R.string.trans_dialog_msg), payee));
+
+                // Create listeners to handle the dialog buttons
+                // Approve button dismisses dialog and approves transaction
+                buttonPos.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "user approved: " + transactionID);
+                        dialog.dismiss();
+                        approveTransaction(true, transactionID);
+                    }
+                });
+
+                // Deny button dismisses dialog and denies transaction
+                buttonNeg.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "user denied: " + transactionID);
+                        dialog.dismiss();
+                        approveTransaction(false, transactionID);
+                    }
+                });
+
+                // Cancel button just dismisses the dialog
+                buttonDis.setOnClickListener(new OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Log.d(TAG, "user dismissed dialog for transaction: " + transactionID);
+                        dialog.dismiss();
+                    }
+                });
+
+                dialog.show();
+            }
+            catch(Exception e){
+                Log.e(TAG, String.format("Transaction dialog error: %s", e.getMessage()));
+                e.printStackTrace();
+            }
+        }
+
+        /**
+         * Generates an intent to approve or deny a transaction using push messages.
+         * @param approve True if the action is approval, false otherwise.
+         * @param id The id of the transaction to act upon.
+         */
+        public void approveTransaction(boolean approve, String id){
+            final String serviceContext = "approveTransaction";
+            Intent intent = new Intent(mContext, RESTCalls.class);
+            JSONObject obj = new JSONObject();
+            try {
+                obj.put("username", Constants.userName);
+            } catch (JSONException e) {
+                Toast.makeText(mContext, "Error creating JSON", Toast.LENGTH_SHORT).show();
+            }
+
+            // Construct the url for the REST request
+            String url = String.format("%s/%s/%s/%s",
+                    Constants.baseURL, //TODO this should be passed in at construction?
+                    "transactions",
+                    (approve ? "approve" : "deny"),
+                    id);
+
+            // Construct the parameters of the REST request
+            intent.putExtra("method","put");
+            intent.putExtra("url",url);
+            intent.putExtra("body", obj.toString());
+            intent.putExtra("context", serviceContext);
+            String msg = String.format("starting rest service to %s transaction %s",
+                    (approve ? "approve" : "deny"), id);
+            Log.d("approve_transaction", msg);
+            mContext.startService(intent);
+        }
+    }
 } 

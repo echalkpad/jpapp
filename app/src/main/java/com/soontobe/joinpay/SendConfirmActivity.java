@@ -21,7 +21,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * This class corresponds to the confirmation pane of a transaction (both sending and requesting money). It shows a summary of 
@@ -95,7 +98,7 @@ public class SendConfirmActivity extends ListActivity {
 		ListView list = getListView();
 		boolean isHistory = false;
 		String groupNote = "";
-		ArrayList<JSONObject> obj = new ArrayList<JSONObject>();
+		ArrayList<Transaction> transList = new ArrayList<>();
 		
 		for (String[] sa : paymentInfo){										//iter over each payment detail, build JSON
 			try {
@@ -117,7 +120,8 @@ public class SendConfirmActivity extends ListActivity {
 					if(i == 5){
 						tmp.put("type", sa[i]);									//take over the type field...
 						tmp.put("description", groupNote);
-						obj.add(tmp);											//all good, add it
+
+						transList.add(new Transaction(tmp));											//all good, add it
 					}
 				}
 			}
@@ -126,12 +130,15 @@ public class SendConfirmActivity extends ListActivity {
 			}
 		}
 		
-		if(obj.size() > 0){
-			Log.d("payment", "jsonarray: " + obj);
-			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, obj, isHistory);
+		if(transList.size() > 0){
+            Object[] arr = transList.toArray();
+            Arrays.sort(arr, Transaction.dateComparator(false));
+            Log.d("payment", "transactions: " + transList);
+            List sortedList = Arrays.asList();
+			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(this, sortedList, this.getLayoutInflater());
 			list.setAdapter(adapter);
 		}
-		else Log.d("payment", "jsonarray is size 0");
+		else Log.d("payment", "transaction list is size 0");
 	}
 
 	public void backToSendInfo(View v) {

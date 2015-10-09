@@ -32,6 +32,8 @@ public class Constants {
 		"curtis",
 		"guy1"
 	};
+
+	public static final String PUSH_TAG = "push";
 	
 	public static final String RESTRESP = "com.soontobe.RESTRESP";
 	public static String loginToken;

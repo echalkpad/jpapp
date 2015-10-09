@@ -29,6 +29,7 @@ import com.soontobe.joinpay.LoginActivity;
 import com.soontobe.joinpay.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.RESTCalls;
+import com.soontobe.joinpay.Transaction;
 import com.soontobe.joinpay.widget.PendingTransactionItemView;
 import com.soontobe.joinpay.widget.PendingTransactionItemView.OnAcceptButtonClickListener;
 import com.soontobe.joinpay.widget.PendingTransactionItemView.OnDeclineButtonClickListener;
@@ -38,6 +39,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 
 /**
  * It is one of the three fragments in the radar view activity. It shows a readable list of transaction records.
@@ -46,6 +50,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 	final String serviceContext = "HistoryFragment";
 	//private OnFragmentInteractionListener mListener;
 	private View mCurrentView;
+	private LayoutInflater mInflater;
 	private ArrayList<ArrayList<String[]>> paymentInfoList;
 	private ListView mHistoryLayout;
 	private ArrayList<PendingTransactionItemView> mPendingTIVList;
@@ -121,6 +126,8 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		if(parent != null){
 			parent.removeView(mCurrentView);
 		}
+
+		mInflater = inflater;
 		
 		mHistoryLayout = (ListView)mCurrentView.findViewById(android.R.id.list);
 		ArrayList<String> itemsList = new ArrayList<String> ();
@@ -148,7 +155,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 			/////////////////////////////////////////////////
 			///////////  Dialog Response Receiver ///////////
 			/////////////////////////////////////////////////
-			if(receivedServiceContext.equals("transAction")){
+			if(receivedServiceContext.equals("approveTransaction")){
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 0);
 				String message = "error";
@@ -180,14 +187,9 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 			/////////// Getting Transaction Receiver ///////////
 			////////////////////////////////////////////////////
 			if(serviceContext.equals(receivedServiceContext)) {
-				//String url = intent.getStringExtra("url");
-				//String method = intent.getStringExtra("method");
 				String response = intent.getStringExtra("response");
 				int httpCode = intent.getIntExtra("code", 0);
-				ArrayList<JSONObject> list = new ArrayList<JSONObject>();
-				ArrayList<JSONObject> listPendingIn = new ArrayList<JSONObject>();
-				ArrayList<JSONObject> listPendingOut = new ArrayList<JSONObject>();
-				ArrayList<JSONObject> listDone = new ArrayList<JSONObject>();
+				ArrayList<Transaction> list = new ArrayList<>();
 				String message = "error";
 				try {
 					JSONObject obj = new JSONObject(response);
@@ -199,7 +201,7 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 				
 				//// Http Codes ////
 				if(httpCode == 500){											//500 = no transactions, do nothing
-					Log.d("history", "got 500 == no transacations");
+					Log.d("history", "got 500 == no transactions");
 				}
 				else if(httpCode == 404 || httpCode == 401){
 					Log.e("history", "got 404 or 401, back to login");
@@ -217,11 +219,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 							
 							for(int i = 0; i < arrIn.length(); i++) {
 								JSONObject obj1 = arrIn.getJSONObject(i);
-								obj1.put("type","requesting");					//a MONEY IN transaction is money i'm REQUESTING and is an input TO me
+								obj1.put("type","requesting");					//a MONEY IN transaction is money i'm SENDING and is an input TO me
 								if(obj1.has("status") && obj1.getString("status").equals("PENDING")){
-									listPendingIn.add(obj1);
+									list.add(new Transaction(obj1));
 								}
-								else listDone.add(obj1);						//list.add(obj1);
+								else list.add(new Transaction(obj1));						//list.add(obj1);
 							}
 						}
 						
@@ -233,9 +235,9 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 								obj1.put("type","sending");						//a MONEY OUT transaction is money i'm SENDING and is an output FROM me
 								//list.add(obj1);
 								if(obj1.has("status") && obj1.getString("status").equals("PENDING")){
-									listPendingOut.add(obj1);
+									list.add(new Transaction(obj1));
 								}
-								else listDone.add(obj1);
+								else list.add(new Transaction(obj1));
 							}
 						}
 					}
@@ -248,20 +250,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 					Log.e("history", "response not understoood");
 					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 				}
-				
-				Log.d("history", "there are " + listPendingOut.size() + " pending out trans");
-				Log.d("history", "there are " + listPendingIn.size() + " pending in trans");
-				Log.d("history", "there are " + listDone.size() + " done trans");
-				for(JSONObject obj : listPendingOut){
-					list.add(obj);
-				}
-				for(JSONObject obj : listPendingIn){
-					list.add(obj);
-				}
-				for(JSONObject obj : listDone){
-					list.add(obj);
-				}
-				addTransaction(list);											//adding empty list is okay
+
+				Log.d("history", "there are " + list.size() + " transactions");
+				Object[] arr = list.toArray();
+				Arrays.sort(arr, Transaction.dateComparator(false));
+				addTransaction(Arrays.asList(arr));											//adding empty list is okay
 			}
 		}
 	};
@@ -276,10 +269,11 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		getActivity().startService(intent);
 	}
 	
-	public void addTransaction(ArrayList<JSONObject> obj){		
-		if(obj.size() > 0){												//build the list with the transactions
+	public void addTransaction(List list){
+		if(list.size() > 0){												//build the list with the transactions
 			Log.d("transBuilder", "adding transaction");
-			PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
+			//PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), obj, true);
+            PaymentSummaryAdapter adapter = new PaymentSummaryAdapter(getActivity(), list, mInflater);
 			mHistoryLayout.setAdapter(adapter);
 		}
 		else{															//if its empty, build list with 1 item that says such
@@ -316,21 +310,6 @@ public class HistoryFragment extends Fragment implements LoaderCallbacks<Void> {
 		mPendingInfoList.add(info);
 		mPendingInfoTypeList.add(1);
 	}
-	/*@Override
-	public void onAttach(Activity activity) {
-		super.onAttach(activity);
-		try {
-			mListener = (OnFragmentInteractionListener) activity;
-		} catch (ClassCastException e) {
-			throw new ClassCastException(activity.toString() + " must implement OnFragmentInteractionListener");
-		}
-	}
-
-	@Override
-	public void onDetach() {
-		super.onDetach();
-		mListener = null;
-	}*/
 
 	/**
 	 * This interface must be implemented by activities that contain this

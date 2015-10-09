@@ -28,5 +28,13 @@
         android:id="@+id/accountListView"
         android:layout_marginTop="@dimen/account_title_frame_height" />
 
+    <ProgressBar
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/frameLayout1"
+        android:id="@+id/accountsProgressBar" />
+
 
 </RelativeLayout>

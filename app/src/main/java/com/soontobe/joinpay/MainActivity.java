@@ -6,7 +6,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.Html;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -23,8 +22,6 @@ import com.ibm.mobile.services.push.IBMPush;
 import com.ibm.mobile.services.push.IBMPushNotificationListener;
 import com.ibm.mobile.services.push.IBMSimplePushNotification;
 
-import org.jsoup.helper.DataUtil;
-
 import java.io.File;
 import java.util.Date;
 import java.util.List;
@@ -32,10 +29,9 @@ import java.util.List;
 import bolts.Continuation;
 import bolts.Task;
 
-
 /**
- * This class is the access point of the whole application. After the user hit the "JoinPay" button, it will jump to the radar view pane.
- *
+ * This class is the access point of the whole application.
+ * After the user hit the "JoinPay" button, it will jump to the radar view pane.
  */
 public class MainActivity extends Activity{
 
@@ -53,14 +49,12 @@ public class MainActivity extends Activity{
 
 		// Populate a URL to allow users to create a Citi Bank account
 		TextView link = (TextView) findViewById(R.id.citiSignupTextView);
-	    String linkText = getString(R.string.signup_link);
-	    //link.setText(Html.fromHtml(linkText));
 	    link.setMovementMethod(LinkMovementMethod.getInstance());
 
 		// Display a welcome message to the currently logged in user
 	    TextView userView = (TextView) findViewById(R.id.welcome_user_name);
 	    String username = String.valueOf(Constants.userName.charAt(0)).toUpperCase() + Constants.userName.substring(1, Constants.userName.length());
-	    userView.setText("Welcome " + username);
+	    userView.setText(String.format(getString(R.string.welcome_message), username));
 
 		// Flush the cache whenever the app is started, so that the chat tab stays
 		// up to date with the chat web page
@@ -76,7 +70,7 @@ public class MainActivity extends Activity{
 		
 			@Override
 			public void onReceive(final IBMSimplePushNotification message) {		
-				Log.d("push", "I got a push msg");
+				Log.d(Constants.PUSH_TAG, "I got a push msg");
 				runOnUiThread(new Runnable() {
 					
 					///////////////////////////////////////////////////
@@ -84,14 +78,14 @@ public class MainActivity extends Activity{
 					///////////////////////////////////////////////////
 					@Override
 					public void run() {
-						Log.d("push", "msg: " + message.getAlert());
+						Log.d(Constants.PUSH_TAG, "msg: " + message.getAlert());
 						
 						///////////////// Open Approve / Deny Dialog /////////////////
 						try{
 							final Dialog dialog = new Dialog(context);
 							dialog.setContentView(R.layout.dialog);
 							dialog.setTitle("New Message");
-							TextView text = (TextView) dialog.findViewById(R.id.text);
+							TextView text = (TextView) dialog.findViewById(R.id.dialogueText);
 							text.setText(message.getAlert());
 				 
 							Button dialogButtonCancel = (Button) dialog.findViewById(R.id.dialogButtonCancel);
@@ -104,7 +98,7 @@ public class MainActivity extends Activity{
 							dialog.show();
 						}
 						catch(Exception e){
-							Log.e("push","dialog error");
+							Log.e(Constants.PUSH_TAG,"dialog error");
 							e.printStackTrace();
 						}
 					}
@@ -117,13 +111,13 @@ public class MainActivity extends Activity{
 			@Override
 			public Void then(Task<String> task) throws Exception {
 				if(task.isFaulted()) {
-					Log.e("push", "failed to push list of subscriptions");
+					Log.e(Constants.PUSH_TAG, "failed to push list of subscriptions");
 					return null;
 				} else {
 					push.getSubscriptions().continueWith(new Continuation<List<String>, Void>(){
 						public Void then(Task<List<String>> task1) throws Exception{
 							if(task1.isFaulted()) {
-								Log.e("push", "failed to push list of subscriptions");
+								Log.e(Constants.PUSH_TAG, "failed to push list of subscriptions");
 							} else {
 								List<String> tags = task1.getResult();
 								if(tags.size() > 0) {
@@ -132,15 +126,15 @@ public class MainActivity extends Activity{
 										@Override
 										public Void then(Task<String> task2) throws Exception {
 											if(task2.isFaulted()) {
-												Log.e("push", "subscribe failed");
+												Log.e(Constants.PUSH_TAG, "subscribe failed");
 											} else {
 												push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
 													public Void then(bolts.Task<String> task1) throws Exception {
 														if(task1.isFaulted()) {
-															Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
+															Log.e(Constants.PUSH_TAG,"Push Subscription Failed" + task1.getError().getMessage());
 														} else {
 															push.listen(notificationlistener);
-															Log.d("push","Push Subscription Success");								
+															Log.d(Constants.PUSH_TAG,"Push Subscription Success");
 														}
 														return null;
 													};
@@ -150,14 +144,14 @@ public class MainActivity extends Activity{
 										}
 									});
 								} else {
-									Log.d("push", "" + task1.getResult());
+									Log.d(Constants.PUSH_TAG, "" + task1.getResult());
 									push.subscribe("testtag").continueWith(new Continuation<String, Void>() {
 										public Void then(bolts.Task<String> task1) throws Exception {
 											if(task1.isFaulted()) {
-												Log.e("push","Push Subscription Failed" + task1.getError().getMessage());	
+												Log.e(Constants.PUSH_TAG,"Push Subscription Failed" + task1.getError().getMessage());
 											} else {
 												push.listen(notificationlistener);
-												Log.d("push","Push Subscription Success");								
+												Log.d(Constants.PUSH_TAG,"Push Subscription Success");
 											}
 											return null;
 										};
@@ -173,7 +167,13 @@ public class MainActivity extends Activity{
 		});
 	}
 
-    static int clearCacheFolder(final File dir, final int numMinutes) {
+    /**
+     * Recursively clears and deletes the given directory.
+     * @param dir The directory to be deleted.
+     * @param numMinutes The age after which files can be destroyed.
+     * @return The number of deleted files.
+     */
+    private static int clearCacheFolder(final File dir, final int numMinutes) {
         int deletedFiles = 0;
         if (dir != null && dir.isDirectory()) {
             try {
@@ -196,6 +196,11 @@ public class MainActivity extends Activity{
         return deletedFiles;
     }
 
+    /**
+     * Clears the cache folder of the application.
+     * @param context The context in which the cache is stored.
+     * @param numMinutes The age after which files are deleted.
+     */
     public static void clearCache(final Context context, final int numMinutes) {
         Log.i(TAG, String.format("Starting cache prune. Deleting files older than %d minutes", numMinutes));
         int numDeletedFiles = clearCacheFolder(context.getCacheDir(), numMinutes);

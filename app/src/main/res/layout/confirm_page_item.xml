@@ -2,13 +2,21 @@
 <TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="wrap_content"
-    android:paddingBottom="7dp"
-    android:paddingLeft="15dp"
-    android:paddingRight="15dp"
-    android:paddingTop="7dp"
     android:stretchColumns="0"
     android:orientation="vertical"
-   >
+    android:paddingBottom="10dp">
+
+    <TableRow android:background="@drawable/dark_gradient">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/trans_date_placeholder"
+            android:id="@+id/trans_date"
+            android:layout_gravity="center_vertical"
+            android:textColor="@color/default_text" />
+
+    </TableRow>
 
     <TableRow>
 
@@ -63,6 +71,7 @@
             android:layout_gravity="start"
             android:textSize="16sp"
             android:textStyle="bold" />
+
     </TableRow>
 
     <TableRow android:id="@+id/confirm_item_second_row" >

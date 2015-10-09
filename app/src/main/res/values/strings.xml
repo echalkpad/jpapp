@@ -3,7 +3,6 @@
     <!-- Testing -->
     <string name="test_user">david</string>
     <string name="test_password">password</string>
-    <!--<string name="test_chat_url">http://busihub.mybluemix.net/</string>-->
     <string name="test_chat_url">https://bhub.mybluemix.net/chat/new/dale</string>
 
     <!-- Login Screen -->
@@ -35,9 +34,23 @@
     <string name="button_accounts">My Accounts</string>
     <string name="button_logout">Logout</string>
     <string name="button_points">My Points</string>
-    <string name="welcome_message">Welcome User</string>
+    <string name="welcome_message">Welcome, %s</string>
     <string name="signup_link_placeholder">Sign up? <u>link goes here!</u></string>
     <string name="signup_link">Don\'t have a citi account? <a href='http://citi-online-banking.mybluemix.net/'>Sign Up Here</a></string>
+
+    <!-- Transaction History Screen -->
+    <string name="trans_approved">Approved</string>
+    <string name="trans_denied">Denied</string>
+    <string name="trans_pending">Pending</string>
+    <string name="trans_dialog_title">Approve the transaction?</string>
+    <string name="trans_dialog_msg">Sending money to %s.</string>
+    <string name="trans_date_placeholder">Oct 1, 2055 at 8:23</string>
+
+    <!-- Push Message Related -->
+    <string name="push_msg_placeholder">Message goes here</string>
+    <string name="push_msg_positive">Approve</string>
+    <string name="push_msg_negative">Deny</string>
+    <string name="push_msg_cancel">Dismiss</string>
 
     <!-- Misc. Values -->
     <string name="app_name">JoinPay</string>

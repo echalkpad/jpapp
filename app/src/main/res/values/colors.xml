@@ -3,4 +3,5 @@
     <color name="default_text">#ffffff</color>
     <color name="account_border">#ffffff</color>
     <dimen name="text_title_size">22sp</dimen>
+    <color name="push_msg_text">#000</color>
 </resources>

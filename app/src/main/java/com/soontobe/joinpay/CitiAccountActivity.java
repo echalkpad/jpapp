@@ -11,10 +11,12 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,6 +49,7 @@ public class CitiAccountActivity extends Activity {
 	// For displaying the list of accounts.
 	private ListView mAccountListView;
 	private AccountJSONAdapter mAdapter;
+	private ProgressBar spinner;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -60,9 +63,13 @@ public class CitiAccountActivity extends Activity {
         mAdapter = new AccountJSONAdapter(this, getLayoutInflater());
         mAccountListView.setAdapter(mAdapter);
 
+		// Capture the loading spinner
+		spinner = (ProgressBar) findViewById(R.id.accountsProgressBar);
+
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(bcReceiver, restIntentFilter);
 		thisContext = getApplicationContext();
+		spinner.setVisibility(View.VISIBLE);
 		getAccountInfo(Constants.userName);
 
 
@@ -151,6 +158,7 @@ public class CitiAccountActivity extends Activity {
         JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
 		if(accounts == null) {
 			Log.e(TAG, "Tag:\"" + TAG_ACCOUNTS + "\" yielded no account information.");
+			spinner.setVisibility(View.GONE);
 			return;
 		}
 
@@ -166,54 +174,7 @@ public class CitiAccountActivity extends Activity {
 
 		// Update the adapter's dataset
 		mAdapter.updateData(accounts, name);
-
-		//
-
-		/*
-		String account_name_temp = "";
-		String account_number_temp = "";
-		String balance_temp = "";
-		String first_name_temp = "";
-		String last_name_temp = "";
-
-        // Attempt to parse the JSON object.
-		try {
-			JSONObject account = accountDetails.getJSONArray("accounts").getJSONObject(0);
-			account_name_temp = account.getString("account_name");
-			account_number_temp = account.getString("account_number");
-			balance_temp = account.getString("balance");
-			first_name_temp = accountDetails.getString("first_name");
-			last_name_temp = accountDetails.getString("last_name");
-		} catch (JSONException e) {
-			Log.e(TAG, "Failed to parse account information: " + e.getMessage());
-			return;
-		}
-
-        // Format the account balance into a pretty string
-		double amount = Double.parseDouble(balance_temp);
-		DecimalFormat formatter = new DecimalFormat("#,###.00");
-		Log.d(TAG, formatter.format(amount));
-		final String account_name = account_name_temp;
-		final String account_number = account_number_temp;
-		final String balance = formatter.format(amount);
-		final String first_name = first_name_temp;
-		final String last_name = last_name_temp;
-
-        // Populate the Views with the account information.
-		runOnUiThread(new Runnable() {
-			
-			@Override
-			public void run() {
-                FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
-				currentView = View.inflate(thisContext, R.layout.layout_citi_account, rootLayout);
-				((TextView)currentView.findViewById(R.id.TextView_account_name)).setText(account_name);
-				((TextView)currentView.findViewById(R.id.TextView_account_number)).setText(account_number);
-				((TextView)currentView.findViewById(R.id.TextView_account_balance)).setText("$" + balance);
-				((TextView)currentView.findViewById(R.id.TextView_account_firstname)).setText(first_name);
-				((TextView)currentView.findViewById(R.id.TextView_account_lastname)).setText(last_name);
-			}
-		});
-		*/
+		spinner.setVisibility(View.GONE);
 	}
 	
 	OnClickListener onLinkClicked = new View.OnClickListener() {

@@ -406,7 +406,7 @@ HistoryFragment.OnFragmentInteractionListener {
 			startActivityForResult(i, proceedToConfirmRequestCode);
 		}
 		else {
-			Log.e("transAction", "payment obj too small");
+			Log.e("approveTransaction", "payment obj too small");
 		}
 	}
 

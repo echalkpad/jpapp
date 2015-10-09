@@ -12,6 +12,8 @@
     <!-- Default values that span the entire application -->
     <dimen name="button_text_size">18sp</dimen>
     <dimen name="text_large">20sp</dimen>
+    <dimen name="push_msg_text_size">18sp</dimen>
+    <dimen name="push_msg_button_margin">5dp</dimen>
 
     <!-- Main Landing Screen -->
     <dimen name="landing_button_width">250dp</dimen>

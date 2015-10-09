@@ -1,62 +1,50 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
-    android:layout_height="fill_parent" >
- 
-     <TextView
-        android:id="@+id/hidden"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:visibility="invisible"
-    />
+    android:layout_height="wrap_content" >
     
     <TextView
-        android:id="@+id/text"
+        android:id="@+id/dialogueText"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000"
-        android:text = "message contents should go here"
-        android:textSize = "18sp"
+        android:textColor="@color/push_msg_text"
+        android:text = "@string/push_msg_placeholder"
+        android:textSize = "@dimen/push_msg_text_size"
         android:layout_marginLeft="20dp"
         android:layout_marginTop="20dp"
     />
- 
-     <Button
-        android:id="@+id/dialogButtonPOS"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text=" Approve "
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="8dp"
-        android:layout_below="@+id/text"
-        android:visibility="invisible"
-     />
-     
-     <Button
-        android:id="@+id/dialogButtonNEG"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text=" Deny "
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="8dp"
-        android:layout_below="@+id/text"
-        android:layout_toRightOf="@+id/dialogButtonPOS"
-        android:visibility="invisible"
-      />
-     
-     <Button
-        android:id="@+id/dialogButtonCancel"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:text=" Dismiss "
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="8dp"
-        android:layout_below="@+id/text"
-        android:layout_toRightOf="@+id/dialogButtonNEG"
-      />
- 	
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/dialogueText">
+
+        <Button
+            android:id="@+id/dialogButtonPOS"
+            android:layout_height="wrap_content"
+            android:text="@string/push_msg_positive"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/push_msg_button_margin"
+            android:layout_width="wrap_content" />
+
+        <Button
+            android:id="@+id/dialogButtonNEG"
+            android:layout_height="wrap_content"
+            android:text="@string/push_msg_negative"
+            android:layout_toRightOf="@+id/dialogButtonPOS"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/push_msg_button_margin"
+            android:layout_width="wrap_content" />
+
+        <Button
+            android:id="@+id/dialogButtonCancel"
+            android:layout_height="wrap_content"
+            android:text="@string/push_msg_cancel"
+            android:layout_toRightOf="@+id/dialogButtonNEG"
+            android:layout_weight="1"
+            android:layout_margin="@dimen/push_msg_button_margin"
+            android:layout_width="wrap_content" />
+    </LinearLayout>
+
 </RelativeLayout>
