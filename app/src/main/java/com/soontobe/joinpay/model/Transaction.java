@@ -1,10 +1,9 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.model;
 
 import org.json.JSONObject;
 
 import java.util.Comparator;
 import java.util.Date;
-import java.util.Objects;
 
 /**
  * This class translates the JSONObjects that get returned by the JoinPay APIs into objects.

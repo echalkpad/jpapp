@@ -13,7 +13,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
+import com.soontobe.joinpay.model.Transaction;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 

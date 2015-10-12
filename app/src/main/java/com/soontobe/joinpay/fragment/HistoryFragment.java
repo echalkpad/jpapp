@@ -1,26 +1,17 @@
 package com.soontobe.joinpay.fragment;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.Loader;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -30,20 +21,14 @@ import com.soontobe.joinpay.LoginActivity;
 import com.soontobe.joinpay.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.RESTCalls;
-import com.soontobe.joinpay.Transaction;
-import com.soontobe.joinpay.widget.PendingTransactionItemView;
-import com.soontobe.joinpay.widget.PendingTransactionItemView.OnAcceptButtonClickListener;
-import com.soontobe.joinpay.widget.PendingTransactionItemView.OnDeclineButtonClickListener;
+import com.soontobe.joinpay.model.Transaction;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 /**
  * This Fragment displays a list of user transactions.
@@ -133,7 +118,6 @@ public class HistoryFragment extends Fragment {
      * that relate to collecting transactions
      */
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
-		// TODO clean this HORRIBLE MESS, THISCODEHASNOHONOR
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String receivedServiceContext = intent.getStringExtra("context");

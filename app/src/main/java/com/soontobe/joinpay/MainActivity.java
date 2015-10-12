@@ -265,6 +265,9 @@ public class MainActivity extends Activity{
 	public void onLogoutClicked(View view) {
 		Log.d(TAG, "\"" + getString(R.string.button_logout) + "\" clicked");
 		startActivity(new Intent(this, LoginActivity.class));
+		Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
+		stopService(locationServiceIntent);
+		push.unsubscribe("testtag");
 		finish();
 	}
 	

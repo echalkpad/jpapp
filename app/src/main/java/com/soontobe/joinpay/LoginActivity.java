@@ -2,10 +2,15 @@ package com.soontobe.joinpay;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Messenger;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -33,6 +38,9 @@ public class LoginActivity extends Activity {
 	EditText mPassword;
 	Button mLogin, mRegister;  // The login and "Need an account?" buttons
 	private Boolean changedUser = false;
+
+	Context thisContext;
+	SendLocation mService;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -40,6 +48,7 @@ public class LoginActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);		// No Title Bar
 		setContentView(R.layout.activity_login);
 
+		thisContext = this;
         // Acquire login screen elements.
 		mUsername = (EditText) findViewById(R.id.editText_username);
         mPassword = (EditText) findViewById(R.id.editText_password);
@@ -56,33 +65,42 @@ public class LoginActivity extends Activity {
 			}
 		});
 		mPassword.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(changedUser && hasFocus) {
-                    mPassword.setText("");
-                    changedUser = false;
-                }
-            }
-        });
+			@Override
+			public void onFocusChange(View v, boolean hasFocus) {
+				if (changedUser && hasFocus) {
+					mPassword.setText("");
+					changedUser = false;
+				}
+			}
+		});
 		
 		mLogin = (Button) findViewById(R.id.button_login);
 		mLogin.setOnClickListener(loginClicked);
 		
 		mRegister = (Button) findViewById(R.id.button_register);
 		mRegister.setOnClickListener(registerClicked);
+
+		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+		registerReceiver(restResponseReceiver, restIntentFilter);
 	}
 	
 	@Override
 	protected void onStop(){
-		try{
-			unregisterReceiver(restResponseReceiver);		// remove the receiver
-		}
-		catch(Exception e){
-            Log.e("loginActivity", "Failed to unregister receiver: " + e.getMessage());
-        }
 	    super.onStop();
 	}
-	
+
+	@Override
+	protected void onDestroy() {
+		try{
+			unregisterReceiver(restResponseReceiver);		// remove the receiver
+		} catch (Exception e) {
+			Log.e("loginActivity", "Failed to unregister receiver: " + e.getMessage());
+
+		}
+
+		super.onDestroy();
+	}
+
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
 		
 		@Override
@@ -117,12 +135,13 @@ public class LoginActivity extends Activity {
 				else if(httpCode == 200){										//200 = parse the response
 					Log.d("login", "starting location service");
 					Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
-					startService(locationServiceIntent);
+					thisContext.bindService(locationServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+
 					
 					Log.d("login", "starting main activity");
 					Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
 					startActivity(intentApplication);
-					finish();
+					//finish();
 				}
 				else{															//??? = error, do nothing
 					Log.e("login", "response not understoood");
@@ -132,7 +151,27 @@ public class LoginActivity extends Activity {
 		}
 	};
 
-    /**
+	private ServiceConnection mConnection = new ServiceConnection() {
+		public void onServiceConnected(ComponentName className, IBinder service) {
+			// This is called when the connection with the service has been
+			// established, giving us the object we can use to
+			// interact with the service.  We are communicating with the
+			// service using a Messenger, so here we get a client-side
+			// representation of that from the raw IBinder object.
+			mService = ((SendLocation.LocalBinder) service).getService();
+			mService.updateLocation();
+			if(mService != null)
+				thisContext.unbindService(mConnection);
+		}
+
+		public void onServiceDisconnected(ComponentName className) {
+			// This is called when the connection with the service has been
+			// unexpectedly disconnected -- that is, its process crashed.
+			mService = null;
+		}
+	};
+
+	/**
      * This object handles the process of logging the user in once the "Login" button is pressed.
      */
 	View.OnClickListener loginClicked = new View.OnClickListener() {
@@ -193,9 +232,8 @@ public class LoginActivity extends Activity {
 				intent.putExtra("context", serviceContext);
 	
 				Log.d("login", "starting REST service");
-				startService(intent);	
-				IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-				registerReceiver(restResponseReceiver, restIntentFilter);
+				startService(intent);
+
 			}
 		}
 	};
