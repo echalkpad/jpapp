@@ -174,51 +174,33 @@ public class Transaction {
     }
 
     /**
-     * Creates a Comparator that can be used to sort transactions by their amount.
-     * @param ascending True if the Transactions should be sorted in ascending order, false otherwise.
-     * @return A Comparator for sorting transactions.
+     * Creates a Comparator that keeps transactions that require user attention at the top
+     * of the list, while other transactions are sorted by their date.
+     * @param ascending True is dates should be sorted in ascending order, false otherwise
+     * @return A Comparator for sorting Transactions.
      */
-    public static Comparator amountComparator(boolean ascending) {
-        if(ascending) return new Comparator() {
+    public static Comparator finalComparator(final boolean ascending) {
+        return new Comparator() {
             @Override
             public int compare(Object lhs, Object rhs) {
+                // Cast transactions so we can compare them
                 if(!(lhs instanceof Transaction) || !(rhs instanceof Transaction))
-                    throw new IllegalArgumentException("Comparator only supports Transactions");
-
-                // Attempt to parse and compare amounts
-                double amt1, amt2;
-                try {
-                    amt1 = Double.parseDouble(((Transaction)lhs).amount);
-                } catch (Exception e) {
-                    return -1; // Floats lhs to top/front of list
-                }
-                try {
-                    amt2 = Double.parseDouble(((Transaction)rhs).amount);
-                } catch (Exception e) {
-                    return 1; // Floats rhs to top/front of list
-                }
-                return Double.compare(amt1, amt2);
+                    throw new IllegalArgumentException("Comparator only works on Transactions");
+                Transaction left = (Transaction) lhs;
+                Transaction right = (Transaction) rhs;
+                if(isFirst(left) && isFirst(right))
+                    return dateComparator(ascending).compare(lhs, rhs);
+                else if(isFirst(left))
+                    return -1;
+                else if(isFirst(right))
+                    return 1;
+                else
+                    return dateComparator(ascending).compare(lhs, rhs);
             }
-        };
-        else return new Comparator() {
-            @Override
-            public int compare(Object lhs, Object rhs) {
-                if(!(lhs instanceof Transaction) || !(rhs instanceof Transaction))
-                    throw new IllegalArgumentException("Comparator only supports Transactions");
 
-                // Attempt to parse and compare amounts
-                double amt1, amt2;
-                try {
-                    amt1 = Double.parseDouble(((Transaction)lhs).amount);
-                } catch (Exception e) {
-                    return 1; // Sinks lhs to bottom of list
-                }
-                try {
-                    amt2 = Double.parseDouble(((Transaction)rhs).amount);
-                } catch (Exception e) {
-                    return -1; // Sinks rhs to bottom of list
-                }
-                return Double.compare(amt2, amt1);
+            // Sending, pending transactions go first
+            private boolean isFirst(Transaction t) {
+                return (t.getType().equals(TYPE.SENDING) && t.getStatus().equals(STATUS.PENDING));
             }
         };
     }

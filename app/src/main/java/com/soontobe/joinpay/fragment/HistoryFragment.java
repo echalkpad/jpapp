@@ -237,8 +237,9 @@ public class HistoryFragment extends Fragment {
 					Toast.makeText(getActivity(), message, Toast.LENGTH_LONG).show();
 				}
 
+				// Sort and display the collected transactions
 				Log.d(TAG, "there are " + list.size() + " transactions");
-                Collections.sort(list, Transaction.dateComparator(false));
+                Collections.sort(list, Transaction.finalComparator(false));
                 mAdapter = new PaymentSummaryAdapter(context, list, mInflater);
                 mHistoryLayout.setAdapter(mAdapter);
                 mAdapter.notifyDataSetChanged();
