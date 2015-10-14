@@ -35,7 +35,7 @@ public class Constants {
 
 	public static final String PUSH_TAG = "push";
 	
-	public static final String RESTRESP = "com.soontobe.RESTRESP";
+	public static final String RESTRESP = "com.soontobe.RESTRESP";  // used to filter REST responses to this application
 	public static String loginToken;
 	//public static String baseURL = "http://j-pay.mybluemix.net";
 	public static String baseURL = "http://join-pay.mybluemix.net";

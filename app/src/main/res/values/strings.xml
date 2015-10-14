@@ -34,6 +34,7 @@
     <string name="button_accounts">My Accounts</string>
     <string name="button_logout">Logout</string>
     <string name="button_points">My Points</string>
+    <string name="button_picture">Profile Picture</string>
     <string name="welcome_message">Welcome, %s</string>
     <string name="signup_link_placeholder">Sign up? <u>link goes here!</u></string>
     <string name="signup_link">Don\'t have a citi account? <a href='http://citi-online-banking.mybluemix.net/'>Sign Up Here</a></string>
@@ -45,6 +46,15 @@
     <string name="trans_dialog_title">Approve the transaction?</string>
     <string name="trans_dialog_msg">Sending money to %s.</string>
     <string name="trans_date_placeholder">Oct 1, 2055 at 8:23</string>
+
+    <!-- Profile Picture Screen -->
+    <string name="profile_choose_button">Choose Picture</string>
+    <string name="profile_upload_button">Upload Picture</string>
+    <string name="profile_take_photo">Take Photo</string>
+    <string name="profile_choose_photo">Choose from Gallery</string>
+    <string name="profile_dialog_title">Profile Picture Options</string>
+    <string name="profile_pic_desc">Large profile picture</string>
+    <string name="profile_pic_thumb_desc">profile picture thumbnail</string>
 
     <!-- Push Message Related -->
     <string name="push_msg_placeholder">Message goes here</string>
@@ -65,5 +75,6 @@
     <string name="tab_history">History</string>
     <string name="tab_chat">Chat</string>
     <string name="service_name">MsgRtrService</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

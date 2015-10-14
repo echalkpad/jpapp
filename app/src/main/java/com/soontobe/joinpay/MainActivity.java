@@ -5,7 +5,10 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.format.DateUtils;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -23,6 +26,8 @@ import com.ibm.mobile.services.push.IBMPushNotificationListener;
 import com.ibm.mobile.services.push.IBMSimplePushNotification;
 
 import java.io.File;
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -39,6 +44,10 @@ public class MainActivity extends Activity{
 	private IBMPush push = null;
 	private IBMPushNotificationListener notificationlistener = null;
 	public static Context context;
+
+	// For getting a profile picture
+	static final int REQUEST_IMAGE_CAPTURE = 1;
+	String mCurrentPhotoPath;
 
 	@SuppressLint("DefaultLocale")
 	@Override
@@ -60,7 +69,6 @@ public class MainActivity extends Activity{
 		// up to date with the chat web page
         clearCache(this, getResources().getInteger(R.integer.minutes_to_keep));
 
-		// TODO break this up to make it more readable
 		///////////////////////////////////////////////////
 		/////////////////  IBM Push Code  ///////////////// 
 		///////////////////////////////////////////////////
@@ -260,15 +268,27 @@ public class MainActivity extends Activity{
 	/**
 	 * This method is called when the user presses the "logout" button.  It returns to the login
 	 * activity and ends this activity.
-	 * @param view The view that was clicked.
+	 * @param view The View that was clicked.
 	 */
 	public void onLogoutClicked(View view) {
 		Log.d(TAG, "\"" + getString(R.string.button_logout) + "\" clicked");
 		startActivity(new Intent(this, LoginActivity.class));
+
+		// Updates to the user's location should stop when they log out
 		Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
 		stopService(locationServiceIntent);
 		push.unsubscribe("testtag");
 		finish();
+	}
+
+	/**
+	 * Called when the user presses the "profile picture" button.  It dispatches an intent
+	 * which allows the user to take a picture.
+	 * @param view The View that was clicked.
+	 */
+	public void onProfilePictureClicked(View view) {
+		Log.d(TAG, "\"" + getString(R.string.button_picture) + "\" clicked");
+		startActivity(new Intent(this, PictureActivity.class));
 	}
 	
 	@Override

@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.soontobe.joinpay"
     android:versionCode="1"
@@ -17,18 +18,28 @@
     <uses-permission android:name="android.permission.ACCESS_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_GPS" />
 
-    <!--  Push Permissions -->
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- Push Permissions -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="com.ibm.bluelist.permission.C2D_MESSAGE" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
 
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
+    <uses-feature
+        android:name="android.hardware.camera2"
+        android:required="true" />
+
     <application
         android:allowBackup="true"
-        android:label="@string/app_name"
         android:icon="@drawable/ic_launcher"
-        android:theme="@style/AppTheme">
-
-        <meta-data android:name="com.google.android.gms.version" android:value="@integer/google_play_services_version"/>
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version" />
 
         <activity
             android:name=".LoginActivity"
@@ -58,66 +69,72 @@
         <activity
             android:name=".RadarViewActivity"
             android:label="@string/title_activity_radar_view"
-            android:windowSoftInputMode="adjustResize"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
             android:name=".ContactListActivity"
             android:label="@string/title_contact_list"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name=".SendConfirmActivity"
             android:label="@string/title_send_confirm"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
         <activity
             android:name=".CitiAccountActivity"
             android:label="Citi Account"
-            android:windowSoftInputMode="adjustPan"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" >
         </activity>
-        <service
-            android:name="com.soontobe.joinpay.CitiAccountActivity"
-            android:exported="false">
-        </service>
 
         <service
-            android:name="MessageRetrievalService"
+            android:name=".CitiAccountActivity"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".MessageRetrievalService"
             android:label="@string/service_name"
             android:screenOrientation="portrait" >
         </service>
-
         <service
-            android:name="com.soontobe.joinpay.RESTCalls"
-            android:exported="false">
+            android:name=".RESTCalls"
+            android:exported="false" >
         </service>
         <service
-            android:name="com.soontobe.joinpay.SendLocation"
-            android:exported="false">
+            android:name=".SendLocation"
+            android:exported="false" >
         </service>
 
-        <activity android:name="com.ibm.mobile.services.push.IBMUIActivity"/>
+        <activity android:name="com.ibm.mobile.services.push.IBMUIActivity" />
 
         <service android:name="com.ibm.mobile.services.push.IBMPushIntentService" />
 
-        <receiver android:name="com.ibm.mobile.services.push.IBMPushBroadcastReceiver" android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.ibm.mobile.services.push.IBMPushBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.ibm.mbaas.push.sdk.client.android.sample" />
             </intent-filter>
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+
                 <category android:name="com.ibm.mbaas.push.sdk.client.android.sample" />
             </intent-filter>
             <intent-filter>
-                <action android:name="com.google.android.c2dm.intent.REGISTRATION"/>
+                <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="com.ibm.mbaas.push.sdk.client.android.sample" />
             </intent-filter>
         </receiver>
 
+        <activity android:name=".PictureActivity" >
+        </activity>
     </application>
 
 </manifest>

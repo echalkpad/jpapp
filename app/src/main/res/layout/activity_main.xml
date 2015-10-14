@@ -95,6 +95,17 @@
         android:textSize="@dimen/text_default" />
     
     <!-- Break -->
+    <Button
+        android:layout_width="@dimen/landing_button_width"
+        android:layout_height="@dimen/landing_button_height"
+        android:text="@string/button_picture"
+        android:id="@+id/cameraButton"
+        android:layout_gravity="center_horizontal"
+        style="@style/ButtonTheme"
+        android:background="@drawable/selector_button"
+        android:onClick="onProfilePictureClicked"
+        android:textSize="@dimen/button_text_size" />
+
     <View
 	    android:layout_width="fill_parent"
 	    android:layout_height="2dp"
