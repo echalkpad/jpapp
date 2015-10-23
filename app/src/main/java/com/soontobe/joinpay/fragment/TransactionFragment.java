@@ -44,11 +44,8 @@ import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * 
- * This is the base(parent) fragment for Send/Request fragment.
- *
+ * TransactionFragment assists with
  */
-
 public abstract class TransactionFragment extends Fragment implements LoaderCallbacks<Void> {
 	static Context mApplicationContext;
 	private OnFragmentInteractionListener mListener;

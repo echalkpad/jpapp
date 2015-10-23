@@ -3,7 +3,7 @@
     <!-- Testing -->
     <string name="test_user">david</string>
     <string name="test_password">password</string>
-    <string name="test_chat_url">https://bhub.mybluemix.net/chat/new/dale</string>
+    <string name="test_chat_url">https://bhub.mybluemix.net/chat/joinpay</string>
 
     <!-- Login Screen -->
     <string name="join">Join</string>

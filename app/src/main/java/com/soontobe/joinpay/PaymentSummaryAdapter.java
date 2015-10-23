@@ -94,7 +94,7 @@ public class PaymentSummaryAdapter extends BaseAdapter {
         // Update view to reflect transaction
         Log.d(TAG, "Updating view to match transaction");
 		holder.transId.setText(trans.getId());
-		holder.amountView.setText(trans.getAmount());
+		holder.amountView.setText(trans.getPrettyAmount());
 		holder.payerView.setText(trans.getFromUser());
 		holder.payeeView.setText(trans.getToUser());
 		holder.groupNoteview.setText(trans.getDescription());

@@ -19,11 +19,19 @@ import com.soontobe.joinpay.R;
  */
 public class ChatFragment extends Fragment {
 
+    /**
+     * The View that is created by the inflater in OnCreateView.
+     */
     private View mCurrentView;
+
+    /**
+     * This WebView is used to display BusinessHub's chat client.
+     */
     private WebView mWebView;
 
     /**
-     * Factory method for creating a new instance of ChatFragment
+     * Factory method for creating a new instance of ChatFragment.
+     *
      * @return A new ChatFragment instance
      */
     public static ChatFragment newInstance() {
@@ -31,30 +39,36 @@ public class ChatFragment extends Fragment {
         return fragment;
     }
 
+    /**
+     * Constructs a new ChatFragment.
+     */
     public ChatFragment() {
         // Required empty public constructor
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
+    public final void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public final View onCreateView(final LayoutInflater inflater,
+                                   final ViewGroup container,
+                                   final Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        if(mCurrentView == null)
-            mCurrentView = inflater.inflate(R.layout.fragment_chat, container, false);
-
-        // Remove association with any old parent so that we can be added as a child after returning
+        if (mCurrentView == null) {
+            mCurrentView = inflater.inflate(R.layout.fragment_chat,
+                    container, false);
+        }
+        // Remove association with any old parent so that we
+        // can be added as a child after returning
         ViewGroup parent = (ViewGroup) mCurrentView.getParent();
-        if(parent != null){
+        if (parent != null) {
             parent.removeView(mCurrentView);
         }
 
         // Connect the WebView to our online BusinessHub chat client
-        mWebView = (WebView)mCurrentView.findViewById(R.id.webView);
+        mWebView = (WebView) mCurrentView.findViewById(R.id.webView);
         WebSettings settings = mWebView.getSettings();
         settings.setJavaScriptEnabled(true);
         Log.d("chat", "connecting chat to url");
