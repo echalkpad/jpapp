@@ -6,8 +6,8 @@
 This article outlines a common scenario in the modern application development marketplace:
 _How do we create a scalable, secure, and cloud-ready application?_
 Oh, and by the way, this application needs to be finished yesterday.
-Today, we're going to talk about our own experienece and outcome with an Android application called JoinPay.
-In a short peroid of time we took JoinPay from a UI mockup to a production ready Android app that includes scalability and security.
+Today, we're going to talk about our own experience and outcome with an Android application called JoinPay.
+In a short period of time we took JoinPay from a UI mockup to a production ready Android app that includes scalability and security.
 We were able to do this by using the plethora of services and applications that are built in to <a href="http://bluemix.net">IBM Bluemix</a>.
 
 <br/>
@@ -32,17 +32,17 @@ The features we needed JoinPay to deliver can be summarized as the following:
 6. Completed as soon as possible
 
 ##Architecture
-This type of archiecture boils down to what has been dubed "Two speed IT".
+This type of architecture boils down to what has been dubbed "Two speed IT".
 In two speed IT a large cog (Citi) is powering a smaller faster cog (JoinPay).
 The two companies intersect via APIs to deliver a compelling product.
 In our specific case the large cog will expose restful APIs which Joinpay will leverage to implement their bill splitting application.
 The small cog is able to iterate quickly and focus on specific functionality.
 Their quick speed is in part due to their small size (employee wise), but also their focused scope of a UI driven product.
-The large cog is able to concentrate on the slower moving parts such as DB complicance, availability and privacy.
-An archiecture that implements the features we need is in the figure below:
+The large cog is able to concentrate on the slower moving parts such as DB compliance, availability and privacy.
+An architecture that implements the features we need is in the figure below:
 
 ###Two Speed IT
-![Architecture](./imgs/arch_img.png)need new image!
+![Architecture](./imgs/arch_img.png)
 	
 ##User Story
 Lets first flush out the particualr user story we want to fulfill:
@@ -52,7 +52,7 @@ Bob picks up the tab and now wants to receive payment from Alice.
 JoinPay allows Bob to select users that are nearby which includes Alice.
 He can then type the total and split the bill among his selected friends.
 The recipients are then notified of pending transactions via push notifications, and can approve or deny the transaction.
-When a transcation is approved JoinPay will use the Citi APIs to make the money transfer.
+When a transaction is approved JoinPay will use the Citi APIs to make the money transfer.
 
 ##How we built it
 The first step to making the JoinPay story a reality was to implement a backend.
@@ -319,7 +319,7 @@ It's time to interact with Citi Bank's APIs to move money!
 Unfortunately they do not exist in a usable form for this application.
 This may seem like a major deal-breaker, but's actually quite common of a problem.
 By leveraging a rapid development model, you may often find yourself ahead of the development of other projects that yours depends on.
-Waiting is one option, but thats boring.
+Waiting is one option, but that's boring.
 When the road runs out our group's preference is to start building the road our self.
 Therefore we spin up another Node.js app, and start writing our own implementation of the Citi Bank APIs.
 Obviously we do not have real money to move around, so from a money perspective these APIs are fake.
