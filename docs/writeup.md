@@ -3,13 +3,12 @@
 ---
 
 ##Introduction
-This article outlines a common scenario in the modern application development marketplace:  
-How do we create a scalable, secure, and cloud-ready application?
+This article outlines a common scenario in the modern application development marketplace:
+_How do we create a scalable, secure, and cloud-ready application?_
 Oh, and by the way, this application needs to be finished yesterday.
-Today, we're going to talk about one instance of this scenario we encountered while working with an Android application called JoinPay.
-Over the course of one week, we took JoinPay from a UI mockup to a near-production Android app that includes scalability and security.
+Today, we're going to talk about our own experienece and outcome with an Android application called JoinPay.
+In a short peroid of time we took JoinPay from a UI mockup to a production ready Android app that includes scalability and security.
 We were able to do this by using the plethora of services and applications that are built in to <a href="http://bluemix.net">IBM Bluemix</a>.
-
 
 <br/>
 
@@ -19,56 +18,66 @@ They have staged a hackathon called the <a href="http://www.citimobilechallenge.
 in which they gave developers access to a set of mocked-up APIs that allowed programmatic access to Citi's banking services.
 Developers then competed to produce the most innovative mobile app using these APIs.
 JoinPay started its life as the winner of the 2014 Citi Mobile Challenge.
-The idea behind JoinPay was to allow Citi account holders to split a bill at a restaurant by authorizing transfers 
-between Citi accounts using their mobile devices.
-The JoinPay app had a fantastic UI for demonstrating this story, but JoinPay's authors were rightfully focused on the story
-and the innovation, rather than designing and implementing the app with scalability, performance, and security.
+The idea behind JoinPay was to allow Citi account holders to split a bill at a restaurant by authorizing transfers between Citi accounts using their mobile devices.
+The JoinPay app had a fantastic UI for demonstrating this story, but JoinPay's authors were rightfully focused on the story, rather than designing and implementing the app with scalability, performance, and security.
 This is the point where we, IBM, stepped in.
 
-	
-##User Story
-A user, let's call him Bob, goes out for dinner with some friends and picks up the tab. 
-JoinPay allows Bob to select users that are nearby and split the total bill among them all.
-The recipients are then notified of pending transactions via push notifications, and can approve or deny the transaction.
-JoinPay uses the Citi APIs to make the transfer from Bob's friends to Bob when recipients approve pending transactions.
-
-			
 ###What we needed
-The needed features of JoinPay can be summarized as the following:
+The features we needed JoinPay to deliver can be summarized as the following:
 1. A mobile backend that can scale and is secure
 2. Persistent database store
 3. Generate and receive Push Notifications
 4. Find nearby users
 5. Interaction with Citi APIs
-6. Completed yesterday
+6. Completed as soon as possible
 
+##Architecture
+This type of archiecture boils down to what has been dubed "Two speed IT".
+In two speed IT a large cog (Citi) is powering a smaller faster cog (JoinPay).
+The two companies intersect via APIs to deliver a compelling product.
+In our specific case the large cog will expose restful APIs which Joinpay will leverage to implement their bill splitting application.
+The small cog is able to iterate quickly and focus on specific functionality.
+Their quick speed is in part due to their small size (employee wise), but also their focused scope of a UI driven product.
+The large cog is able to concentrate on the slower moving parts such as DB complicance, availability and privacy.
+An archiecture that implements the features we need is in the figure below:
+
+###Two Speed IT
+![Architecture](./imgs/arch_img.png)need new image!
 	
+##User Story
+Lets first flush out the particualr user story we want to fulfill:
+
+A user, let's call him Bob, goes out for dinner with some friends including Alice.
+Bob picks up the tab and now wants to receive payment from Alice.
+JoinPay allows Bob to select users that are nearby which includes Alice.
+He can then type the total and split the bill among his selected friends.
+The recipients are then notified of pending transactions via push notifications, and can approve or deny the transaction.
+When a transcation is approved JoinPay will use the Citi APIs to make the money transfer.
+
 ##How we built it
 The first step to making the JoinPay story a reality was to implement a backend.
 A "backend" in this case was a collection of REST APIs and an accompanying database.
 This allows the data provided by the instance of JoinPay on Bob's phone to be utilized by the instance running on Alice's phone.
-Specifically, part of the story is to indicate that, for example, Alice and Bob have sat down together at a restaurant. 
+Specifically, part of the story is to identify when Alice and Bob have sat down together at a restaurant. 
 Android's APIs allow for the collection of the geocordinates, but for the instance on Bob's phone to know that Alice is nearby, Alice's
 instance must report her position, and Bob's instance must be able to retrieve this information.
 <br/>
 <br/>
 At this point, you may be thinking: "But why does this involve using an API? Couldn't I just have each app instance connect to a shared database in the cloud?" 
-You could.  
-However, this design choice reveals an unreasonable amount of information about each user to the other users.  
-For example, why does Alice need to know Bob's location?  She really just needs to know if he's nearby.  
+You could.
+However, this design choice reveals an unreasonable amount of information about each user to the other users.
+For example, why does Alice need to know Bob's location?  She really just needs to know if he's nearby.
 The API can provide this safer level of abstraction.
 <br/>
 <br/>
 Utilizing a REST API also allows us to separate development to multiple developers (everybody grab an API and go!).
 First, we established an agreement between developers on what the specifications for the API will look like.
-The specs identify aspects of the api such as what URLs provide which information, what parameters are required for each endpoint, and the format of each.  
+The specs identify aspects of the api such as what URLs provide which information, what parameters are required for each endpoint, and the format of each.
 We used a representation framework for REST APIs called <a href="http://swagger.io">Swagger</a> to communicate and broadcast the specifications for each API to each other.
 Swagger allowed us to focus on the inputs and outputs of the API rather than the implementation details.
-We authored our swagger specification, using version control to track and share it.  
+We authored our swagger specification, using version control to track and share it.
 One we agreed on a final form of the spec, the backend team could focus on implementing the API, and the UI team could focus on integrating the story-based UI with the backend.
 We agreed on the following specification:
-<br/>
-<br/>
 
 ## API Documentation (Swagger)
 ![swagger](./imgs/swagger_img.png)
@@ -84,8 +93,6 @@ We choose to use <a href="https://www.ng.bluemix.net/docs/#services/Cloudant/ind
 Now that all of the structure is decided let's see the architecture diagram:
 <br/>
 
-###Architecture Diagram
-![Architecture](./imgs/arch_img.png)
 We will not bore you with every API endpoint in detail, but its probably worth it to examine one or two.
 Our APIs are secured by requiring a session ID that is only achieved after the user has logged in.
 The Login API is listed below:
@@ -157,16 +164,14 @@ The Login API is listed below:
 			})
 		}
 	})
-
+	
+<br/>
 
 - GET /transactions
 	- This api expects nothing!  Since all API calls are secured with a unique session ID the backend will know who is calling and can look up the requester's known transactions.
 	- Transactions in this context are pending/approved/denied payment transfers.  Each is stored as its own document in a 'transactions' database within Cloudant.
 	- It will respond with a JSON payload containing an array of transaction details.
-
-
-<br/>
-
+	
 ###Transactions Code
 	app.get('/transactions', function(req, res) {
 		res.set("Content-Type", "application/json")
@@ -229,9 +234,7 @@ Since most APIs are independent they can be divvied up to speed up development.
 Now that our first 2 tasks are taken care of let's look at how we would implement Push Notifications.
 Well, just like before, <a href="http://bluemix.net">Bluemix</a> comes to save the day with its built-in <a href="https://www.ng.bluemix.net/docs/#services/push/index.html#gettingstarted">Push Service</a>.
 
-<br/>
-
-###IBM Push
+##IBM Push
 ![IBM Push](./imgs/push_img.png)
 <br/>
 
@@ -242,9 +245,6 @@ As a bonus there is an ability to manage/test push notifications in the dashboar
 From here we can send push to specific devices, device users, device categories, or to topics (devices can subscribe to topics in their native code).
 
 On the initiating side of things we have a JS function to trigger the push notification seen below.
-
-<br/>
-<br/>
 
 ###Trigger Push Notification Code
 	function sendPushNotification(sendTo, messageToSend) {
@@ -295,8 +295,6 @@ On the initiating side of things we have a JS function to trigger the push notif
 		myReq.write(JSON.stringify(notification))
 		myReq.end()
 	}
-	
-
 
 It's simply another RESTFUL endpoint.  
 It's actually a rather straightforward REST call using Node.js's "request" module.
@@ -318,11 +316,10 @@ Then its just a matter of invoking the API to update the user's location, and pe
 
 Nearly there now.  This may be the most important part of the whole application. 
 It's time to interact with Citi Bank's APIs to move money!
-Well, we sure would like to.  
-Unfortunately they do not exist in a usable form.
+Unfortunately they do not exist in a usable form for this application.
 This may seem like a major deal-breaker, but's actually quite common of a problem.
 By leveraging a rapid development model, you may often find yourself ahead of the development of other projects that yours depends on.
-Waiting is one option, but when you needed the app yesterday its not really a good one.
+Waiting is one option, but thats boring.
 When the road runs out our group's preference is to start building the road our self.
 Therefore we spin up another Node.js app, and start writing our own implementation of the Citi Bank APIs.
 Obviously we do not have real money to move around, so from a money perspective these APIs are fake.
@@ -386,20 +383,16 @@ Next an "options" object is set up that contains critical fields for describing 
 Then it's just a matter of implementing the "requests" module's way of receiving the data, and finally initiating the call itself with myReq.end().
 When the request is successful it will attempt to parse the result from Citi (looking for JSON format) and if that's also successful it will send the JSON back to the app that made the original call.
 
-Finally we are on the last task.  To build the app yesterday.  
-Well short of a time machine it is unlikely to make this happen.
-Non-the-less we did quite a lot inside of 1 week.
-
-The time saving efforts were largely only possible with <a href="http://bluemix.net">Bluemix</a> because:
+Finally we come to the last task which was to build it as fast as possible.
+The time saving efforts were largely possible with <a href="http://bluemix.net">Bluemix</a> because:
 1. We never had to configure a host machine to run our code.
 2. We never have to figure out how to load balance our code instances.
 3. We got starter code to hit the ground running for our Node.js apps and Push Notification
-4. We never had to hardcode our Cloudant database credentials
+4. We never had to hardcode/protect our database credentials
 5. We never had to build a monitoring service to keep our service up should it crash
-		
 
 ##Final Words
 Development at lightning speed can have its pitfalls and limitations, but if you plan accordingly and leverage tool sets such as those found in <a href="http://bluemix.net">Bluemix</a> its quite possible.
-The end result of our week long endeavor is quite positive.
+The end result of our endeavor is quite positive.
 If we did this again we would like to use some of the other services found in the Bluemix catalog such as the debugging service for mobile apps: 
 <a href="https://mqedg.mybluemix.net/MQEHelp.jsp#">Mobile Quality Extension</a>.
