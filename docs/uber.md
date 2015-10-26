@@ -80,10 +80,11 @@ You will need to include a few body parameters:
 ##Get a Quote
 We are almost there now.
 To get a quote we are going to use the Price Estimates [endpoint](https://developer.uber.com/v1/endpoints/).
+
 1. Create a HTTP GET request with the following query parameters:
+	
 	####Header
 	- Authorization - the authorization header should follow OAuth2 spec:
-	
 			Authorization: Basic YOUR_ACCESS_TOKEN_HERE
 	
 	####Query Parameters:
