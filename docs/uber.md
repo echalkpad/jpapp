@@ -25,10 +25,13 @@ This tutorial will get you through the OAuth2 step and get a price estimate on a
 	![register](./imgs/register.png)
 
 3. Now fill out your application profile and pay special attention to a few fields:
-		- The redirect URL should point to some backend of your own. For testing purposes this can be localhost and the port number being used.
-		- Check the correct permissions for your application.  For this tutorial we only need "profile".
-		- The "CLIENT ID" and "CLIENT SECRET" fields (near the bottom) will be neede in a later step.  Copy them now for convince.
-![app](./imgs/app.png)
+	- The redirect URL should point to some backend of your own. For testing purposes this can be localhost and the port number being used.
+	- Check the correct permissions for your application.  For this tutorial we only need "profile".
+	- The "CLIENT ID" and "CLIENT SECRET" fields (near the bottom) will be neede in a later step.  Copy them now for convince.
+	
+	![app](./imgs/app.png)
+	
+
 ---
 ##OAuth2 
 OAuth2 can seem complicated but its really a straight forward two step process. 
@@ -40,7 +43,7 @@ They user will be prompted by Uber to allow your app to his account and the user
 Then Uber will redirect to the "redirect URI" you provided in your app's registration.
 This redirect will contain the "code" as a parameter.
 Finally you can exchange this code for an access token by sending an HTTP request to an Uber API endpoint.
- 
+
 1. First up is to send the user to https://login.uber.com/oauth/v2/authorize with the following parameters attached
 	- response_type - This should be set to "code" without the quotes
 	- client_id	- This can be found in the details of your Uber application
@@ -75,7 +78,7 @@ You will need to include a few body parameters:
 	Store the access_token and refresh_token for later user. 
 	Access tokens expire in 30 days.
 	Exchange the refresh token to generate a new access and refresh token.
-	
+
 ---
 ##Get a Quote
 We are almost there now.
