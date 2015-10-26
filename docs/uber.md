@@ -83,6 +83,7 @@ To get a quote we are going to use the Price Estimates [endpoint](https://develo
 1. Create a HTTP GET request with the following query parameters:
 	####Header
 	- Authorization - the authorization header should follow OAuth2 spec:
+	
 			Authorization: Basic YOUR_ACCESS_TOKEN_HERE
 	
 	####Query Parameters:
@@ -92,57 +93,58 @@ To get a quote we are going to use the Price Estimates [endpoint](https://develo
 	- end_longitude - longitude of end location as float
 	
 	####Response
+	Uber will response back with the following JSON object. 
+	This response contains the price estimate from UberBLACK, UberSUV, and UberX.
 	
-		Uber will response back with the following JSON object. 
-		This response contains the price estimate from UberBLACK, UberSUV, and UberX.
-			{
-				"prices": [
-					{
-					"product_id": "08f17084-23fd-4103-aa3e-9b660223934b",
-					"currency_code": "USD",
-					"display_name": "UberBLACK",
-					"estimate": "$23-29",
-					"low_estimate": 23,
-					"high_estimate": 29,
-					"surge_multiplier": 1,
-					"duration": 640,
-					"distance": 5.34
-					},
-					{
-					"product_id": "9af0174c-8939-4ef6-8e91-1a43a0e7c6f6",
-					"currency_code": "USD",
-					"display_name": "UberSUV",
-					"estimate": "$36-44",
-					"low_estimate": 36,
-					"high_estimate": 44,
-					"surge_multiplier": 1.25,
-					"duration": 640,
-					"distance": 5.34
-					},
-					{
-					"product_id": "aca52cea-9701-4903-9f34-9a2395253acb",
-					"currency_code": null,
-					"display_name": "uberTAXI",
-					"estimate": "Metered",
-					"low_estimate": null,
-					"high_estimate": null,
-					"surge_multiplier": 1,
-					"duration": 640,
-					"distance": 5.34
-					},
-					{
-					"product_id": "a27a867a-35f4-4253-8d04-61ae80a40df5",
-					"currency_code": "USD",
-					"display_name": "uberX",
-					"estimate": "$15",
-					"low_estimate": 15,
-					"high_estimate": 15,
-					"surge_multiplier": 1,
-					"duration": 640,
-					"distance": 5.34
-					}
-				]
-			}
+	
+		{
+			"prices": [
+				{
+				"product_id": "08f17084-23fd-4103-aa3e-9b660223934b",
+				"currency_code": "USD",
+				"display_name": "UberBLACK",
+				"estimate": "$23-29",
+				"low_estimate": 23,
+				"high_estimate": 29,
+				"surge_multiplier": 1,
+				"duration": 640,
+				"distance": 5.34
+				},
+				{
+				"product_id": "9af0174c-8939-4ef6-8e91-1a43a0e7c6f6",
+				"currency_code": "USD",
+				"display_name": "UberSUV",
+				"estimate": "$36-44",
+				"low_estimate": 36,
+				"high_estimate": 44,
+				"surge_multiplier": 1.25,
+				"duration": 640,
+				"distance": 5.34
+				},
+				{
+				"product_id": "aca52cea-9701-4903-9f34-9a2395253acb",
+				"currency_code": null,
+				"display_name": "uberTAXI",
+				"estimate": "Metered",
+				"low_estimate": null,
+				"high_estimate": null,
+				"surge_multiplier": 1,
+				"duration": 640,
+				"distance": 5.34
+				},
+				{
+				"product_id": "a27a867a-35f4-4253-8d04-61ae80a40df5",
+				"currency_code": "USD",
+				"display_name": "uberX",
+				"estimate": "$15",
+				"low_estimate": 15,
+				"high_estimate": 15,
+				"surge_multiplier": 1,
+				"duration": 640,
+				"distance": 5.34
+				}
+			]
+		}
 ---
 ##Final Words
 Uber's APIs are pretty simple and straightforward.
