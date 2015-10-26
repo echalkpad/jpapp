@@ -64,7 +64,13 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:parentActivityName=".LoginActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".LoginActivity" />
+            >
         </activity>
         <activity
             android:name=".RadarViewActivity"
@@ -106,6 +112,10 @@
         </service>
         <service
             android:name=".SendLocation"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".helpers.IBMPushService"
             android:exported="false" >
         </service>
 

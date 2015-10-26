@@ -28,7 +28,7 @@ public class PointBalance extends Activity {
 		Log.d("points", "starting points");
 		super.onCreate(savedInstanceState);
 		
-		MainActivity.context = this;
+		MainActivity.mContext = this;
 		setContentView(R.layout.activity_points);
 		butBack = (Button) findViewById(R.id.points_button_back);
 		butBack.setOnClickListener(backClicked);

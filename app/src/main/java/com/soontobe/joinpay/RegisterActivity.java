@@ -34,7 +34,7 @@ public class RegisterActivity extends Activity {
 		Log.d("register", "starting points");
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
-		MainActivity.context = this;
+		MainActivity.mContext = this;
 		setContentView(R.layout.activity_register);
 		butRegSubmit = (Button) findViewById(R.id.button_registerSubmit);
 		butRegSubmit.setOnClickListener(regSubmitClicked);

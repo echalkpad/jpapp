@@ -31,6 +31,7 @@ import com.soontobe.joinpay.fragment.ChatFragment;
 import com.soontobe.joinpay.fragment.HistoryFragment;
 import com.soontobe.joinpay.fragment.RequestFragment;
 import com.soontobe.joinpay.fragment.TransactionFragment;
+import com.soontobe.joinpay.helpers.IBMPushService;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -87,7 +88,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_radar_view);
-		MainActivity.context = this;
+		MainActivity.mContext = this;
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		setupTabs();
 		mTabHost.setOnTabChangedListener(this);
@@ -136,7 +137,20 @@ HistoryFragment.OnFragmentInteractionListener {
 		catch(Exception e){}
 	    super.onStop();
 	}
-	
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		unregisterReceiver(Globals.onPushNotificationReceived);
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		IntentFilter pushReceiveFilter = new IntentFilter(IBMPushService.MESSAGE_RECEIVED);
+		registerReceiver(Globals.onPushNotificationReceived, pushReceiveFilter);
+	}
+
 	BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {

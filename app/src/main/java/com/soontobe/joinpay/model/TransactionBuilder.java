@@ -1,0 +1,363 @@
+package com.soontobe.joinpay.model;
+
+import android.support.annotation.NonNull;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
+
+/**
+ * TransactionBuilder assists with the creation and splitting of a
+ * charge amongst multiple users.
+ *
+ * Created by davery on 10/26/2015.
+ */
+public class TransactionBuilder implements Set<UserInfo> {
+
+    private Set<UserInfo> users;
+
+    /**
+     * Used to keep track of the general message that should be sent
+     * to all users.
+     */
+    private String generalMessage;
+
+    private int totalInPennies;
+
+    public TransactionBuilder() {
+        users = new HashSet<>();
+        generalMessage = "";
+    }
+
+    /**
+     * Sets the general message that is sent to all users involved in
+     * the transaction.
+     * @param message The public note to be sent.
+     */
+    public final void setGeneralMessage(String message) {
+        String cleaned = "";
+        if(message != null) {
+            cleaned = new String(message);
+        }
+
+        generalMessage = cleaned;
+
+        for(UserInfo user: users) {
+            if(user.isSelected()) {
+                user.setPublicNote(cleaned);
+            }
+        }
+    }
+
+    public final boolean setAmount(UserInfo toSet, int pennies) {
+
+        if(toSet == null) {
+            return false;
+        }
+
+        // Can't change amount on a user we don't have
+        if(!users.contains(toSet)) {
+            return false;
+        }
+
+        // Can't set the amount on an unselected or unlocked user
+        if(!toSet.isSelected() || !toSet.isLocked()) {
+            return false;
+        }
+
+        // Update the amount for the user
+        toSet.setAmountOfMoney(pennies);
+        return true;
+    }
+
+    /**
+     * Selects or deselects the given user.
+     * @param toSelect The user to be selected or deselected.
+     * @param selected True if user is to be selected, false otherwise.
+     * @return True if the operation was successful, false otherwise.
+     */
+    public final boolean selectUser(UserInfo toSelect, boolean selected) {
+
+        if(toSelect == null) {
+            return false;
+        }
+
+        // Can't select a user who is not in collection.
+        if(!users.contains(toSelect)) {
+            return false;
+        }
+
+        // Set the selection state of the user.
+        toSelect.setSelected(selected);
+
+        // Tasks specific to selecting or deselecting
+        if(selected == false) {
+            // If the user is being deselected, they should be reset
+            resetUser(toSelect);
+        } else {
+            // User is being selected, update user
+            toSelect.setPublicNote(generalMessage);
+        }
+
+        // Selecting or unselecting a user means we need to resplit
+        split(total());
+
+        return true;
+    }
+
+    /**
+     * Resets the given user to the default, unselected state.
+     * @param user The user to be reset.
+     */
+    private void resetUser(UserInfo user) {
+        if(user == null) return;
+        user.setSelected(false);
+        user.setAmountOfMoney(0);
+        user.setLocked(false);
+        user.setPersonalNote("");
+        user.setPublicNote("");
+    }
+
+    /**
+     * Locks or unlocks the given user.
+     * @param toLock The user to be locked or unlocked.
+     * @param locked True if user is to be locked, false if unlocked.
+     * @return True if operation was successful, false otherwise.
+     */
+    public final boolean lockUser(UserInfo toLock, boolean locked) {
+        // Cant lock/unlock someone we don't have
+        if(!users.contains(toLock)) {
+            return false;
+        }
+
+        // Can't lock/unlock an unselected user
+        if(!toLock.isSelected()) {
+            return false;
+        }
+
+        toLock.setLocked(locked);
+
+        if(!locked) {
+            // Unlocking user, need to resplit
+            split(total());
+        }
+
+        return true;
+    }
+
+    /**
+     * Sets a new total for the transaction.
+     * @param pennies The new total for the transaction, in pennies.
+     * @return True if the total was changed successfully, false otherwise.
+     */
+    public final boolean setTotalInPennies(int pennies) {
+
+        // Can't set a transaction total without selecting users
+        if(selectedUsers() <= 0) {
+            return false;
+        }
+
+        // Make sure this value makes sense
+        if(isValidTotal(pennies)) {
+            // Split the transaction amongst unlocked users
+            return split(pennies);
+        }
+
+        return false;
+    }
+
+    /**
+     * Splits the given amount amongst the selected users.
+     * @param total The total to be split, in pennies.
+     * @return True if the split was successful, false otherwise.
+     */
+    private final boolean split(int total) {
+
+        // Edge case: nothing to split if locked users have it covered
+        if(lockedTotal() == total) {
+            return true;
+        }
+
+        // Get the total remaining to be split amongst unlocked users
+        // and how many ways it needs to be split
+        int totalToSplit = total - lockedTotal();
+        int ways = selectedUsers() - lockedUsers();
+
+
+        // How much each user will get, at least
+        int each = totalToSplit / ways;
+
+        // Remainder to be divided amongst users until it runs out
+        int rem = totalToSplit % ways;
+
+        for(UserInfo user : users) {
+            // Determine if user will share split charge.
+            if(!user.isLocked() && user.isSelected()) {
+                // User will cover the 'at least' amount.
+                int amt = each;
+
+                // Add portion of remainder, if any is available.
+                if(rem > 0) {
+                    amt++;
+                    rem--;
+                }
+                user.setAmountOfMoney(amt);
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Determines the validity of a given transaction total.
+     * @param pennies The transaction total, in pennies.
+     * @return True if the total is valid, false otherwise.
+     */
+    private boolean isValidTotal(int pennies) {
+
+        // Cannot have negative transactions
+        if(pennies < 0) {
+            return false;
+        }
+
+        // Total cannot be less than locked total
+        if(pennies < lockedTotal()) {
+            return false;
+        }
+
+        // Can't set a total if no users are selected
+        if(selectedUsers() <= 0) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Collects the total for users locked in a transaction.
+     * @return The total locked transaction amount.
+     */
+    private int lockedTotal() {
+
+        int total = 0;
+        for (UserInfo user : users) {
+            if(user.isLocked()) {
+                total += user.getAmountOfMoney();
+            }
+        }
+        return total;
+    }
+
+    /**
+     * Gets a count of the number of selected users.
+     * @return The number of selected users.
+     */
+    private int selectedUsers() {
+        int num = 0;
+        for(UserInfo user : users) {
+            if(user.isSelected()) {
+                num++;
+            }
+        }
+        return num;
+    }
+
+    /**
+     * Gets a count of the number of locked users.
+     * @return The number of locked users.
+     */
+    private int lockedUsers() {
+        int num = 0;
+        for(UserInfo user : users) {
+            if(user.isLocked()) {
+                num++;
+            }
+        }
+        return num;
+    }
+
+    /**
+     * Collects the total for the split transaction.
+     * @return The transaction total across all users.
+     */
+    private int total() {
+        int amt = 0;
+        for(UserInfo user: users) {
+            amt += user.getAmountOfMoney();
+        }
+        return amt;
+    }
+
+    @Override
+    public boolean add(UserInfo object) {
+        resetUser(object);
+        return users.add(object);
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends UserInfo> collection) {
+        for (UserInfo user: collection) {
+            resetUser(user);
+        }
+        return users.addAll(collection);
+    }
+
+    @Override
+    public void clear() {
+        users.clear();
+    }
+
+    @Override
+    public boolean contains(Object object) {
+        return users.contains(object);
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> collection) {
+        return users.containsAll(collection);
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return users.isEmpty();
+    }
+
+    @NonNull
+    @Override
+    public Iterator<UserInfo> iterator() {
+        return users.iterator();
+    }
+
+    @Override
+    public boolean remove(Object object) {
+        return users.remove(object);
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> collection) {
+        return users.removeAll(collection);
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> collection) {
+        return users.retainAll(collection);
+    }
+
+    @Override
+    public int size() {
+        return users.size();
+    }
+
+    @NonNull
+    @Override
+    public Object[] toArray() {
+        return users.toArray();
+    }
+
+    @NonNull
+    @Override
+    public <T> T[] toArray(T[] array) {
+        return users.toArray(array);
+    }
+}
