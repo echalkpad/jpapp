@@ -45,30 +45,32 @@ Finally you can exchange this code for an access token by sending an HTTP reques
 	- response_type - This should be set to "code" without the quotes
 	- client_id	- This can be found in the details of your Uber application
 	- For testing purposes you can manually create this link and try it out in your browser!  It would look like:
+	
 			https://login.uber.com/oauth/v2/authorize?response_type=code&client_id=YOUR_CLIENT_ID_HERE
 
-	###Response: 
+	####Response: 
 	Once the user accepts, Uber will redirect to the link you provided in the "redirect URI" field in your Uber application profile.
 	- code - The redirect will appear with a query parameter "code" which is needed in the next step.
 	- (Your app's backend will see this as a normal HTTP GET request)
 	
 2. Next we need to exchange this code into an access token by sending a HTTP POST to https://login.uber.com/oauth/v2/token. 
-You will need to include a few body parameters.
+You will need to include a few body parameters:
 	- client_secret - This can be found in the details of your Uber application
 	- client_id - This can be found in the details of your Uber application
 	- grant_type - This should be set to "authorization_code" without the quotes
 	- redirect_uri - This can be found in the details of your Uber application
 	- code - This must be set to the value you got back in step 1.
 	
-	###Response
+	####Response
 	Uber will respond back with the following JSON object:
-			{
-				"access_token": "EE1IDxytP04tJ767GbjH7ED9PpGmYvL",
-				"token_type": "Bearer",
-				"expires_in": 2592000,
-				"refresh_token": "Zx8fJ8qdSRRseIVlsGgtgQ4wnZBehr",
-				"scope": "profile history"
-			}
+	
+		{
+			"access_token": "EE1IDxytP04tJ767GbjH7ED9PpGmYvL",
+			"token_type": "Bearer",
+			"expires_in": 2592000,
+			"refresh_token": "Zx8fJ8qdSRRseIVlsGgtgQ4wnZBehr",
+			"scope": "profile history"
+		}
 
 	Store the access_token and refresh_token for later user. 
 	Access tokens expire in 30 days.
@@ -79,17 +81,17 @@ You will need to include a few body parameters.
 We are almost there now.
 To get a quote we are going to use the Price Estimates [endpoint](https://developer.uber.com/v1/endpoints/).
 1. Create a HTTP GET request with the following query parameters:
-	###Header
+	####Header
 	- Authorization - the authorization header should follow OAuth2 spec:
 			Authorization: Basic YOUR_ACCESS_TOKEN_HERE
 	
-	###Query Parameters:
+	####Query Parameters:
 	- start_latitude - latitude of start location as float
 	- start_longitude - longitude of start location as float
 	- end_latitude - latitude of end location as float
 	- end_longitude - longitude of end location as float
 	
-	###Response
+	####Response
 	
 		Uber will response back with the following JSON object. 
 		This response contains the price estimate from UberBLACK, UberSUV, and UberX.
