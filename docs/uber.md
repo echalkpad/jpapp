@@ -85,6 +85,7 @@ To get a quote we are going to use the Price Estimates [endpoint](https://develo
 	
 	####Header
 	- Authorization - the authorization header should follow OAuth2 spec:
+	
 			Authorization: Basic YOUR_ACCESS_TOKEN_HERE
 	
 	####Query Parameters:
