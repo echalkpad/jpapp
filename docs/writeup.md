@@ -397,7 +397,7 @@ Development at lightning speed can have its pitfalls and limitations, but if you
 The end result of our endeavor is quite positive.
 If we did this again we would like to use some of the other services found in the Bluemix catalog such as the debugging service for mobile apps: 
 <a href="https://mqedg.mybluemix.net/MQEHelp.jsp#">Mobile Quality Extension</a>.
-Citi also has many [API partners](http://www.citimobilechallenge.com/apis/) such as [Uber](./uber.md)
-Our Uber [tutorial](./uber.md) can show you how to get started hailing rides.
+Citi also has many [API partners](http://www.citimobilechallenge.com/apis/) such as [Uber](https://uber.com).
+Our [Uber tutorial](./uber.md) can show you how to get started with their transporation network.
 
 

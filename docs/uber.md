@@ -7,6 +7,7 @@
 </center>
 
 [Uber](https://www.uber.com/) provides a great set of APIs for their transportation network. 
+They provide a service for finding/paying for rides across most major cities.
 Below is a few helpful reference links to get started. 
 This tutorial will get you through the OAuth2 step and get a price estimate on a ride.
 
