@@ -136,7 +136,7 @@ public class RadarUserView extends FrameLayout {
 				setCenterButtonBackgroundState(2);
 			}
 			
-			setSelectState(userInfo.isSelecetd());
+			setSelectState(userInfo.isSelected());
 			
 			if(userInfo.isLocked()){
 				changeLockState(true);
@@ -196,7 +196,7 @@ public class RadarUserView extends FrameLayout {
 				//Deselect and close expand panel
 				Log.d("options", "right button fired - deselect");
 				if(!myUserInfo.isLocked()){
-					myUserInfo.setSelecetd(false);
+					myUserInfo.setSelected(false);
 					setMoneyAmount(0);
 					setSelectState(false);
 					switchExpandPanel(false);

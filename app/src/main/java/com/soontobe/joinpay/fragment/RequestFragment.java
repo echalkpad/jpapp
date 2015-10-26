@@ -39,7 +39,7 @@ public class RequestFragment extends TransactionFragment {
         }
 
         for (UserInfo info : mUserInfoList) {
-            if (info.isSelecetd()) {
+            if (info.isSelected()) {
                 // shouldn't be possible, just double check
                 if (!info.getUserName().equals(Constants.userName)) {
                     if (info.getAmountOfMoney() > 0) {

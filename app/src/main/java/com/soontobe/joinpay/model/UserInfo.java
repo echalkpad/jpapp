@@ -2,20 +2,63 @@ package com.soontobe.joinpay.model;
 
 /**
  * User information model for information exchange between RadarView and
- * BigBubble
- * 
+ * BigBubble.
+ *
  */
 public class UserInfo {
-	private int userId;
-	private String userName;
-	private String publicNote;
-	private String personalNote;
-	private int amountOfMoney;
-	private boolean isMyself; // Is this user just myself
-	private boolean isContact; // Is this user a contact of mine
-	private boolean isLocked; // Lock status of this user
-	private boolean isSelecetd; // Is this user selected
 
+	/**
+	 * The user's ID.
+	 */
+	private int userId;
+
+	/**
+	 * The user's name.
+	 */
+	private String userName;
+
+	/**
+	 * The public note that should be sent to this user.
+	 */
+	private String publicNote;
+
+	/**
+	 * The personal note that should be sent to this user.
+	 */
+	private String personalNote;
+
+	/**
+	 * The amount of money that has been assigned to the user for the
+	 * current transaction.
+	 */
+	private int amountOfMoney;
+
+	/**
+	 * True if the user is the currently logged in user, false otherwise.
+	 */
+	private boolean isMyself; // Is this user just myself
+
+	/**
+	 * True if the user is a contact of the currently logged in user,
+	 * false otherwise.
+	 */
+	private boolean isContact;
+
+	/**
+	 * True if the user's transaction value has been locked, false
+	 * otherwise.
+	 */
+	private boolean isLocked;
+
+	/**
+	 * True if the user has been selected on the radar screen, false
+	 * otherwise.
+	 */
+	private boolean isSelected; // Is this user selected
+
+	/**
+	 * Constructs a new UserInfo.
+	 */
 	public UserInfo() {
 		isContact = false;
 		isMyself = false;
@@ -25,83 +68,158 @@ public class UserInfo {
 		personalNote = "";
 	}
 
-	public boolean isMyself() {
+	/////////////////////////
+	// Getters and Setters //
+	/////////////////////////
+
+	/**
+	 * @see #isMyself
+	 * @return The value of isMyself.
+	 */
+	public final boolean isMyself() {
 		return isMyself;
 	}
 
-	public void setMyself(boolean isMyself) {
-		this.isMyself = isMyself;
+	/**
+	 * @see #isMyself
+	 * @param myself The new value for myself.
+	 */
+	public final void setMyself(final boolean myself) {
+		this.isMyself = myself;
 	}
 
-	public boolean isSelecetd() {
-		return isSelecetd;
+	/**
+	 * @see #isSelected
+	 * @return The value of isSelected.
+	 */
+	public final boolean isSelected() {
+		return isSelected;
 	}
 
-	public void setSelecetd(boolean isSelecetd) {
-		this.isSelecetd = isSelecetd;
+	/**
+	 * @see #isSelected
+	 * @param selected The new value of selected.
+	 */
+	public final void setSelected(final boolean selected) {
+		this.isSelected = selected;
 	}
 
-	public boolean isContact() {
+	/**
+	 * @see #isContact
+	 * @return The value of isContact.
+	 */
+	public final boolean isContact() {
 		return isContact;
 	}
 
-	public void setContactState(boolean isContact) {
-		this.isContact = isContact;
+	/**
+	 * @see #isContact
+	 * @param contactState The new value of contactState.
+	 */
+	public final void setContactState(final boolean contactState) {
+		this.isContact = contactState;
 	}
 
-	public String getPublicNote() {
+	/**
+	 * @see #publicNote
+	 * @return The value of publicNote.
+	 */
+	public final String getPublicNote() {
 		return publicNote;
 	}
 
-	public void setPublicNote(String publicNote) {
-		this.publicNote = publicNote;
+	/**
+	 * @see #publicNote
+	 * @param note The new value of note.
+	 */
+	public final void setPublicNote(final String note) {
+		this.publicNote = note;
 	}
 
-	public String getPersonalNote() {
+	/**
+	 * @see #personalNote
+	 * @return The value of personalNote.
+	 */
+	public final String getPersonalNote() {
 		return personalNote;
 	}
 
-	public void setPersonalNote(String personalNote) {
-		this.personalNote = personalNote;
+	/**
+	 * @see #personalNote
+	 * @param note The new value of note.
+	 */
+	public final void setPersonalNote(final String note) {
+		this.personalNote = note;
 	}
 
-	public boolean isLocked() {
+	/**
+	 * @see #isLocked
+	 * @return The value of isLocked.
+	 */
+	public final boolean isLocked() {
 		return isLocked;
 	}
 
-	public void setLocked(boolean isLocked) {
-		this.isLocked = isLocked;
+	/**
+	 * @see #isLocked
+	 * @param locked The new value of locked.
+	 */
+	public final void setLocked(final boolean locked) {
+		this.isLocked = locked;
 	}
 
-	public int getUserId() {
+	/**
+	 * @see #userId
+	 * @return The value of userId.
+	 */
+	public final int getUserId() {
 		return userId;
 	}
 
-	public void setUserId(int userId) {
-		this.userId = userId;
+	/**
+	 * @see #userId
+	 * @param id The new value of id.
+	 */
+	public final void setUserId(final int id) {
+		this.userId = id;
 	}
 
-	public String getUserName() {
+	/**
+	 * @see #userName
+	 * @return The value of userName.
+	 */
+	public final String getUserName() {
 		return userName;
 	}
 
-	public void setUserName(String userName) {
-		this.userName = userName;
+	/**
+	 * @see #userName
+	 * @param name The new value of name.
+	 */
+	public final void setUserName(final String name) {
+		this.userName = name;
 	}
 
-	public int getAmountOfMoney() {
+	/**
+	 * @see #amountOfMoney
+	 * @return The value of amountOfMoney.
+	 */
+	public final int getAmountOfMoney() {
 		return amountOfMoney;
 	}
 
-	public void setAmountOfMoney(int amountOfMoney) {
-		this.amountOfMoney = amountOfMoney;
+	/**
+	 * @see #amountOfMoney
+	 * @param amount The new value of amount.
+	 */
+	public final void setAmountOfMoney(final int amount) {
+		this.amountOfMoney = amount;
 	}
 
 	@Override
-	public String toString() {
+	public final String toString() {
 		String str = "UserInfo:";
 		str += "Name = " + userName;
 		return str;
 	}
-
 }

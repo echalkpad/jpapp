@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Build;
@@ -35,19 +34,28 @@ import com.soontobe.joinpay.Utility;
 import com.soontobe.joinpay.model.UserInfo;
 import com.soontobe.joinpay.widget.BigBubblePopupWindow;
 import com.soontobe.joinpay.widget.RadarUserView;
-import com.soontobe.joinpay.widget.RadarUserView.OnCenterButtonClickedListener;
-import com.soontobe.joinpay.widget.RadarUserView.OnDeselectButtonClickedListener;
-import com.soontobe.joinpay.widget.RadarUserView.OnEditButtonClickedListener;
-import com.soontobe.joinpay.widget.RadarUserView.OnLockButtonClickedListener;
+import com.soontobe.joinpay.widget.RadarUserView
+		.OnCenterButtonClickedListener;
+import com.soontobe.joinpay.widget.RadarUserView
+		.OnDeselectButtonClickedListener;
+import com.soontobe.joinpay.widget.RadarUserView
+		.OnEditButtonClickedListener;
+import com.soontobe.joinpay.widget.RadarUserView
+		.OnLockButtonClickedListener;
 
 import java.util.ArrayList;
 import java.util.Random;
 
 /**
- * TransactionFragment assists with
+ * TransactionFragment describes the process of selecting a list of users
+ * and creating a shared transaction.
  */
-public abstract class TransactionFragment extends Fragment implements LoaderCallbacks<Void> {
-	static Context mApplicationContext;
+public abstract class TransactionFragment extends Fragment
+		implements LoaderCallbacks<Void> {
+
+	/**
+	 *
+	 */
 	private OnFragmentInteractionListener mListener;
 	private FrameLayout mBubbleFrameLayout;
 	public static ArrayList<RadarUserView> mUserBubbles;
@@ -63,6 +71,9 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	public static ArrayList<UserInfo> mUserInfoList; 				//User info list except for myself
 	protected ArrayList<Integer> mUserPositions; 					//User info list except for myself
 
+	/**
+	 * Constructs a new TransactionFragment.
+	 */
 	public TransactionFragment() {
 		// Required empty public constructor
 	}
@@ -84,11 +95,10 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		// Inflate the layout for this fragment
 		if (mCurrentView == null) {
 			mCurrentView = inflater.inflate(R.layout.main_tab, container,false);
-			init();
+			initUI();
 		}
 
 		// Create ViewGroup if the object does not exist, otherwise use the current one.
-
 		ViewGroup parent = (ViewGroup) mCurrentView.getParent();
 		if (parent != null) {
 			parent.removeView(mCurrentView);
@@ -98,7 +108,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		return mCurrentView;
 	}
 
-	private void init() {
+	private void initUI() {
 		mBubbleFrameLayout = (FrameLayout) mCurrentView.findViewById(R.id.layout_send_frag_bubbles);
 		mBubbleFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener( new MyOnGlobalLayoutChgListener() );
 		mBubbleFrameLayout.setOnClickListener(new OnClickListener() {
@@ -116,17 +126,19 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			}
 		});
 
+		// Find the Views we need to make this UI work.
 		mSelfBubble = (RadarUserView) mCurrentView.findViewById(R.id.user_bubble_myself);
 		mSelectCountText = (TextView) mCurrentView.findViewById(R.id.send_num_of_people);
 		mTotalAmount = (EditText) mCurrentView.findViewById(R.id.edit_text_total_amount);
 		mSendMoneyButton = (Button) mCurrentView.findViewById(R.id.send_money_next);
 		mGroupNote = (EditText) mCurrentView.findViewById(R.id.group_note);
 
+		// Create a UserInfo for the current user.
 		myUserInfo = new UserInfo();
 		myUserInfo.setUserId(new Random().nextInt());
 		myUserInfo.setUserName(Constants.DemoMyName);
-		// myUserInfo.setContactState(true);
 		myUserInfo.setMyself(true);
+
 		totalLockedAmount = 0;
 		mSelfBubble.setUserInfo(myUserInfo);
 		mSelfBubble.setEditBtnClickedListener(new OnEditButtonClickedListener() {
@@ -138,7 +150,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		mSelfBubble.setCenterBtnClickedListener(new OnCenterButtonClickedListener() {
 				@Override
 				public void OnClick(View v, boolean isSelected) {
-					myUserInfo.setSelecetd(isSelected);
+					myUserInfo.setSelected(isSelected);
 					updateSelectedUserNumber();
 					//Editable edit = mTotalAmount.getText();
 					splitMoney();
@@ -148,7 +160,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 				@Override
 				public void OnClick(View v) {
 					Log.d("bubble", "self bubble deselect");
-					myUserInfo.setSelecetd(false);
+					myUserInfo.setSelected(false);
 					updateSelectedUserNumber();
 					splitMoney();
 				}
@@ -467,6 +479,11 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 
 	private class OnBigBubbleDismissListener implements OnDismissListener {
 
+		/**
+		 * For tagging logs from this class.
+		 */
+		private final String TAG = "bbDismiss";
+
 		@Override
 		public void onDismiss() {
 			UserInfo userInfo = mBigBubble.getUserInfo();
@@ -477,14 +494,14 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 				mSelfBubble.setUserInfo(myUserInfo);
 				//applyFurtherMoneyChange(index, mOldMoneyAmount, myUserInfo.getAmountOfMoney());
 			} else if (index == -2) {
-				Log.w("OnBigBubbleDismissListener", "Could not find user id="+ userInfo.getUserId());
+				Log.w(TAG, "Could not find user id="+ userInfo.getUserId());
 			} else {
 				mUserInfoList.set(index, userInfo);
 				mUserBubbles.get(index).setUserInfo(userInfo);
 				//applyFurtherMoneyChange(index, mOldMoneyAmount, mUserInfoList.get(index).getAmountOfMoney());
 			}
 
-			Log.d("OnBigBubbleDismissListener", userInfo.toString());
+			Log.d(TAG, userInfo.toString());
 
 		}
 
@@ -626,7 +643,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 
 		@Override
 		public void OnClick(View v, boolean isSelected) {
-			mUserInfoList.get(indexOfBubble).setSelecetd(isSelected);
+			mUserInfoList.get(indexOfBubble).setSelected(isSelected);
 			Log.d(getTag(), "User" + indexOfBubble + " select state = " + isSelected);
 			updateSelectedUserNumber();
 			//Editable edit = mTotalAmount.getText();
@@ -650,7 +667,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 		@Override
 		public void OnClick(View v) {
 			Log.d("bubble", "deselect bubble");
-			mUserInfoList.get(indexOfBubble).setSelecetd(false);
+			mUserInfoList.get(indexOfBubble).setSelected(false);
 			Log.d(getTag(), "User" + indexOfBubble + " deselected");
 			updateSelectedUserNumber();
 			
@@ -700,13 +717,13 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	public ArrayList<Integer> getSelectedUserIndex() {
 		// TODO:
 		ArrayList<Integer> retList = new ArrayList<Integer>();
-		if (myUserInfo.isSelecetd()) {
+		if (myUserInfo.isSelected()) {
 			retList.add(-1);
 		}
 
 		int userSize = mUserInfoList.size();
 		for (int i = 0; i < userSize; i++) {
-			if (mUserInfoList.get(i).isSelecetd())
+			if (mUserInfoList.get(i).isSelected())
 				retList.add(i);
 		}
 		return retList;
@@ -741,12 +758,12 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	 */
 	public static ArrayList<Integer> getUnlockedSelectedUserIndex() {
 		ArrayList<Integer> retList = new ArrayList<Integer>();
-		if (myUserInfo.isSelecetd() && !myUserInfo.isLocked()) {
+		if (myUserInfo.isSelected() && !myUserInfo.isLocked()) {
 			retList.add(-1);
 		}
 		int userSize = mUserInfoList.size();
 		for (int i = 0; i < userSize; i++) {
-			if (mUserInfoList.get(i).isSelecetd()
+			if (mUserInfoList.get(i).isSelected()
 					&& !mUserInfoList.get(i).isLocked())
 				retList.add(i);
 		}
@@ -758,7 +775,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 	 */
 	public static void clearUserMoneyAmount() {
 		myUserInfo.setAmountOfMoney(0);
-		myUserInfo.setSelecetd(false);
+		myUserInfo.setSelected(false);
 		mTotalAmount.setText("");
 		mGroupNote.setText("");
 		totalLockedAmount = 0;
@@ -771,7 +788,7 @@ public abstract class TransactionFragment extends Fragment implements LoaderCall
 			mUserInfoList.get(i).setAmountOfMoney(0);
 			mUserInfoList.get(i).setPublicNote(groupNote);
 			mUserInfoList.get(i).setPersonalNote("");
-			mUserInfoList.get(i).setSelecetd(false);
+			mUserInfoList.get(i).setSelected(false);
 			mUserBubbles.get(i).setUserInfo(mUserInfoList.get(i));
 		}
 		mSelectCountText.setText("0");

@@ -30,7 +30,7 @@ public class SendFragment extends TransactionFragment {
         ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
         Log.d(TAG, "sending from: " + Constants.userName);
         for (UserInfo info : mUserInfoList) {
-            if (info.isSelecetd()) {
+            if (info.isSelected()) {
                 if (!info.getUserName().equals(Constants.userName)) {
                     String[] item = {"normal", info.getPersonalNote(),
                             myUserInfo.getUserName(), info.getUserName(),
