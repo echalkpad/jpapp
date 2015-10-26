@@ -16,7 +16,8 @@ We were able to do this by using the plethora of services and applications that 
 Citibank is taking full advantage of the unique opportunities offered in the world of cloud development by crowd-sourcing their technology innovations.
 They have staged a hackathon called the <a href="http://www.citimobilechallenge.com/index.php">Citi Mobile Challenge</a>,
 in which they gave developers access to a set of mocked-up APIs that allowed programmatic access to Citi's banking services.
-Developers then competed to produce the most innovative mobile app using these APIs.
+They also encourge use of their [API Partners](http://www.citimobilechallenge.com/apis/).
+Developers compete to produce the most innovative mobile app using these APIs.
 JoinPay started its life as the winner of the 2014 Citi Mobile Challenge.
 The idea behind JoinPay was to allow Citi account holders to split a bill at a restaurant by authorizing transfers between Citi accounts using their mobile devices.
 The JoinPay app had a fantastic UI for demonstrating this story, but JoinPay's authors were rightfully focused on the story, rather than designing and implementing the app with scalability, performance, and security.
@@ -396,3 +397,7 @@ Development at lightning speed can have its pitfalls and limitations, but if you
 The end result of our endeavor is quite positive.
 If we did this again we would like to use some of the other services found in the Bluemix catalog such as the debugging service for mobile apps: 
 <a href="https://mqedg.mybluemix.net/MQEHelp.jsp#">Mobile Quality Extension</a>.
+Citi also has many [API partners](http://www.citimobilechallenge.com/apis/) such as [Uber](./uber.md)
+Our Uber [tutorial](./uber.md) can show you how to get started hailing rides.
+
+
