@@ -34,7 +34,7 @@ import java.util.Set;
 */
 public class ContactListActivity extends ListActivity {
 
-	final Set<String> nameSelected = new HashSet<String>();
+	private final Set<String> nameSelected = new HashSet<>();
 
 	private ListView lv;
 
@@ -45,23 +45,29 @@ public class ContactListActivity extends ListActivity {
 	private EditText inputSearch;
 
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public final void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
+		//No Title Bar
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_from_contact_list);
 		setContactListView();
 		setInputSearch();
 		setEventListeners();
 	}
 
+	/**
+	 * Set the event listeners.
+	 * Add button & search bar.
+	 */
 	private void setEventListeners() {
 		Button contactListAddButton = (Button) findViewById(R.id.contact_list_add_button);
+
+		// Change background color of button, when the button is touched
 		contactListAddButton.setOnTouchListener(new OnTouchListener() {
 			@SuppressLint("ClickableViewAccessibility")
 			@Override
-			public boolean onTouch(View v, MotionEvent event) {
+			public boolean onTouch(final View v, final MotionEvent event) {
 				Button btn = (Button) v;
-				// TODO Auto-generated method stub
 				if (event.getAction() == MotionEvent.ACTION_DOWN) {
 					btn.setBackgroundResource(R.drawable.button_active);
 				} else if (event.getAction() == MotionEvent.ACTION_UP) {
@@ -70,44 +76,26 @@ public class ContactListActivity extends ListActivity {
 				return false;
 			}
 		});
-
-		EditText contactSearchInput = (EditText) findViewById(R.id.contact_search_input);
-		contactSearchInput.addTextChangedListener(new TextWatcher() {
-
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {
-				Button clearButton = (Button) findViewById(R.id.button_clear_contact_search_input);
-				// TODO Auto-generated method stub
-				if (count == 0) {
-					clearButton.setVisibility(View.INVISIBLE);
-				} else {
-					clearButton.setVisibility(View.VISIBLE);
-				}
-			}
-
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,
-					int after) {
-				// TODO Auto-generated method stub
-			}
-
-			@Override
-			public void afterTextChanged(Editable s) {
-				// TODO Auto-generated method stub
-			}
-		});
 	}
 
+	/**
+	 * Set the contact list view.
+	 * Connect the array adapter,
+	 * Flip the checkbox check when the item is clicked.
+	 */
 	private void setContactListView() {
+		// Setup the list view
 		int layoutType = android.R.layout.simple_list_item_multiple_choice;
 		lv = getListView();
+		// Enable multiple choices
 		lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-		adapter = new ArrayAdapter<String>(this, layoutType, Constants.contactNameList);
+		adapter = new ArrayAdapter<>(this, layoutType, Constants.contactNameList);
 		setListAdapter(adapter);
 
+		// When an item is clicked, flip the checkbox
 		lv.setOnItemClickListener(new OnItemClickListener() {
-			public void onItemClick(AdapterView<?> myAdapter, View myView, int position, long mylng) {
+			public void onItemClick(final AdapterView<?> myAdapter, final View myView, final int position, final long mylng) {
 				String name = (String) (lv.getItemAtPosition(position));
 				if (lv.isItemChecked(position)) {
 					nameSelected.add(name);
@@ -118,51 +106,65 @@ public class ContactListActivity extends ListActivity {
 		});
 	}
 
+	/**
+	 * Actions when search input is changed.
+	 */
 	private void setInputSearch() {
 		inputSearch = (EditText) findViewById(R.id.contact_search_input);
 		inputSearch.addTextChangedListener(new TextWatcher() {
-
 			@Override
-			public void onTextChanged(CharSequence cs, int arg1, int arg2, int arg3) {
-				// When user changed the Text
+			public void onTextChanged(final CharSequence cs, final int start, final int before, final int count) {
+				// Show or hide clear text (X) button when the text in search box is changed
+				Button clearButton = (Button) findViewById(R.id.button_clear_contact_search_input);
+				if (count == 0) {
+					clearButton.setVisibility(View.INVISIBLE);
+				} else {
+					clearButton.setVisibility(View.VISIBLE);
+				}
+				// When user changed the Text, filter the users
 				adapter.getFilter().filter(cs, new FilterListener() {
 					@Override
-					public void onFilterComplete(int count) {
-						// TODO Auto-generated method stub
-						for (int i = 0;i < adapter.getCount();i++) {
+					public void onFilterComplete(final int count) {
+						for (int i = 0; i < adapter.getCount(); i++) {
 							if (nameSelected.contains(adapter.getItem(i))) {
 								lv.setItemChecked(i, true);
 							} else {
 								lv.setItemChecked(i, false);
 							}
-						}    
+						}
 					}
 				});
 			}
 
 			@Override
-			public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-					int arg3) {
-				// TODO Auto-generated method stub
+			public void beforeTextChanged(final CharSequence arg0, final int arg1, final int arg2,
+										  final int arg3) {
+				// Do nothing
 			}
 
 			@Override
-			public void afterTextChanged(Editable arg0) {
-				// TODO Auto-generated method stub  
+			public void afterTextChanged(final Editable arg0) {
+				// Do nothing
 			}
 		});
 
+		// Clear button action
 		findViewById(R.id.button_clear_contact_search_input).setOnClickListener(new OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
+			public void onClick(final View v) {
 				EditText contactSearchBox = (EditText) findViewById(R.id.contact_search_input);
 				contactSearchBox.setText("");
 			}
 		});
 	}
 
-	public void AddContactAndBackToMain(View v) {
+	/**
+	 * Callback function for "Add" button.
+	 * Generate the result and return.
+	 * Generate the list of selected names and return it to the caller activity
+	 * @param v The view "Add" button
+	 */
+	public final void addContactAndBackToMain(final View v) {
 		Intent data = new Intent();
 		String strArray[] = nameSelected.toArray(new String[nameSelected.size()]);
 		data.putExtra("name", strArray);

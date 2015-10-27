@@ -1,6 +1,5 @@
 package com.soontobe.joinpay.activities;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -29,15 +28,16 @@ import java.util.Date;
 public class MainActivity extends Activity {
 
     private static final String TAG = "main_screen";
-    public static Context mContext;
+    private static Context mContext;
 
     // UI variables
-    TextView mtvLink; // Citi Sign up test view
-    TextView mtvUserView; // Welcome username
+    // Citi Sign up test view
+    private TextView mtvLink;
+    // Welcome username
+    private TextView mtvUserView;
 
-    @SuppressLint("DefaultLocale")
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected final void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);    // No Title Bar
         setContentView(R.layout.activity_main);
@@ -55,23 +55,23 @@ public class MainActivity extends Activity {
     }
 
     @Override
-    protected void onPause() {
+    protected final void onPause() {
         super.onPause();
         unregisterReceiver(Globals.onPushNotificationReceived);
     }
 
     @Override
-    protected void onResume() {
+    protected final void onResume() {
         super.onResume();
         IntentFilter pushReceiveFilter = new IntentFilter(IBMPushService.MESSAGE_RECEIVED);
         registerReceiver(Globals.onPushNotificationReceived, pushReceiveFilter);
     }
 
-    /*
-         * When the user exits by clicking logout or clicking back button
-         */
+    /**
+     * When the user exits by clicking logout or clicking back button.
+     */
     @Override
-    protected void onDestroy() {
+    protected final void onDestroy() {
         super.onDestroy();
         // Updates to the user's location should stop when they log out
         Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
@@ -84,7 +84,7 @@ public class MainActivity extends Activity {
     }
 
     /**
-     * Initialize the UI variables
+     * Initialize the UI variables.
      */
     private void initUI() {
         // Populate a URL to allow users to create a Citi Bank account
@@ -112,14 +112,16 @@ public class MainActivity extends Activity {
             try {
                 for (File child : dir.listFiles()) {
                     // Recursively delete subdirectories
-                    if (child.isDirectory())
+                    if (child.isDirectory()) {
                         deletedFiles += clearCacheFolder(child, numMinutes);
+                    }
 
                     // Delete files and subdirectories in this dir
                     // only empty dirs can be deleted, so subdirs are deleted recursively first
                     if (child.lastModified() < new Date().getTime() - numMinutes * DateUtils.MINUTE_IN_MILLIS) {
-                        if (child.delete())
+                        if (child.delete()) {
                             deletedFiles++;
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -147,7 +149,7 @@ public class MainActivity extends Activity {
      *
      * @param view The View that was clicked.
      */
-    public void onEnterClicked(View view) {
+    public final void onEnterClicked(final View view) {
         Log.d(TAG, "\"" + getString(R.string.button_enter) + "\" clicked");
         startActivity(new Intent(this, RadarViewActivity.class));
     }
@@ -158,7 +160,7 @@ public class MainActivity extends Activity {
      *
      * @param view The View that was clicked.
      */
-    public void onAccountsClicked(View view) {
+    public final void onAccountsClicked(final View view) {
         Log.d(TAG, "\"" + getString(R.string.button_accounts) + "\" clicked");
         startActivity(new Intent(this, CitiAccountActivity.class));
     }
@@ -169,10 +171,8 @@ public class MainActivity extends Activity {
      *
      * @param view The View that was clicked.
      */
-    public void onLogoutClicked(View view) {
+    public final void onLogoutClicked(final View view) {
         Log.d(TAG, "\"" + getString(R.string.button_logout) + "\" clicked");
-//        startActivity(new Intent(this, LoginActivity.class));
-
         finish();
     }
 

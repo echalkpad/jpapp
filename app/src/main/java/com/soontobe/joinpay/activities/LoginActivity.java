@@ -38,89 +38,108 @@ import java.io.UnsupportedEncodingException;
  */
 public class LoginActivity extends Activity {
 
-    final String serviceContext = "LoginActivity";
+    private final String serviceContext = "LoginActivity";
     private static final String TAG = "login_activity";
-    EditText mUsername;
-    EditText mPassword;
-    Button mLogin, mRegister;  // The login and "Need an account?" buttons
-    private Boolean changedUser = false;
+    private EditText metUsername;
+    private EditText metPassword;
 
-    Context thisContext;
-    SendLocation mService;    // Used to send our location to other users
+    // The login and "Need an account?" buttons
+    private Button mbtnLogin, mbtnRegister;
+    private Boolean mbChangedUser = false;
+
+    private Context mContext;
+
+    // Used to send our location to other users
+    private SendLocation mLocationService;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected final void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);        // No Title Bar
         setContentView(R.layout.activity_login);
 
-        thisContext = this;
-        // Acquire login screen elements.
-        mUsername = (EditText) findViewById(R.id.editText_username);
-        mPassword = (EditText) findViewById(R.id.editText_password);
-
-        // The password field should clear itself whenever the user name changes.
-        mUsername.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                changedUser = true;
-            }
-        });
-        mPassword.setOnFocusChangeListener(new OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if (changedUser && hasFocus) {
-                    mPassword.setText("");
-                    changedUser = false;
-                }
-            }
-        });
-
-        mLogin = (Button) findViewById(R.id.button_login);
-        mLogin.setOnClickListener(loginClicked);
-
-        mRegister = (Button) findViewById(R.id.button_register);
-        mRegister.setOnClickListener(registerClicked);
-
+        mContext = this;
+        initUI();
         // This activity sends REST requests in order to log users in.  This sets it up
         // to receive the results of these requests.
         IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
         registerReceiver(restResponseReceiver, restIntentFilter);
     }
 
+    /**
+     * Initialize the UI components.
+     */
+    private void initUI() {
+        // Acquire login screen elements.
+        metUsername = (EditText) findViewById(R.id.editText_username);
+        metPassword = (EditText) findViewById(R.id.editText_password);
+
+        // The password field should clear itself whenever the user name changes.
+        metUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(final CharSequence s, final int start, final int count, final int after) {
+            }
+
+            @Override
+            public void onTextChanged(final CharSequence s, final int start, final int before, final int count) {
+            }
+
+            @Override
+            public void afterTextChanged(final Editable s) {
+                mbChangedUser = true;
+            }
+        });
+
+        // Clear the password when the focus is on the password field
+        // and username was changed
+        metPassword.setOnFocusChangeListener(new OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(final View v, final boolean hasFocus) {
+                if (mbChangedUser && hasFocus) {
+                    metPassword.setText("");
+                    mbChangedUser = false;
+                }
+            }
+        });
+
+        // Set login button callback
+        mbtnLogin = (Button) findViewById(R.id.button_login);
+        mbtnLogin.setOnClickListener(loginClicked);
+
+        // Set register button callback
+        mbtnRegister = (Button) findViewById(R.id.button_register);
+        mbtnRegister.setOnClickListener(registerClicked);
+    }
+
     @Override
-    protected void onStop() {
+    protected final void onStop() {
         super.onStop();
     }
 
     @Override
-    protected void onDestroy() {
+    protected final void onDestroy() {
         try {
-            unregisterReceiver(restResponseReceiver);        // remove the receiver
+            // remove the receiver
+            unregisterReceiver(restResponseReceiver);
         } catch (Exception e) {
             Log.e(TAG, "Failed to unregister receiver: " + e.getMessage());
         }
         super.onDestroy();
     }
 
-    BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
+    /**
+     * Rest calls response receiver.
+     */
+    private BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
 
         @Override
-        public void onReceive(Context context, Intent intent) {
+        public void onReceive(final Context context, final Intent intent) {
             String receivedServiceContext = intent.getStringExtra("context");
 
             // Check that the response is actually intended for us.
             if (serviceContext.equals(receivedServiceContext)) {
                 String response = intent.getStringExtra("response");
-                int httpCode = intent.getIntExtra("code", 403);
+                int httpCode = intent.getIntExtra("code", Constants.RESPONSE_403);
                 Log.d(TAG, String.format("Received %d Response: %s", httpCode, response));
 
                 findViewById(R.id.button_login).setEnabled(true);  // It's OK to send another request now
@@ -134,19 +153,19 @@ public class LoginActivity extends Activity {
                 }
 
                 //// Http Codes ////
-                if (httpCode == 404) {
+                if (httpCode == Constants.RESPONSE_404) {
                     Log.d(TAG, "failed, alerting user");
                     Toast.makeText(getApplicationContext(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
-                } else if (httpCode == 401 || httpCode == 403) {
+                } else if (httpCode == Constants.RESPONSE_401 || httpCode == Constants.RESPONSE_403) {
                     Log.d(TAG, "invalid credentials, alerting user");
                     Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT);
-                    tmp.setGravity(Gravity.TOP, 0, 150);
+                    tmp.setGravity(Gravity.TOP, Constants.TOP_X_OFFSET, Constants.TOP_Y_OFFSET);
                     tmp.show();
-                } else if (httpCode == 200) {                                //200 = parse the response
+                } else if (httpCode == Constants.RESPONSE_200) {                                //200 = parse the response
                     // Start the location service so other users can see you on their radars
                     Log.d(TAG, "starting location service");
                     Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
-                    thisContext.bindService(locationServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+                    mContext.bindService(locationServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
 
                     // MainActivity is currently the landing screen for the user
                     Log.d(TAG, "starting main activity");
@@ -161,68 +180,70 @@ public class LoginActivity extends Activity {
     };
 
     /**
-     * This allows us to update the user's location in the database
+     * This allows us to update the user's location in the database.
      */
     private ServiceConnection mConnection = new ServiceConnection() {
 
         /**
-         * Fires off an updateLocation() call on the location service and then
-         * immediately unbinds the service because we only want to update the location once.
+         * Fires off an updateLocation() call on the location service.
+         * and then immediately unbinds the service
+         * because we only want to update the location once.
          */
-        public void onServiceConnected(ComponentName className, IBinder service) {
+        public void onServiceConnected(final ComponentName className, final IBinder service) {
             // This is called when the connection with the service has been
             // established, giving us the object we can use to
             // interact with the service.  We are communicating with the
             // service using a Messenger, so here we get a client-side
             // representation of that from the raw IBinder object.
-            mService = ((SendLocation.LocalBinder) service).getService();
-            mService.updateLocation();
-            if (mService != null)
-                thisContext.unbindService(mConnection);
+            mLocationService = ((SendLocation.LocalBinder) service).getService();
+            mLocationService.updateLocation();
+            if (mLocationService != null) {
+                mContext.unbindService(mConnection);
+            }
         }
 
         // Will get called when the service is unbound above
-        public void onServiceDisconnected(ComponentName className) {
+        public void onServiceDisconnected(final ComponentName className) {
             // This is called when the connection with the service has been
             // unexpectedly disconnected -- that is, its process crashed.
-            mService = null;
+            mLocationService = null;
         }
     };
 
     /**
      * This object handles the process of logging the user in once the "Login" button is pressed.
      */
-    View.OnClickListener loginClicked = new View.OnClickListener() {
+    private View.OnClickListener loginClicked = new View.OnClickListener() {
 
-        private final String TAG = "login";
+        private final String tag = "login";
 
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
             Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 
             JSONObject obj = new JSONObject();
-            String usernameStr = mUsername.getText().toString().trim();
-            String passStr = mPassword.getText().toString().trim();
+            String usernameStr = metUsername.getText().toString().trim();
+            String passStr = metPassword.getText().toString().trim();
             Boolean validInput = true;
 
             // Validate the username and password and notify user if they are invalid
-            if (validInput && passStr.length() < 1) {
-                Log.e(TAG, "Password is too short, try harder");
+            if (validInput && passStr.length() < Constants.PASSWORD_MIN_LENGTH) {
+                Log.e(tag, "Password is too short, try harder");
                 validInput = false;
             }
-            if (validInput && usernameStr.length() < 3) {
-                Log.e(TAG, "Username is too short, try harder");
+            if (validInput && usernameStr.length() < Constants.USERNAME_MIN_LENGTH) {
+                Log.e(tag, "Username is too short, try harder");
                 validInput = false;
             }
             if (!validInput) {
                 Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_LONG);
-                tmp.setGravity(Gravity.TOP, 0, 150);
+                tmp.setGravity(Gravity.TOP, Constants.TOP_X_OFFSET, Constants.TOP_Y_OFFSET);
                 tmp.show();
             }
 
             ///// Send Login /////
             if (validInput) {
-                Log.d(TAG, "Credentials validated locally. Beginning login process.");
+                Log.d(tag, "Credentials validated locally. Beginning login process.");
                 findViewById(R.id.button_login).setEnabled(false);  // Don't want two of these processes firing off
                 Constants.userName = usernameStr; // Store current user name globally
 
@@ -231,7 +252,7 @@ public class LoginActivity extends Activity {
                     obj.put("username", Constants.userName);
                     obj.put("password", passStr);
                 } catch (JSONException e) {
-                    Log.e(TAG, "Failed to create user credential JSON: " + e.getMessage());
+                    Log.e(tag, "Failed to create user credential JSON: " + e.getMessage());
                     Toast.makeText(getApplicationContext(), "Error creating JSON", Toast.LENGTH_SHORT).show();
                 }
 
@@ -241,7 +262,7 @@ public class LoginActivity extends Activity {
                 try {
                     data = (Constants.userName + ":" + passStr).getBytes(encoding);                  //convert to byte array
                 } catch (UnsupportedEncodingException e1) {
-                    Log.e(TAG, "Failed to encode user credentials to " + encoding);
+                    Log.e(tag, "Failed to encode user credentials to " + encoding);
                 }
                 String base64 = Base64.encodeToString(data, Base64.DEFAULT).trim();                  //convert to base64 encoding
                 String[] header = {"Authorization", "Basic " + base64};
@@ -254,7 +275,7 @@ public class LoginActivity extends Activity {
                 intent.putExtra("body", obj.toString());
                 intent.putExtra("context", serviceContext);
 
-                Log.d(TAG, "starting REST service");
+                Log.d(tag, "starting REST service");
                 startService(intent);
 
             }
@@ -265,9 +286,9 @@ public class LoginActivity extends Activity {
      * This object handles when the user presses the "Register" button.  This should take the user
      * to a screen where they can create a Citi account.
      */
-    View.OnClickListener registerClicked = new View.OnClickListener() {
+    private View.OnClickListener registerClicked = new View.OnClickListener() {
         @Override
-        public void onClick(View v) {
+        public void onClick(final View v) {
             Log.d("registerClicked", "starting registration activity");
             startActivity(new Intent(getApplicationContext(), RegisterActivity.class));
         }

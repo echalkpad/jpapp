@@ -92,7 +92,6 @@ HistoryFragment.OnFragmentInteractionListener {
 		super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.activity_radar_view);
-		MainActivity.mContext = this;
 		mTabHost = (TabHost)findViewById(android.R.id.tabhost);
 		setupTabs();
 		mTabHost.setOnTabChangedListener(this);

@@ -15,9 +15,16 @@ import java.util.ArrayList;
 */
 public class Constants {
 
-	public static final int RESPONSE_404 = 404;
-	public static final int RESPONSE_403 = 403;
 	public static final int RESPONSE_200 = 200;
+	public static final int RESPONSE_401 = 401;
+	public static final int RESPONSE_403 = 403;
+	public static final int RESPONSE_404 = 404;
+
+	public static final int TOP_X_OFFSET = 0;
+	public static final int TOP_Y_OFFSET = 150;
+
+	public static final int USERNAME_MIN_LENGTH = 3;
+	public static final int PASSWORD_MIN_LENGTH = 1;
 
 	public static String DemoMyName = "Lirong";
 	public static String userName = "no_user";
