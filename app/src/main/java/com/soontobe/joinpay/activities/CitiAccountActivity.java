@@ -32,16 +32,16 @@ import org.json.JSONObject;
  */
 public class CitiAccountActivity extends Activity {
 
-	// For navigating the JSONs from the Citi API
+	/** For navigating the JSONs from the Citi API. */
 	private static final String TAG_ACCOUNTS = "accounts";
     private static final String TAG_FIRST_NAME = "first_name";
     private static final String TAG_LAST_NAME = "last_name";
 
-	final static String ContextString = "CitiAccountActivity";
-    final static String TAG = "citi";
-	Context mContext;
-	EditText metUsername;
-	EditText metPassword;
+	private static final String CONTEXT_STRING = "CitiAccountActivity";
+    private static final String TAG = "citi";
+	private Context mContext;
+	private EditText metUsername;
+	private EditText metPassword;
 
 	// For displaying the list of accounts.
 	private ListView mlvAccounts;
@@ -49,7 +49,7 @@ public class CitiAccountActivity extends Activity {
 	private ProgressBar mpbSpinner;
 
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected final void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         Log.d(TAG, "Creating CitiAccountActivity");
 		setContentView(R.layout.layout_citi_account);
@@ -64,7 +64,8 @@ public class CitiAccountActivity extends Activity {
 		initUI();
 
 		// Set receiver on REST Calls
-		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
+		IntentFilter restIntentFilter = new IntentFilter(
+				Constants.RESTRESP);
 		registerReceiver(bcReceiver, restIntentFilter);
 
 		// Get account info
@@ -72,7 +73,7 @@ public class CitiAccountActivity extends Activity {
 	}
 
 	/**
-	 * Initialize the UI
+	 * Initialize the UI.
 	 */
 	private void initUI() {
 		// Initialize the account list Views
@@ -81,53 +82,50 @@ public class CitiAccountActivity extends Activity {
 		mlvAccounts.setAdapter(mAdapter);
 
 		// Capture the loading Spinner
-		mpbSpinner = (ProgressBar) findViewById(R.id.accountsProgressBar);
+		mpbSpinner = (ProgressBar) findViewById(
+				R.id.accountsProgressBar);
 		mpbSpinner.setVisibility(View.VISIBLE);
 	}
-	
+
 	@Override
-	protected void onDestroy(){
-		try{
-			unregisterReceiver(bcReceiver);		//remove the receiver
+	protected final void onDestroy() {
+		try {
+			//remove the receiver
+			unregisterReceiver(bcReceiver);
+		} catch (Exception e) {
+
 		}
-		catch(Exception e){}
 	    super.onDestroy();
 	}
 
 	/**
-	 * Shows a toast on the screen for short interval
+	 * Shows a toast on the screen for short interval.
 	 * @param message The message to be displayed on the screen
 	 */
-	private void showUIMessage(String message) {
+	private void showUIMessage(final String message) {
 		Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
 	}
-	
+
 	private BroadcastReceiver bcReceiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context context, Intent intent) {
-			String receivedServiceContext = intent.getStringExtra("context");
+		public void onReceive(final Context context,
+							  final Intent intent) {
+			String receivedServiceContext =
+					intent.getStringExtra("context");
 			String url = intent.getStringExtra("url");
 			int responseCode = intent.getIntExtra("code", 0);
-			
-			if(ContextString.equals(receivedServiceContext)) {
+
+			if (CONTEXT_STRING.equals(receivedServiceContext)) {
 				// If the response if for get my account
-				if(url.equals(Constants.baseURL + "/myAccount")) {
-					if(responseCode == 404) {
-						// If there is not citi account linked, Ask to link a citi account
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
-								View currentView = View.inflate(mContext, R.layout.layout_create_account, rootLayout);
-								metUsername = (EditText) currentView.findViewById(R.id.editText_account_username);
-								metPassword = (EditText) currentView.findViewById(R.id.editText_account_password);
-								
-								Button linkButton = (Button) currentView.findViewById(R.id.button_link);
-								linkButton.setOnClickListener(onLinkClicked);
-							}
-						});
-					} else if(responseCode == 200) {
-						// If we get the details, show the account details on the screen
+				if (url.equals(Constants.baseURL
+						+ "/myAccount")) {
+					if (responseCode == Constants.RESPONSE_404) {
+						// If there is not citi account linked,
+						// Ask to link a citi account
+						runOnUiThread(mrHandleAccountNotFound);
+					} else if (responseCode == Constants.RESPONSE_200) {
+						// If we get the details,
+						// show the account details on the screen
 						String response = intent.getStringExtra("response");
 						JSONObject obj;
 						try {
@@ -139,13 +137,15 @@ public class CitiAccountActivity extends Activity {
 						}
 						showAccount(obj);
 					} else {
-						// If there is any other response, show error on screen
+						// If there is any other response,
+						// show error on screen
 						showUIMessage("Error: Server Error");
 					}
-				} else if(url.equals(Constants.baseURL + "/registerAccount")) {
+				} else if (url.equals(Constants.baseURL + "/registerAccount")) {
 					// If we are registering a new account
-					if(responseCode == 200) {
-						// The account is registered, show details on screen
+					if (responseCode == Constants.RESPONSE_200) {
+						// The account is registered,
+						// show details on screen
 						String response = intent.getStringExtra("response");
 						JSONObject obj;
 						try {
@@ -156,7 +156,7 @@ public class CitiAccountActivity extends Activity {
 							return;
 						}
 						showAccount(obj);
-					} else if(responseCode == 403) {
+					} else if (responseCode == Constants.RESPONSE_403) {
 						showUIMessage("Invalid username/password");
 					} else {
 						showUIMessage("Error: Server Error");
@@ -166,16 +166,34 @@ public class CitiAccountActivity extends Activity {
 		}
 	};
 
-    /**
-     * Parses a JSON object containing user account information and populates it to the screen.
-     * @param accountDetails The account information to be parsed.
-     */
-	protected void showAccount(JSONObject accountDetails) {
+	/**
+	 * To handle account not found response.
+	 * If the account not found response is received,
+	 * user should be able to link an account
+	 */
+	private Runnable mrHandleAccountNotFound = new Runnable() {
+		@Override
+		public void run() {
+			FrameLayout rootLayout = (FrameLayout) findViewById(android.R.id.content);
+			View currentView = View.inflate(mContext, R.layout.layout_create_account, rootLayout);
+			metUsername = (EditText) currentView.findViewById(R.id.editText_account_username);
+			metPassword = (EditText) currentView.findViewById(R.id.editText_account_password);
+
+			Button linkButton = (Button) currentView.findViewById(R.id.button_link);
+			linkButton.setOnClickListener(onLinkClicked);
+		}
+	};
+
+	/**
+	 * Parses a JSON object containing user account information and populates it to the screen.
+	 * @param accountDetails The account information to be parsed.
+	 */
+	protected final void showAccount(final JSONObject accountDetails) {
 
 		// Attempt to pull the users accounts from the given JSON
 		Log.d(TAG, "Parsing account details.");
         JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
-		if(accounts == null) {
+		if (accounts == null) {
 			Log.e(TAG, "Tag:\"" + TAG_ACCOUNTS + "\" yielded no account information.");
 			mpbSpinner.setVisibility(View.GONE);
 			showUIMessage("Unable to get account details, please try again.");
@@ -186,9 +204,9 @@ public class CitiAccountActivity extends Activity {
         String first = accountDetails.optString(TAG_FIRST_NAME);
         String last = accountDetails.optString(TAG_LAST_NAME);
         String name = first + " " + last;
-        if(first == null || last == null) {
-            Log.e(TAG, "Tags:\"" + TAG_FIRST_NAME + "\" and \"" + TAG_LAST_NAME +
-                    "\" yielded \"" + name + "\"");
+        if (first == null || last == null) {
+            Log.e(TAG, "Tags:\"" + TAG_FIRST_NAME + "\" and \"" + TAG_LAST_NAME
+					+ "\" yielded \"" + name + "\"");
             name = "@string/citi_fallback_holder";
         }
 
@@ -198,12 +216,12 @@ public class CitiAccountActivity extends Activity {
 	}
 
 	/**
-	 * When link button is clicked, http post is performed
+	 * When link button is clicked, http post is performed.
 	 */
-	OnClickListener onLinkClicked = new View.OnClickListener() {
-		
+	private OnClickListener onLinkClicked = new View.OnClickListener() {
+
 		@Override
-		public void onClick(View v) {
+		public void onClick(final View v) {
 			String username = metUsername.getText().toString();
 			String password = metPassword.getText().toString();
 			JSONObject authpair = new JSONObject();
@@ -214,35 +232,36 @@ public class CitiAccountActivity extends Activity {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			
+
 //			Log.d("citi", authpair.toString());
 			String url = Constants.baseURL + "/registerAccount";
 			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-			intent.putExtra("method","post");
+			intent.putExtra("method", "post");
 			intent.putExtra("body", authpair.toString());
-			intent.putExtra("url",url);
-			intent.putExtra("context", ContextString);
+			intent.putExtra("url", url);
+			intent.putExtra("context", CONTEXT_STRING);
 
 			Log.d("Citi Account Login", "starting Service");
-			startService(intent);	
+			startService(intent);
 		}
 	};
 
 	/**
-	 * HTTP get performed to get the account info for the username
+	 * HTTP get performed to get the account info for the username.
 	 * @param username The username of the account of which the details are requested
 	 */
-	private void getAccountInfo(String username) {
+	private void getAccountInfo(final String username) {
 		String url = Constants.baseURL + "/myAccount";
 		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra("method","get");
-		intent.putExtra("url",url);
+		intent.putExtra("method", "get");
+		intent.putExtra("url", url);
 //		intent.putExtra("body", );
-		intent.putExtra("context", ContextString);
+		intent.putExtra("context", CONTEXT_STRING);
 
 		Log.d("Get myAccount", "starting Service");
-		startService(intent);	
+		startService(intent);
 	}
 
 }
+

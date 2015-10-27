@@ -14,6 +14,11 @@ import java.util.ArrayList;
 *
 */
 public class Constants {
+
+	public static final int RESPONSE_404 = 404;
+	public static final int RESPONSE_403 = 403;
+	public static final int RESPONSE_200 = 200;
+
 	public static String DemoMyName = "Lirong";
 	public static String userName = "no_user";
 	public static String transactionBeginTag = "<TransactionRecordBegin>";
