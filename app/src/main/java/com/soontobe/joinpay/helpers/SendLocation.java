@@ -106,7 +106,7 @@ public class SendLocation extends Service {
 	}
 
 	public class LocalBinder extends Binder {
-		SendLocation getService() {
+		public SendLocation getService() {
 			return SendLocation.this;
 		}
 	}
