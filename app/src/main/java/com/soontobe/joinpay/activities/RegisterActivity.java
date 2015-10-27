@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.activities;
 
 
 import android.app.Activity;
@@ -14,6 +14,11 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.adapters.PointAdapter;
+import com.soontobe.joinpay.helpers.RESTCalls;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,7 +39,7 @@ public class RegisterActivity extends Activity {
 		Log.d("register", "starting points");
 		super.onCreate(savedInstanceState);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
-		MainActivity.context = this;
+		MainActivity.mContext = this;
 		setContentView(R.layout.activity_register);
 		butRegSubmit = (Button) findViewById(R.id.button_registerSubmit);
 		butRegSubmit.setOnClickListener(regSubmitClicked);

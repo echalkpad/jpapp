@@ -1,8 +1,10 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.helpers;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
+
+import com.soontobe.joinpay.Constants;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;

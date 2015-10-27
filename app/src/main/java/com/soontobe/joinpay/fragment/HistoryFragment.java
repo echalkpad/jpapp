@@ -17,10 +17,10 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
-import com.soontobe.joinpay.LoginActivity;
-import com.soontobe.joinpay.PaymentSummaryAdapter;
+import com.soontobe.joinpay.activities.LoginActivity;
+import com.soontobe.joinpay.adapters.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.RESTCalls;
+import com.soontobe.joinpay.helpers.RESTCalls;
 import com.soontobe.joinpay.model.Transaction;
 
 import org.apache.http.HttpStatus;

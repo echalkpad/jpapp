@@ -13,6 +13,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.soontobe.joinpay.activities.MainActivity;
+import com.soontobe.joinpay.adapters.PointAdapter;
+import com.soontobe.joinpay.helpers.RESTCalls;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 
@@ -28,7 +32,7 @@ public class PointBalance extends Activity {
 		Log.d("points", "starting points");
 		super.onCreate(savedInstanceState);
 		
-		MainActivity.context = this;
+		MainActivity.mContext = this;
 		setContentView(R.layout.activity_points);
 		butBack = (Button) findViewById(R.id.points_button_back);
 		butBack.setOnClickListener(backClicked);

@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.activities;
 
 import android.annotation.SuppressLint;
 import android.app.ListActivity;
@@ -19,6 +19,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Filter.FilterListener;
 import android.widget.ListView;
+
+import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.R;
 
 import java.util.HashSet;
 import java.util.Set;

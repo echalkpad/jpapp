@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.adapters;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -13,6 +13,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.helpers.RESTCalls;
 import com.soontobe.joinpay.model.Transaction;
 
 import org.json.JSONException;

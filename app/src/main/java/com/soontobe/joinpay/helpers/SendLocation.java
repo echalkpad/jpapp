@@ -1,10 +1,8 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.helpers;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -14,6 +12,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.soontobe.joinpay.Constants;
 
 import org.json.JSONException;
 import org.json.JSONObject;

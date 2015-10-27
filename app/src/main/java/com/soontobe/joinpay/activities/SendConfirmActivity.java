@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.activities;
 
 import android.app.ListActivity;
 import android.content.BroadcastReceiver;
@@ -17,6 +17,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.adapters.PaymentSummaryAdapter;
+import com.soontobe.joinpay.helpers.RESTCalls;
 import com.soontobe.joinpay.model.Transaction;
 
 import org.json.JSONArray;

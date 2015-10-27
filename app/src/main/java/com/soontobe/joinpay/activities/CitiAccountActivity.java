@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.activities;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -6,27 +6,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.text.method.MovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.Window;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
+
+import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.adapters.AccountJSONAdapter;
+import com.soontobe.joinpay.helpers.RESTCalls;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.DecimalFormat;
-
-import static com.soontobe.joinpay.R.id.accountListView;
 
 /**
  * CitiAccountActivity shows the current user a summary of their Citi account.
@@ -41,38 +39,50 @@ public class CitiAccountActivity extends Activity {
 
 	final static String ContextString = "CitiAccountActivity";
     final static String TAG = "citi";
-	Context thisContext;
-	EditText mUsername;
-	EditText mPassword;
-	View currentView;
+	Context mContext;
+	EditText metUsername;
+	EditText metPassword;
 
 	// For displaying the list of accounts.
-	private ListView mAccountListView;
+	private ListView mlvAccounts;
 	private AccountJSONAdapter mAdapter;
-	private ProgressBar spinner;
+	private ProgressBar mpbSpinner;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
         Log.d(TAG, "Creating CitiAccountActivity");
-        requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
 		setContentView(R.layout.layout_citi_account);
 
-        // Initialize the account list Views
-        mAccountListView = (ListView) findViewById(R.id.accountListView);
-        mAdapter = new AccountJSONAdapter(this, getLayoutInflater());
-        mAccountListView.setAdapter(mAdapter);
+		//No Title Bar
+		requestWindowFeature(Window.FEATURE_NO_TITLE);
 
-		// Capture the loading spinner
-		spinner = (ProgressBar) findViewById(R.id.accountsProgressBar);
+		// Get application context
+		mContext = getApplicationContext();
 
+		// Init UI
+		initUI();
+
+		// Set receiver on REST Calls
 		IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
 		registerReceiver(bcReceiver, restIntentFilter);
-		thisContext = getApplicationContext();
-		spinner.setVisibility(View.VISIBLE);
+
+		// Get account info
 		getAccountInfo(Constants.userName);
+	}
 
+	/**
+	 * Initialize the UI
+	 */
+	private void initUI() {
+		// Initialize the account list Views
+		mlvAccounts = (ListView) findViewById(R.id.accountListView);
+		mAdapter = new AccountJSONAdapter(this, getLayoutInflater());
+		mlvAccounts.setAdapter(mAdapter);
 
+		// Capture the loading Spinner
+		mpbSpinner = (ProgressBar) findViewById(R.id.accountsProgressBar);
+		mpbSpinner.setVisibility(View.VISIBLE);
 	}
 	
 	@Override
@@ -83,9 +93,16 @@ public class CitiAccountActivity extends Activity {
 		catch(Exception e){}
 	    super.onDestroy();
 	}
+
+	/**
+	 * Shows a toast on the screen for short interval
+	 * @param message The message to be displayed on the screen
+	 */
+	private void showUIMessage(String message) {
+		Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+	}
 	
 	private BroadcastReceiver bcReceiver = new BroadcastReceiver() {
-		
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			String receivedServiceContext = intent.getStringExtra("context");
@@ -93,54 +110,56 @@ public class CitiAccountActivity extends Activity {
 			int responseCode = intent.getIntExtra("code", 0);
 			
 			if(ContextString.equals(receivedServiceContext)) {
+				// If the response if for get my account
 				if(url.equals(Constants.baseURL + "/myAccount")) {
 					if(responseCode == 404) {
+						// If there is not citi account linked, Ask to link a citi account
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
 								FrameLayout rootLayout = (FrameLayout)findViewById(android.R.id.content);
-								currentView = View.inflate(thisContext, R.layout.layout_create_account, rootLayout);
-								mUsername = (EditText) currentView.findViewById(R.id.editText_account_username);
-								mPassword = (EditText) currentView.findViewById(R.id.editText_account_password);
-								
-								/*TextView link = (TextView) currentView.findViewById(R.id.citiLink);
-							    String linkText = "Visit the <a href='http://stackoverflow.com'>StackOverflow</a> web page.";
-							    link.setText(Html.fromHtml(linkText));
-							    link.setMovementMethod(test);
-							    link.setMovementMethod(LinkMovementMethod.getInstance());*/
+								View currentView = View.inflate(mContext, R.layout.layout_create_account, rootLayout);
+								metUsername = (EditText) currentView.findViewById(R.id.editText_account_username);
+								metPassword = (EditText) currentView.findViewById(R.id.editText_account_password);
 								
 								Button linkButton = (Button) currentView.findViewById(R.id.button_link);
 								linkButton.setOnClickListener(onLinkClicked);
 							}
 						});
 					} else if(responseCode == 200) {
+						// If we get the details, show the account details on the screen
 						String response = intent.getStringExtra("response");
 						JSONObject obj;
 						try {
 							obj = new JSONObject(response);
 						} catch (JSONException e) {
+							showUIMessage("Unable to get the info. Please try again.");
 							e.printStackTrace();
 							return;
 						}
 						showAccount(obj);
 					} else {
-						Toast.makeText(getApplicationContext(), "Error: Server Error", Toast.LENGTH_SHORT).show();
+						// If there is any other response, show error on screen
+						showUIMessage("Error: Server Error");
 					}
 				} else if(url.equals(Constants.baseURL + "/registerAccount")) {
+					// If we are registering a new account
 					if(responseCode == 200) {
+						// The account is registered, show details on screen
 						String response = intent.getStringExtra("response");
 						JSONObject obj;
 						try {
 							obj = new JSONObject(response);
 						} catch (JSONException e) {
+							showUIMessage("Unable to get the info. Please try again.");
 							e.printStackTrace();
 							return;
 						}
 						showAccount(obj);
 					} else if(responseCode == 403) {
-						Toast.makeText(getApplicationContext(), "Invalid username/password", Toast.LENGTH_SHORT).show();						
+						showUIMessage("Invalid username/password");
 					} else {
-						Toast.makeText(getApplicationContext(), "Error: Server Error", Toast.LENGTH_SHORT).show();
+						showUIMessage("Error: Server Error");
 					}
 				}
 			}
@@ -158,7 +177,8 @@ public class CitiAccountActivity extends Activity {
         JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
 		if(accounts == null) {
 			Log.e(TAG, "Tag:\"" + TAG_ACCOUNTS + "\" yielded no account information.");
-			spinner.setVisibility(View.GONE);
+			mpbSpinner.setVisibility(View.GONE);
+			showUIMessage("Unable to get account details, please try again.");
 			return;
 		}
 
@@ -174,15 +194,18 @@ public class CitiAccountActivity extends Activity {
 
 		// Update the adapter's dataset
 		mAdapter.updateData(accounts, name);
-		spinner.setVisibility(View.GONE);
+		mpbSpinner.setVisibility(View.GONE);
 	}
-	
+
+	/**
+	 * When link button is clicked, http post is performed
+	 */
 	OnClickListener onLinkClicked = new View.OnClickListener() {
 		
 		@Override
 		public void onClick(View v) {
-			String username = mUsername.getText().toString();
-			String password = mPassword.getText().toString();
+			String username = metUsername.getText().toString();
+			String password = metPassword.getText().toString();
 			JSONObject authpair = new JSONObject();
 			try {
 				authpair.put("username", username);
@@ -192,7 +215,7 @@ public class CitiAccountActivity extends Activity {
 				e.printStackTrace();
 			}
 			
-			Log.d("citi", authpair.toString());
+//			Log.d("citi", authpair.toString());
 			String url = Constants.baseURL + "/registerAccount";
 			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 			intent.putExtra("method","post");
@@ -204,7 +227,11 @@ public class CitiAccountActivity extends Activity {
 			startService(intent);	
 		}
 	};
-	
+
+	/**
+	 * HTTP get performed to get the account info for the username
+	 * @param username The username of the account of which the details are requested
+	 */
 	private void getAccountInfo(String username) {
 		String url = Constants.baseURL + "/myAccount";
 		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
