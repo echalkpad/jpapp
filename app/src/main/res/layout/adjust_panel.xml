@@ -3,7 +3,7 @@
     android:layout_width="138dp"
     android:layout_height="138dp" >
     
-    <!-- Yellow circle background -->
+    <!-- Yellow big_bubble_circle background -->
     <ImageView
         android:id="@+id/imgview_adjpanel_yellow"
         android:layout_width="106.7dp"

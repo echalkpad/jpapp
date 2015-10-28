@@ -2,6 +2,7 @@ package com.soontobe.joinpay.model;
 
 import android.support.annotation.NonNull;
 
+import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,7 +16,15 @@ import java.util.Set;
  */
 public class TransactionBuilder implements Set<UserInfo> {
 
+    /**
+     * The set of users involved in this transaction.
+     */
     private Set<UserInfo> users;
+
+    /**
+     * Scale used for BigDecimals representing pennies.
+     */
+    private static final int SCALE_PENNIES = 2;
 
     /**
      * Used to keep track of the general message that should be sent
@@ -23,8 +32,9 @@ public class TransactionBuilder implements Set<UserInfo> {
      */
     private String generalMessage;
 
-    private int totalInPennies;
-
+    /**
+     * Constructs a new TransactionBuilder.
+     */
     public TransactionBuilder() {
         users = new HashSet<>();
         generalMessage = "";
@@ -67,7 +77,7 @@ public class TransactionBuilder implements Set<UserInfo> {
         }
 
         // Update the amount for the user
-        toSet.setAmountOfMoney(pennies);
+        toSet.setAmountOfMoney(BigDecimal.valueOf(pennies, SCALE_PENNIES));
         return true;
     }
 
@@ -113,7 +123,7 @@ public class TransactionBuilder implements Set<UserInfo> {
     private void resetUser(UserInfo user) {
         if(user == null) return;
         user.setSelected(false);
-        user.setAmountOfMoney(0);
+        user.setAmountOfMoney(BigDecimal.valueOf(0, SCALE_PENNIES));
         user.setLocked(false);
         user.setPersonalNote("");
         user.setPublicNote("");
@@ -161,7 +171,7 @@ public class TransactionBuilder implements Set<UserInfo> {
         // Make sure this value makes sense
         if(isValidTotal(pennies)) {
             // Split the transaction amongst unlocked users
-            return split(pennies);
+            return split(BigDecimal.valueOf(pennies, 2));
         }
 
         return false;
@@ -172,7 +182,7 @@ public class TransactionBuilder implements Set<UserInfo> {
      * @param total The total to be split, in pennies.
      * @return True if the split was successful, false otherwise.
      */
-    private final boolean split(int total) {
+    private final boolean split(BigDecimal total) {
 
         // Edge case: nothing to split if locked users have it covered
         if(lockedTotal() == total) {
@@ -181,26 +191,26 @@ public class TransactionBuilder implements Set<UserInfo> {
 
         // Get the total remaining to be split amongst unlocked users
         // and how many ways it needs to be split
-        int totalToSplit = total - lockedTotal();
-        int ways = selectedUsers() - lockedUsers();
+        BigDecimal totalToSplit = total.subtract(lockedTotal());
+        BigDecimal ways = BigDecimal.valueOf(size() - lockedUsers(), 0);
 
 
         // How much each user will get, at least
-        int each = totalToSplit / ways;
+        BigDecimal each = totalToSplit.divide(ways);
 
         // Remainder to be divided amongst users until it runs out
-        int rem = totalToSplit % ways;
+        BigDecimal rem = totalToSplit.remainder(ways);
 
         for(UserInfo user : users) {
             // Determine if user will share split charge.
             if(!user.isLocked() && user.isSelected()) {
                 // User will cover the 'at least' amount.
-                int amt = each;
+                BigDecimal amt = BigDecimal.valueOf(each.unscaledValue().longValue(), 2);
 
                 // Add portion of remainder, if any is available.
-                if(rem > 0) {
-                    amt++;
-                    rem--;
+                if(rem.compareTo(BigDecimal.valueOf(0)) > 0) {
+                    amt.add(BigDecimal.valueOf(1,2)); // add penny to amt
+                    rem.subtract(BigDecimal.valueOf(1,2)); // sub penny from rem
                 }
                 user.setAmountOfMoney(amt);
             }
@@ -221,8 +231,9 @@ public class TransactionBuilder implements Set<UserInfo> {
             return false;
         }
 
+
         // Total cannot be less than locked total
-        if(pennies < lockedTotal()) {
+        if(BigDecimal.valueOf(pennies, SCALE_PENNIES).compareTo(lockedTotal()) < 0) {
             return false;
         }
 
@@ -238,12 +249,12 @@ public class TransactionBuilder implements Set<UserInfo> {
      * Collects the total for users locked in a transaction.
      * @return The total locked transaction amount.
      */
-    private int lockedTotal() {
+    private BigDecimal lockedTotal() {
 
-        int total = 0;
+        BigDecimal total = BigDecimal.valueOf(0);
         for (UserInfo user : users) {
             if(user.isLocked()) {
-                total += user.getAmountOfMoney();
+                total.add(user.getAmountOfMoney());
             }
         }
         return total;
@@ -253,7 +264,7 @@ public class TransactionBuilder implements Set<UserInfo> {
      * Gets a count of the number of selected users.
      * @return The number of selected users.
      */
-    private int selectedUsers() {
+    public int selectedUsers() {
         int num = 0;
         for(UserInfo user : users) {
             if(user.isSelected()) {
@@ -281,10 +292,10 @@ public class TransactionBuilder implements Set<UserInfo> {
      * Collects the total for the split transaction.
      * @return The transaction total across all users.
      */
-    private int total() {
-        int amt = 0;
+    public BigDecimal total() {
+        BigDecimal amt = BigDecimal.valueOf(0);
         for(UserInfo user: users) {
-            amt += user.getAmountOfMoney();
+            amt.add(user.getAmountOfMoney());
         }
         return amt;
     }

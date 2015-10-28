@@ -1,5 +1,8 @@
 package com.soontobe.joinpay.model;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+
 /**
  * User information model for information exchange between RadarView and
  * BigBubble.
@@ -31,7 +34,7 @@ public class UserInfo {
 	 * The amount of money that has been assigned to the user for the
 	 * current transaction.
 	 */
-	private int amountOfMoney;
+	private BigDecimal amountOfMoney;
 
 	/**
 	 * True if the user is the currently logged in user, false otherwise.
@@ -62,7 +65,7 @@ public class UserInfo {
 	public UserInfo() {
 		isContact = false;
 		isMyself = false;
-		amountOfMoney = 0;
+		amountOfMoney = BigDecimal.valueOf(0);
 		userName = "";
 		publicNote = "";
 		personalNote = "";
@@ -204,7 +207,7 @@ public class UserInfo {
 	 * @see #amountOfMoney
 	 * @return The value of amountOfMoney.
 	 */
-	public final int getAmountOfMoney() {
+	public final BigDecimal getAmountOfMoney() {
 		return amountOfMoney;
 	}
 
@@ -212,8 +215,18 @@ public class UserInfo {
 	 * @see #amountOfMoney
 	 * @param amount The new value of amount.
 	 */
-	public final void setAmountOfMoney(final int amount) {
+	public final void setAmountOfMoney(final BigDecimal amount) {
 		this.amountOfMoney = amount;
+	}
+
+	/**
+	 * Generates a formatted version of the amount that matches the locale.
+	 * @return A beautified string representing the amount.
+	 */
+	public final String getPrettyAmount() {
+		NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
+		String money = numberFormat.format(amountOfMoney);
+		return money;
 	}
 
 	@Override

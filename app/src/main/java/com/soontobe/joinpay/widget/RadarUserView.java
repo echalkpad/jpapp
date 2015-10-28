@@ -126,7 +126,7 @@ public class RadarUserView extends FrameLayout {
 		if(null != userInfo){
 			myUserInfo = userInfo;
 			setUserName(userInfo.getUserName());
-			setMoneyAmount(userInfo.getAmountOfMoney());
+			setMoneyAmount((int)userInfo.getAmountOfMoney().longValue());
 			
 			mIsContact = userInfo.isContact();
 			mIsMyself = userInfo.isMyself();
@@ -289,7 +289,7 @@ public class RadarUserView extends FrameLayout {
 
 	/**
 	 * Switch the visibility of 4 side buttons
-	 * @param b
+	 * @param visible True if buttons should be visible, false otherwise.
 	 */
 	public void switchExpandPanel(boolean visible) {
 		if(!visible){

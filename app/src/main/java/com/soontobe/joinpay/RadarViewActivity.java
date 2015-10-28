@@ -191,7 +191,7 @@ HistoryFragment.OnFragmentInteractionListener {
 							}
 							if(!usedPositionsListSendFragment.contains(pos)) {
 								namesOnScreen.add(user);
-								mRequestFragment.addContactToView(user, pos);
+								mRequestFragment.addContactToView(user);
 								usedPositionsListSendFragment.add(pos);
 							} else {
 								i--;
@@ -302,7 +302,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		if (TAG_REQUEST.equals(tabId)){
 			Log.d("tab", "changing tab to request");
 			mFragmentInitState[1] = true;
-			mRequestFragment.setMyName(Constants.userName);
+			//mRequestFragment.setMyName(Constants.userName);
 			if(mAsyncTaskNearby == null){							//start nearby task again if its dead
 				mAsyncTaskNearby = new nearbyUsersAsyncTask();
 				mAsyncTaskNearby.execute();
@@ -336,16 +336,6 @@ HistoryFragment.OnFragmentInteractionListener {
 		else {
 			Log.w("RadViewAct_onTabChanged", "Cannot find tab id=" + tabId);
 		}
-
-		/*// change history tab color. Should be refactored later.
-		if (tabId.equals("tab_history")) {
-			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));//light navy blue
-		} else {
-			//TabWidget tabWidget = mTabHost.getTabWidget();
-			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
-		}*/
-
-
 	}
 
 	@Override
@@ -373,7 +363,7 @@ HistoryFragment.OnFragmentInteractionListener {
 						if(!usedPositionsListSendFragment.contains(i)) {
 							Log.d("bubble", "adding user to position: " + i);
 							namesOnScreen.add(name);
-							mRequestFragment.addContactToView(name, i);
+							mRequestFragment.addContactToView(name);
 							usedPositionsListSendFragment.add(i);
 							foundFree = true;
 							break;	
@@ -436,7 +426,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	}
 
 	public void onClickClearButton(View v){
-		TransactionFragment.clearUserMoneyAmount();
+		mRequestFragment.clearTransaction();
 
 		//Clear total lock state
 		lockInfo.put("total", false);
