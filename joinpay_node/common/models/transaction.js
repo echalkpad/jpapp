@@ -8,15 +8,7 @@ module.exports = function(Transaction) {
 	Transaction.disableRemoteMethod('createChangeStream', true);	//removes GET & POST /transactions/change-stream
 	Transaction.disableRemoteMethod('queryView', true);				//removes GET /transactions/queryView [from couchdb connector]
 	
-	//dsh to do:
-	// - check state of trans before modifiying
-	// - protect things, change user roles
-	// - handle all the errors
-	// - change find() to findByID() where I can, also check if ctx has current instance already!
-	
-	// NOtes:
-	// ctx has "where" with the trans ID field, does not have user ID field though
-		
+	//happens when editing/creating
 	Transaction.observe('before save', function(ctx, next) {
 		var body = {}, temp = {}, e = {}, msg = "";
 		var APPROVAL_MODE = false;
@@ -33,8 +25,14 @@ module.exports = function(Transaction) {
 		//console.log(ctx);
 		console.log((APPROVAL_MODE?'- editing trans':'- creating new trans'));
 		
+		if(body.status) body.status = body.status.toUpperCase();
+		
 		if(APPROVAL_MODE && body.status){
-			if(body.status == 'APPROVED'){
+			if(ctx.currentInstance.status != 'PENDING'){
+				e = {name: "I can not do that", status:400, message:"the transaction is no longer pending"};
+				next(e, null);
+			}
+			else if(body.status == 'APPROVED'){
 				console.log(' - approving transaction');
 				msg = ctx.currentInstance.fromUser + " has approved your request of $" + ctx.currentInstance.amount;
 				aux.send_push_notification(ctx.currentInstance.toUser, msg);
@@ -74,6 +72,7 @@ module.exports = function(Transaction) {
 				}
 			}
 			else{
+				body.status = 'DENIED';
 				console.log(' - denying transaction');
 				msg = ctx.currentInstance.fromUser + " has denied your request of $" + ctx.currentInstance.amount;
 				aux.send_push_notification(ctx.currentInstance.toUser, msg);
@@ -84,9 +83,9 @@ module.exports = function(Transaction) {
 	});
 	
 	
-	/////////////////////////////////////////////
-	//// Default fields /////
-	///////////////////////////////////////////
+	/////////////////////////////
+	////   Default fields   /////
+	/////////////////////////////
 	Transaction.observe('before save', function(ctx, next) {
 		var body = {};
 		if (ctx.instance) {					//creating new one
@@ -105,7 +104,7 @@ module.exports = function(Transaction) {
 };
 
 
-//citi rest call
+//citi rest call to move money
 function citi_bank(toAccount, fromAccount, amount, cb){
 	var options = 	{
 						host: "citi-online-banking.mybluemix.net",
