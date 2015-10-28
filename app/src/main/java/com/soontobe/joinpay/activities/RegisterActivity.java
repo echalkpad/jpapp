@@ -14,27 +14,47 @@ import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.adapters.PointAdapter;
 import com.soontobe.joinpay.helpers.Rest;
 
-import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * This activity shows registration page to the user.
+ */
 public class RegisterActivity extends Activity {
-	
-	final String serviceContext = "RegisterActivity";
-	Button butRegSubmit;
+	/**
+	 * Registration submit button.
+	 */
+	private Button butRegSubmit;
+
+	/**
+	 * Username edit text.
+	 */
 	private static EditText usernameText;
+
+	/**
+	 * Password edit text.
+	 */
 	private static EditText passText;
+
+	/**
+	 * Confirm password edit text.
+	 */
 	private static EditText confirmPassText;
-	private static EditText accountId;
+
+	/**
+	 * Context for this activity.
+	 */
 	private Context mContext;
-	public static String tempUser;
-	PointAdapter adapter;
-	
+
+	/**
+	 * Temporary variable for username.
+	 */
+	private static String tempUser;
+
 	@Override
-	protected void onCreate(Bundle savedInstanceState) {
+	protected final void onCreate(final Bundle savedInstanceState) {
 		Log.d("register", "starting points");
 		super.onCreate(savedInstanceState);
 		mContext = this;
@@ -43,16 +63,14 @@ public class RegisterActivity extends Activity {
 		butRegSubmit = (Button) findViewById(R.id.button_registerSubmit);
 		butRegSubmit.setOnClickListener(regSubmitClicked);
 	}
-	
-	@Override
-	protected void onStop(){
-	    super.onStop();
-	}
 
-	View.OnClickListener regSubmitClicked = new View.OnClickListener() {
-		
+	/**
+	 * Callback for submit button
+	 */
+	private View.OnClickListener regSubmitClicked = new View.OnClickListener() {
+
 		@Override
-		public void onClick(View v) {
+		public void onClick(final View v) {
 			Log.d("register", "clicked submit");
 			usernameText = (EditText) findViewById(R.id.editText_username);
 			passText = (EditText) findViewById(R.id.editText_password);
@@ -62,72 +80,66 @@ public class RegisterActivity extends Activity {
 			String confirmPassStr = confirmPassText.getText().toString().trim();
 			Boolean validInput = true;
 			tempUser = usernameStr;
-			
+
 			///// Verify Input /////
-			if(!passStr.equals(confirmPassStr)){				
+			if (!passStr.equals(confirmPassStr)) {
 				Log.e("register", "Password and confirm pass do not match");
 				Toast tmp = Toast.makeText(getApplicationContext(), "Passwords do not match", Toast.LENGTH_LONG);
-				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.setGravity(Gravity.TOP, Constants.TOP_X_OFFSET, Constants.TOP_Y_OFFSET);
 				tmp.show();
 				validInput = false;
 			}
-			if(validInput && passStr.length() < 4){
+			if (validInput && passStr.length() < Constants.PASSWORD_MIN_LENGTH) {
 				Log.e("register", "Password is too short, try harder");
 				Toast tmp = Toast.makeText(getApplicationContext(), "Password is too small", Toast.LENGTH_LONG);
-				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.setGravity(Gravity.TOP, Constants.TOP_X_OFFSET, Constants.TOP_Y_OFFSET);
 				tmp.show();
 				validInput = false;
 			}
-			if(validInput && usernameStr.length() < 4){
+			if (validInput && usernameStr.length() < Constants.USERNAME_MIN_LENGTH) {
 				Log.e("register", "Username is too short, try harder");
 				Toast tmp = Toast.makeText(getApplicationContext(), "Username is too small", Toast.LENGTH_LONG);
-				tmp.setGravity(Gravity.TOP, 0, 150);
+				tmp.setGravity(Gravity.TOP, Constants.TOP_X_OFFSET, Constants.TOP_Y_OFFSET);
 				tmp.show();
 				validInput = false;
 			}
-			
+
 			///// Register User /////
-			if(validInput){
+			if (validInput) {
 				findViewById(R.id.button_registerSubmit).setEnabled(false);
 				JSONObject obj = new JSONObject();
 				try {
-					obj.put("username", usernameStr);
+					obj.put("id", usernameStr);
 					obj.put("password", passStr);
 				} catch (JSONException e) {
 					Log.e("register", "Error making JSON object for register");
 					e.printStackTrace();
 				}
 
-				JSONObject auth = new JSONObject();
-				Rest.post(Constants.baseURL + "/register", null, null, obj.toString(), registerResponseHandler);
-
-/*				Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-				String url = Constants.baseURL + "/register";
-				intent.putExtra("method","post");
-				intent.putExtra("url", url);
-				intent.putExtra("body", obj.toString());
-				intent.putExtra("context", serviceContext);
-		
-				Log.d("register", "starting the service");
-				startService(intent);
-				IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-				registerReceiver(restResponseReceiver, restIntentFilter);*/
+				Rest.post(Constants.baseURL + "/users", null, null, obj.toString(), registerResponseHandler);
 			}
 		}
 	};
 
+	/**
+	 * Response handler for register http call
+	 */
 	private Rest.httpResponseHandler registerResponseHandler = new Rest.httpResponseHandler() {
 		@Override
-		public void handleResponse(HttpResponse response, boolean error) {
+		public void handleResponse(final JSONObject response, final boolean error) {
 			if (!error) {
-				int responseCode = response.getStatusLine().getStatusCode();
+				int responseCode = 0;
+				try {
+					responseCode = response.getInt("responseCode");
+				} catch (JSONException e) {
+					showUIMessage("Invalid response from server, please try again");
+					return;
+				}
 				switch (responseCode) {
 					case Constants.RESPONSE_200:
 						Log.d("register", "successfully registered new user");
 						showUIMessage("Successfully Registered!");
 						Constants.userName = tempUser;
-//						Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);			//send them in
-//						startActivity(intentApplication);
 						finish();
 						break;
 					default:

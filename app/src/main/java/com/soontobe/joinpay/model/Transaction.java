@@ -35,7 +35,7 @@ public class Transaction {
     /**
      * Key for the transaction ID.
      */
-    private static final String KEY_ID = "_id";
+    private static final String KEY_ID = "id";
 
     /**
      * Key for the revision number of the cloudant document storing

@@ -14,6 +14,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.Globals;
 
 import org.apache.http.HttpResponse;
 import org.json.JSONException;
@@ -83,19 +84,14 @@ public class SendLocationService extends Service {
 			try {
 				obj.put("latitude", "" + location.getLatitude());
 				obj.put("longitude", "" + location.getLongitude());
+				obj.put("timestamp", "" + System.currentTimeMillis());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
 
-			JSONObject auth = new JSONObject();
-			try {
-				auth.put("type", "basic");
-				auth.put("username", Constants.userName);
-				auth.put("password", Constants.password);
-				Rest.post(Constants.baseURL + "/currentLocation", auth, null, obj.toString(), mSendLocationResponseHandler);
-			} catch (JSONException e) {
-
-			}
+			String url = Constants.baseURL + "/users/" + Constants.userName + "/location?"
+					+ "access_token=" + Globals.msToken;
+			Rest.post(url, null, null, obj.toString(), mSendLocationResponseHandler);
 
 			Toast.makeText(getApplicationContext(), "Lat: " + location.getLatitude() + "... Long: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
 		}
@@ -116,7 +112,8 @@ public class SendLocationService extends Service {
 
 	private Rest.httpResponseHandler mSendLocationResponseHandler = new Rest.httpResponseHandler() {
 		@Override
-		public void handleResponse(final HttpResponse response, final boolean error) {
+		public void handleResponse(final JSONObject response, final boolean error) {
+			// Don't care
 		}
 	};
 }
