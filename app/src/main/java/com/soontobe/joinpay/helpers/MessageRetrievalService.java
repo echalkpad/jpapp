@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.helpers;
 
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.util.Log;
 
+import com.soontobe.joinpay.activities.RadarViewActivity;
 import com.soontobe.joinpay.widget.PaymentNotification;
 import com.soontobe.joinpay.widget.PaymentNotification.NotificationObj;
 
@@ -40,7 +41,7 @@ public class MessageRetrievalService extends Service {
 		NotificationManager notiMgr = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		
 		Intent recvIntent = new Intent(this, RadarViewActivity.class);
-		recvIntent.putExtra(RadarViewActivity.JUMP_KEY, RadarViewActivity.historyRequestCode);
+		recvIntent.putExtra(RadarViewActivity.JUMP_KEY, RadarViewActivity.HISTORY_REQUEST_CODE);
 		PendingIntent pIntent = PendingIntent.getActivity(this, 0, recvIntent, 0);
 		
 

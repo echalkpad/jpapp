@@ -1,10 +1,8 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.helpers;
 
-import android.Manifest;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,15 +13,16 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.soontobe.joinpay.Constants;
+
+import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-public class SendLocation extends Service {
-	final String serviceIntent = "SendLocation";
+public class SendLocationService extends Service {
 	LocationManager mLocationManager;
-	static Context mApplicationContext;
 
-	public SendLocation() {
+	public SendLocationService() {
 	}
 
 	@Override
@@ -64,39 +63,41 @@ public class SendLocation extends Service {
 		public void onStatusChanged(String provider, int status, Bundle extras) {
 			Log.d("location", "status changed");
 		}
-		
+
 		@Override
 		public void onProviderEnabled(String provider) {
 			Log.d("location", "provider enabled");
 		}
-		
+
 		@Override
 		public void onProviderDisabled(String provider) {
 			Log.d("location", "provider disabled");
 		}
-		
+
 		@Override
 		public void onLocationChanged(Location location) {
 			Log.d("location", "lat: " + location.getLatitude());
 			Log.d("location", "long: " + location.getLongitude());
 			JSONObject obj = new JSONObject();
-			
+
 			try {
 				obj.put("latitude", "" + location.getLatitude());
 				obj.put("longitude", "" + location.getLongitude());
 			} catch (JSONException e) {
 				e.printStackTrace();
 			}
-			
-			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-			String url = Constants.baseURL + "/currentLocation";
-			intent.putExtra("method","put");
-			intent.putExtra("url",url);
-			intent.putExtra("body", obj.toString());
-			intent.putExtra("context", serviceIntent);
 
-			startService(intent);
-			Toast.makeText(getApplicationContext(), "Lat: " +  location.getLatitude() + "... Long: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
+			JSONObject auth = new JSONObject();
+			try {
+				auth.put("type", "basic");
+				auth.put("username", Constants.userName);
+				auth.put("password", Constants.password);
+				Rest.post(Constants.baseURL + "/currentLocation", auth, null, obj.toString(), mSendLocationResponseHandler);
+			} catch (JSONException e) {
+
+			}
+
+			Toast.makeText(getApplicationContext(), "Lat: " + location.getLatitude() + "... Long: " + location.getLongitude(), Toast.LENGTH_SHORT).show();
 		}
 	};
 
@@ -106,11 +107,16 @@ public class SendLocation extends Service {
 	}
 
 	public class LocalBinder extends Binder {
-		SendLocation getService() {
-			return SendLocation.this;
+		public SendLocationService getService() {
+			return SendLocationService.this;
 		}
 	}
 
 	private final IBinder mBinder = new LocalBinder();
 
+	private Rest.httpResponseHandler mSendLocationResponseHandler = new Rest.httpResponseHandler() {
+		@Override
+		public void handleResponse(final HttpResponse response, final boolean error) {
+		}
+	};
 }

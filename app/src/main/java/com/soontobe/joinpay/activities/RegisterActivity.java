@@ -1,11 +1,8 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.activities;
 
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -15,6 +12,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.R;
+import com.soontobe.joinpay.adapters.PointAdapter;
+import com.soontobe.joinpay.helpers.Rest;
+
+import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -26,6 +29,7 @@ public class RegisterActivity extends Activity {
 	private static EditText passText;
 	private static EditText confirmPassText;
 	private static EditText accountId;
+	private Context mContext;
 	public static String tempUser;
 	PointAdapter adapter;
 	
@@ -33,8 +37,8 @@ public class RegisterActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.d("register", "starting points");
 		super.onCreate(savedInstanceState);
+		mContext = this;
 		requestWindowFeature(Window.FEATURE_NO_TITLE);  //No Title Bar
-		MainActivity.context = this;
 		setContentView(R.layout.activity_register);
 		butRegSubmit = (Button) findViewById(R.id.button_registerSubmit);
 		butRegSubmit.setOnClickListener(regSubmitClicked);
@@ -42,44 +46,9 @@ public class RegisterActivity extends Activity {
 	
 	@Override
 	protected void onStop(){
-		try{
-			unregisterReceiver(restResponseReceiver);		//remove the receiver
-		}
-		catch(Exception e){}
 	    super.onStop();
 	}
-	
-	public BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
-		
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String receivedServiceContext = intent.getStringExtra("context");
-			
-			if(serviceContext.equals(receivedServiceContext)) {
-				String response = intent.getStringExtra("response");
-				int httpCode = intent.getIntExtra("code", 403);
-				Log.d("register", "Received Response - " + response);
-				findViewById(R.id.button_registerSubmit).setEnabled(true);
-				if(httpCode == 200){
-					Log.d("register", "successfully registered new user");
-					Toast tmp = Toast.makeText(getApplicationContext(), "Successfully Registered!", Toast.LENGTH_LONG);
-					tmp.setGravity(Gravity.TOP, 0, 150);
-					tmp.show();
-					Constants.userName = tempUser;
-					Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);			//send them in
-					startActivity(intentApplication);
-					finish();
-				}
-				else{
-					Log.e("register", "failed to register new user");
-					Toast tmp = Toast.makeText(getApplicationContext(), "Failed to register, try again", Toast.LENGTH_LONG);
-					tmp.setGravity(Gravity.TOP, 0, 150);
-					tmp.show();
-				}
-			}
-		}
-	};
-	
+
 	View.OnClickListener regSubmitClicked = new View.OnClickListener() {
 		
 		@Override
@@ -128,8 +97,11 @@ public class RegisterActivity extends Activity {
 					Log.e("register", "Error making JSON object for register");
 					e.printStackTrace();
 				}
-				
-				Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
+
+				JSONObject auth = new JSONObject();
+				Rest.post(Constants.baseURL + "/register", null, null, obj.toString(), registerResponseHandler);
+
+/*				Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
 				String url = Constants.baseURL + "/register";
 				intent.putExtra("method","post");
 				intent.putExtra("url", url);
@@ -139,8 +111,48 @@ public class RegisterActivity extends Activity {
 				Log.d("register", "starting the service");
 				startService(intent);
 				IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-				registerReceiver(restResponseReceiver, restIntentFilter);
+				registerReceiver(restResponseReceiver, restIntentFilter);*/
 			}
 		}
 	};
+
+	private Rest.httpResponseHandler registerResponseHandler = new Rest.httpResponseHandler() {
+		@Override
+		public void handleResponse(HttpResponse response, boolean error) {
+			if (!error) {
+				int responseCode = response.getStatusLine().getStatusCode();
+				switch (responseCode) {
+					case Constants.RESPONSE_200:
+						Log.d("register", "successfully registered new user");
+						showUIMessage("Successfully Registered!");
+						Constants.userName = tempUser;
+//						Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);			//send them in
+//						startActivity(intentApplication);
+						finish();
+						break;
+					default:
+						Log.e("register", "failed to register new user");
+						showUIMessage("Failed to register, try again");
+						break;
+				}
+			} else {
+				showUIMessage("Error connecting to server, please try again");
+			}
+		}
+	};
+
+	/**
+	 * Shows a toast on the screen for short interval.
+	 *
+	 * @param message The message to be displayed on the screen
+	 */
+	private void showUIMessage(final String message) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+			}
+		});
+	}
+
 }

@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.adapters;
 
 import android.content.Context;
 import android.util.Log;
@@ -7,6 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
+
+import com.soontobe.joinpay.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -25,7 +27,7 @@ public class PointAdapter extends ArrayAdapter<JSONArray> {
 	public PointAdapter(Context context, JSONArray values) {
 		super(context, R.layout.activity_points);
 		this.context = context;
-		this.values = (JSONArray) values;
+		this.values = values;
 		
 		Log.d("points", "point adapter construct running: " + values.toString());
 	}

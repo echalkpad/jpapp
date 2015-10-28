@@ -67,7 +67,7 @@
             android:layout_height="30dp"
             android:layout_alignParentRight="true"
             android:background="@drawable/button_normal"
-            android:onClick="AddContactAndBackToMain"
+            android:onClick="addContactAndBackToMain"
             style="@style/ButtonTheme"
             android:text="Add" />
     </RelativeLayout>

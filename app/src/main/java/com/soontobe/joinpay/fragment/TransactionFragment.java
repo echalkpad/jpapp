@@ -30,7 +30,7 @@ import android.widget.TextView;
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.PositionHandler;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.RadarViewActivity;
+import com.soontobe.joinpay.activities.RadarViewActivity;
 import com.soontobe.joinpay.Utility;
 import com.soontobe.joinpay.model.UserInfo;
 import com.soontobe.joinpay.widget.BigBubblePopupWindow;

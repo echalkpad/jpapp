@@ -32,7 +32,7 @@ public class RequestFragment extends TransactionFragment {
         Log.d(TAG, "requesting to: " + Constants.userName);
 
 
-        String[] groupNote = {TAG, mGroupNote.getText().toString()};
+        String[] groupNote = {"group_note", mGroupNote.getText().toString()};
         if (groupNote[1].length() > 0) {
             Log.d(TAG, "adding the group note: " + groupNote[1]);
             paymentInfo.add(groupNote);

@@ -1,4 +1,4 @@
-package com.soontobe.joinpay;
+package com.soontobe.joinpay.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+
+import com.soontobe.joinpay.R;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -102,18 +104,23 @@ public class AccountJSONAdapter extends BaseAdapter {
         JSONObject jsonObject = (JSONObject) getItem(position);
 
         // Grab the account information from the JSON
-        String name = jsonObject.optString(TAG_NAME, "@string/citi_fallback_name");
-        String number = jsonObject.optString(TAG_NUMBER, "@string/citi_fallback_number");
-        String balance = jsonObject.optString(TAG_BALANCE, "@string/citi_fallback_balance");
+        String name = jsonObject.optString(TAG_NAME, mContext.getResources().getString(R.string.citi_fallback_name));
+        String number = jsonObject.optString(TAG_NUMBER, mContext.getResources().getString(R.string.citi_fallback_number));
+        String balance = jsonObject.optString(TAG_BALANCE, mContext.getResources().getString(R.string.citi_fallback_balance));
         String accHolder = jsonObject.optString(TAG_FIRST_NAME, "") + " " + jsonObject.optString(TAG_LAST_NAME, "");
 
         // Currently, APIs dont store holder name in the account object, so fill it in here.
         if(accHolder.length() < 3) accHolder = accountHolderName;
 
+        String finalBalance = mContext.getResources().getString(R.string.citi_fallback_balance);
         // Format the balance to a pretty string
-        double amount = Double.parseDouble(balance);
-        DecimalFormat formatter = new DecimalFormat("#,##0.00"); // TODO should be set by a currency type
-        String finalBalance = formatter.format(amount);
+        try {
+            double amount = Double.parseDouble(balance);
+            DecimalFormat formatter = new DecimalFormat("#,##0.00"); // TODO should be set by a currency type
+            finalBalance = formatter.format(amount);
+        } catch(Exception e) {
+
+        }
 
         // Send strings to the TextViews for display
         holder.accNameTextView.setText(name);
