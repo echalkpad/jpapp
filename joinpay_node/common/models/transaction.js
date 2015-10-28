@@ -122,11 +122,12 @@ function citi_bank(toAccount, fromAccount, amount, cb){
 	console.log('- sending charge', body);
 	options.success = function(statusCode, data){
 		console.log("Post CitiBank - success", data);
-		if(cb) cb(null, data);
+		if(cb) cb();
 	};
 	options.failure = function(statusCode, e){
 		console.log("Post CitiBank Location  - failure", e);
-		if(cb) cb(statusCode, e);
+		e = {name: "error", status:statusCode, message:e};
+		if(cb) cb(e, null);
 	};
 	rest.post(options, '', body);
 }
