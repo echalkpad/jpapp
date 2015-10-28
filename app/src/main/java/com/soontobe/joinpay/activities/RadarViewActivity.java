@@ -35,8 +35,6 @@ import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.helpers.IBMPushService;
 import com.soontobe.joinpay.helpers.Rest;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -246,21 +244,10 @@ HistoryFragment.OnFragmentInteractionListener {
 		@Override
 		public void handleMessage(final Message msg) {
 			if (msg.what == COMPLETED) {
-				try {
-					Log.d("nearby", "getting nearby users");
-					JSONObject auth = new JSONObject();
-					try {
-						auth.put("type", "basic");
-						auth.put("username", Constants.userName);
-						auth.put("password", Constants.password);
-						Rest.get(Constants.baseURL + "/nearby/users", auth, null, getNearbyUsersResponseHandler);
-					} catch (JSONException e) {
-
-					}
-				} catch (Exception e) {
-					Log.e("nearby", "error with checking pending info");
-					e.printStackTrace();
-				}
+				String url = Constants.baseURL + "/users/" + Constants.userName + "/location/friends?"
+						+ "username=" + Constants.userName
+						+ "&access_token=" + Globals.msToken;
+				Rest.get(url, null, null, getNearbyUsersResponseHandler);
 			} else {
 				Log.d("nearby", "msg is not complete");
 			}
@@ -515,10 +502,17 @@ HistoryFragment.OnFragmentInteractionListener {
 	 */
 	private Rest.httpResponseHandler getNearbyUsersResponseHandler = new Rest.httpResponseHandler() {
 		@Override
-		public void handleResponse(final HttpResponse response, final boolean error) {
+		public void handleResponse(final JSONObject response, final boolean error) {
 			Log.d("getNearbyHandler", "Received response: " + error);
 			if (!error) {
-				int httpCode = response.getStatusLine().getStatusCode();
+				int httpCode = 0;
+				try {
+					httpCode = response.getInt("responseCode");
+				} catch (JSONException e) {
+					e.printStackTrace();
+					showUIMessage("Lost connection to server, login again");
+					finish();
+				}
 
 //				Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
 				switch (httpCode) {
@@ -544,7 +538,7 @@ HistoryFragment.OnFragmentInteractionListener {
 					case Constants.RESPONSE_200:
 						String responseString = "";
 						try {
-							responseString = EntityUtils.toString(response.getEntity());
+							responseString = response.getString("data");
 						} catch (Exception e) {
 						}
 
@@ -555,7 +549,8 @@ HistoryFragment.OnFragmentInteractionListener {
 							public void run() {
 								try {
 									int pos = 0;
-									JSONArray arr = new JSONArray(responseStr);
+									JSONObject respObj = new JSONObject(responseStr);
+									JSONArray arr = respObj.getJSONArray("friends");
 									for (int i = 0; i < arr.length(); i++) {
 										JSONObject objUser = arr.getJSONObject(i);
 										String user = objUser.getString("username");
@@ -584,7 +579,7 @@ HistoryFragment.OnFragmentInteractionListener {
 					default:
 						String message = "Unknown problem with server..";
 						try {
-							String responseStr1 = EntityUtils.toString(response.getEntity());
+							String responseStr1 = response.getString("data");
 							JSONObject obj = new JSONObject(responseStr1);
 							if (obj.has("message")) {
 								message = obj.getString("message");
@@ -602,4 +597,107 @@ HistoryFragment.OnFragmentInteractionListener {
 			}
 		}
 	};
+
+	/**
+	 * Response handler for get nearby users http call.
+	 */
+	private Rest.httpResponseHandler newGetNearbyUsersResponseHandler = new Rest.httpResponseHandler() {
+		@Override
+		public void handleResponse(final JSONObject response, final boolean error) {
+			Log.d("getNearbyHandler", "Received response: " + error);
+			if (!error) {
+
+				int httpCode = 0;
+				try {
+					httpCode = response.getInt("responseCode");
+				} catch (JSONException e) {
+					e.printStackTrace();
+				}
+
+//				Intent intentApplication = new Intent(getApplicationContext(), LoginActivity.class);
+				switch (httpCode) {
+					case Constants.RESPONSE_404:
+						Log.e("nearby", "got 404, back to login");
+						showUIMessage("Cannot locate server");
+//						startActivity(intentApplication);
+						finish();
+						break;
+
+					case Constants.RESPONSE_401:
+					case Constants.RESPONSE_403:
+						Log.e("nearby", "got " + httpCode + ", unauthorized, back to login");
+						showUIMessage("Lost connection to server, login again");
+//						startActivity(intentApplication);
+						finish();
+						break;
+
+					case Constants.RESPONSE_502:
+						Log.d("nearby", "got 502, skipping");
+						break;
+
+					case Constants.RESPONSE_200:
+						String responseString = "";
+						try {
+							responseString = response.getString("data");
+//							responseString = EntityUtils.toString(response.getEntity());
+						} catch (Exception e) {
+						}
+
+						final String responseStr = responseString;
+
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								try {
+									int pos = 0;
+									JSONObject respObj = new JSONObject(responseStr);
+									JSONArray arr = respObj.getJSONArray("friends");
+									for (int i = 0; i < arr.length(); i++) {
+										JSONObject objUser = arr.getJSONObject(i);
+										String user = objUser.getString("username");
+										if (namesOnScreen.contains(user)) {
+											continue;
+										}
+										if (!usedPositionsListSendFragment.contains(pos)) {
+											namesOnScreen.add(user);
+											mRequestFragment.addContactToView(user, pos);
+											usedPositionsListSendFragment.add(pos);
+										} else {
+											i--;
+										}
+										pos++;
+									}
+								} catch (Exception e) {
+									showUIMessage("Unknown problem with server...");
+									Log.e("nearby", "failed to parse response =(");
+									e.printStackTrace();
+								}
+
+							}
+						});
+						break;
+
+					default:
+						String message = "Unknown problem with server..";
+						try {
+//							String responseStr1 = EntityUtils.toString(response.getEntity());
+							String responseStr1 = response.getString("data");
+							JSONObject obj = new JSONObject(responseStr1);
+							if (obj.has("message")) {
+								message = obj.getString("message");
+							}
+						} catch (Exception e) {
+							Log.e("nearby", "Error parsing JSON response");
+						}
+						Log.e("nearby", "got odd code, something is wrong, not sure what...");
+						showUIMessage(message);
+						break;
+				}
+			} else {
+				showUIMessage("Error connecting to server, please login again");
+				finish();
+			}
+		}
+	};
+
 }

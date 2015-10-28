@@ -5,6 +5,7 @@ import android.app.Fragment;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.Globals;
 import com.soontobe.joinpay.adapters.PaymentSummaryAdapter;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.helpers.Rest;
@@ -89,6 +91,9 @@ public class HistoryFragment extends Fragment {
 
     private Context mContext;
 
+    ArrayList<Transaction> list = new ArrayList<>();
+
+
     @Override
     public final void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -158,16 +163,9 @@ public class HistoryFragment extends Fragment {
      * history from the JoinPay APIs.
      */
     private void checkPendingInfo() {
-        JSONObject auth = new JSONObject();
-        try {
-            auth.put("type", "basic");
-            auth.put("username", Constants.userName);
-            auth.put("password", Constants.password);
-            Rest.get(Constants.baseURL + "/transactions", auth, null, getPendingTransactionsResponseHandler);
-        } catch (JSONException e) {
-
-        }
-
+        String url = Constants.baseURL + "/users/" + Constants.userName + "/credits?"
+                + "access_token=" + Globals.msToken;
+        Rest.get(url, null, null, getCreditsResponseHandler);
     }
 
     @Override
@@ -197,14 +195,21 @@ public class HistoryFragment extends Fragment {
 
     private Rest.httpResponseHandler approvalResponseHandler = new Rest.httpResponseHandler() {
         @Override
-        public void handleResponse(HttpResponse response, boolean error) {
+        public void handleResponse(final JSONObject response, final boolean error) {
             if (!error) {
-                int responseCode = response.getStatusLine().getStatusCode();
+                int responseCode = 0;
+                try {
+                    responseCode = response.getInt("responseCode");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    showUIMessage("Invalid response from server, please retry.");
+                    return;
+                }
                 String responseStr = "";
                 String message = "error";
                 Log.d("responseCode", "" + responseCode);
                 try {
-                    responseStr = EntityUtils.toString(response.getEntity());
+                    responseStr = response.getString("data");
                     Log.d("responseString", responseStr);
                     JSONObject obj = new JSONObject(responseStr);
                     if (obj.has("message")) {
@@ -212,6 +217,8 @@ public class HistoryFragment extends Fragment {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    showUIMessage("Invalid response from server, please retry.");
+                    return;
                 }
                 switch (responseCode) {
                     case Constants.RESPONSE_200:
@@ -252,26 +259,31 @@ public class HistoryFragment extends Fragment {
     }
 
 
-    private Rest.httpResponseHandler getPendingTransactionsResponseHandler = new Rest.httpResponseHandler() {
+    private Rest.httpResponseHandler getCreditsResponseHandler = new Rest.httpResponseHandler() {
         @Override
-        public void handleResponse(final HttpResponse response, final boolean error) {
+        public void handleResponse(final JSONObject response, final boolean error) {
             Log.d("getPendingTransactions", "Received response: " + error);
             if (!error) {
-                int httpCode = response.getStatusLine().getStatusCode();
+                int httpCode = 0;
+                try {
+                    httpCode = response.getInt("responseCode");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    showUIMessage("Invalid response from server, please try again.");
+                    getActivity().finish();
+                }
 
-                final ArrayList<Transaction> list = new ArrayList<>();
+                list = new ArrayList<>();
                 String message = "error";
                 String responseStr = "";
                 try {
-                    responseStr = EntityUtils.toString(response.getEntity());
+                    responseStr = response.getString("data");
                     JSONObject obj = new JSONObject(responseStr);
                     if (obj.has("message")) {
                         message = obj.getString("message");
                     }
                 } catch (JSONException e) {
-                    Log.e("dialog", "Error parsing JSON response");
-                } catch (IOException e) {
-                    e.printStackTrace();
+                    Log.e(TAG, "Error parsing JSON response");
                 }
 
                 switch (httpCode) {
@@ -292,48 +304,106 @@ public class HistoryFragment extends Fragment {
 
                     case Constants.RESPONSE_200:
                         try {
-                            JSONObject obj = new JSONObject(responseStr);
+                            JSONArray arrIn = new JSONArray(responseStr);
 
-                            if (obj.has("moneyIn")) {
-                                JSONArray arrIn = obj.getJSONArray("moneyIn");
-
-                                for (int i = 0; i < arrIn.length(); i++) {
-                                    JSONObject obj1 = arrIn.getJSONObject(i);
-                                    // a MONEY IN transaction is money i'm
-                                    // SENDING and is an input TO me
-                                    obj1.put("type", "requesting");
-                                    if (obj1.has("status")
-                                            && obj1.getString("status")
-                                            .equals("PENDING")) {
-                                        list.add(new Transaction(obj1));
-                                    } else {
-                                        list.add(new Transaction(obj1));
-                                    }
+                            for (int i = 0; i < arrIn.length(); i++) {
+                                JSONObject obj1 = arrIn.getJSONObject(i);
+                                // a MONEY IN transaction is money i'm
+                                // SENDING and is an input TO me
+                                obj1.put("type", "requesting");
+                                if (obj1.has("status")
+                                        && obj1.getString("status")
+                                        .equals("PENDING")) {
+                                    list.add(new Transaction(obj1));
+                                } else {
+                                    list.add(new Transaction(obj1));
                                 }
                             }
+                            String url = Constants.baseURL + "/users/" + Constants.userName + "/debits?"
+                                    + "access_token=" + Globals.msToken;
+                            Rest.get(url, null, null, getDebitsResponseHandler);
 
-                            if (obj.has("moneyOut")) {
-                                JSONArray arrOut = obj.getJSONArray("moneyOut");
+                        } catch (JSONException e) {
+                            showUIMessage("Error getting list of transactions. Please try again.");
+                            e.printStackTrace();
+                        }
+                        break;
 
-                                for (int i = 0; i < arrOut.length(); i++) {
-                                    JSONObject obj1 = arrOut.getJSONObject(i);
-                                    // a MONEY OUT transaction is money
-                                    // I'm SENDING and is an output FROM me
-                                    obj1.put("type", "sending");
+                    default:
+                        Log.e(TAG, "response not understood");
+                        showUIMessage(message);
+                        break;
+                }
+            } else {
+                showUIMessage("Cannot connect to server. Please try again.");
+                getActivity().finish();
+            }
+        }
+    };
 
-                                    if (obj1.has("status")
-                                            && obj1.getString("status")
-                                            .equals("PENDING")) {
-                                        list.add(new Transaction(obj1));
-                                    } else {
-                                        list.add(new Transaction(obj1));
-                                    }
+
+    private Rest.httpResponseHandler getDebitsResponseHandler = new Rest.httpResponseHandler() {
+        @Override
+        public void handleResponse(final JSONObject response, final boolean error) {
+            Log.d("getPendingTransactions", "Received response: " + error);
+            if (!error) {
+                int httpCode = 0;
+                try {
+                    httpCode = response.getInt("responseCode");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                    showUIMessage("Invalid response from server, please try again.");
+                    getActivity().finish();
+                }
+
+                String message = "error";
+                String responseStr = "";
+                try {
+                    responseStr = response.getString("data");
+                    JSONObject obj = new JSONObject(responseStr);
+                    if (obj.has("message")) {
+                        message = obj.getString("message");
+                    }
+                } catch (JSONException e) {
+                    Log.e(TAG, "Error parsing JSON response");
+                }
+
+                switch (httpCode) {
+                    case Constants.RESPONSE_500:
+                        //500 = no transactions, do nothing
+                        Log.d("history", "got 500 == no transactions");
+                        break;
+
+                    case Constants.RESPONSE_401:
+                    case Constants.RESPONSE_404:
+                        Log.e("history", "got 404 or 401, back to login");
+                        showUIMessage("Cannot locate server");
+//                        Intent intentApplication = new Intent(getActivity(),
+//                               LoginActivity.class);
+//                        startActivity(intentApplication);
+                        getActivity().finish();
+                        break;
+
+                    case Constants.RESPONSE_200:
+                        try {
+                            JSONArray arrOut = new JSONArray(responseStr);
+
+                            for (int i = 0; i < arrOut.length(); i++) {
+                                JSONObject obj1 = arrOut.getJSONObject(i);
+                                // a MONEY IN transaction is money i'm
+                                // SENDING and is an input TO me
+                                obj1.put("type", "sending");
+                                if (obj1.has("status")
+                                        && obj1.getString("status")
+                                        .equals("PENDING")) {
+                                    list.add(new Transaction(obj1));
+                                } else {
+                                    list.add(new Transaction(obj1));
                                 }
                             }
                         } catch (JSONException e) {
-                            Log.e(TAG, "Error parsing JSON response");
-                            showUIMessage("Problem with server, "
-                                    + "try again later");
+                            showUIMessage("Error getting list of transactions. Please try again.");
+                            e.printStackTrace();
                         }
                         break;
 
@@ -363,4 +433,5 @@ public class HistoryFragment extends Fragment {
             }
         }
     };
+
 }

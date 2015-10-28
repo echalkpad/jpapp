@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.Globals;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.helpers.Rest;
 import com.soontobe.joinpay.model.Transaction;
@@ -251,38 +252,21 @@ public class PaymentSummaryAdapter extends BaseAdapter {
 //            Intent intent = new Intent(mContext, RESTCalls.class);
             JSONObject obj = new JSONObject();
             try {
-                obj.put("username", Constants.userName);
+                obj.put("status", (approve ? "APPROVED" : "DENIED"));
             } catch (JSONException e) {
                 Toast.makeText(mContext, "Error creating JSON", Toast.LENGTH_SHORT).show();
             }
 
             // Construct the url for the REST request
-            String url = String.format("%s/%s/%s/%s",
+/*            String url = String.format("%s/%s/%s/%s",
                     Constants.baseURL, //TODO this should be passed in at construction?
                     "transactions",
                     (approve ? "approve" : "deny"),
                     id);
+  */
+            String url = Constants.baseURL + "/users/" + Constants.userName + "/debits/" + id + "?access_token=" + Globals.msToken;
 
-            JSONObject auth = new JSONObject();
-            try {
-                auth.put("type", "basic");
-                auth.put("username", Constants.userName);
-                auth.put("password", Constants.password);
-                Rest.post(url, auth, null, obj.toString(), mApprovalResponseHandler);
-            } catch (JSONException e) {
-
-            }
-
-/*            // Construct the parameters of the REST request
-            intent.putExtra("method","put");
-            intent.putExtra("url",url);
-            intent.putExtra("body", obj.toString());
-            intent.putExtra("context", serviceContext);
-            String msg = String.format("starting rest service to %s transaction %s",
-                    (approve ? "approve" : "deny"), id);
-            Log.d("approve_transaction", msg);
-            mContext.startService(intent);
-            */
+            Rest.put(url, null, null, obj.toString(), mApprovalResponseHandler);
         }
     }
 

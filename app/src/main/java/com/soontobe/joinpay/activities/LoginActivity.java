@@ -19,11 +19,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.Globals;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.helpers.Rest;
 import com.soontobe.joinpay.helpers.SendLocationService;
 
-import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -205,8 +205,8 @@ public class LoginActivity extends Activity {
                 try {
                     auth.put("type", "basic");
                     auth.put("username", Constants.userName);
-                    auth.put("password", passStr);
-                    Rest.post(Constants.baseURL + "/login", auth, null, auth.toString(), loginResponseHandler);
+                    auth.put("password", Constants.password);
+                    Rest.post(Constants.baseURL + "/users/login", auth, null, auth.toString(), loginResponseHandler);
                 } catch (JSONException e) {
 
                 }
@@ -245,7 +245,7 @@ public class LoginActivity extends Activity {
      */
     private Rest.httpResponseHandler loginResponseHandler = new Rest.httpResponseHandler() {
         @Override
-        public void handleResponse(final HttpResponse response, final boolean error) {
+        public void handleResponse(final JSONObject response, final boolean error) {
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
@@ -253,7 +253,13 @@ public class LoginActivity extends Activity {
                 }
             });
             if (!error) {
-                int httpCode = response.getStatusLine().getStatusCode();
+                int httpCode = 0;
+                try {
+                    httpCode = response.getInt("responseCode");
+                } catch (JSONException e) {
+                    showUIMessage("Error parsing response, plese try again");
+                    return;
+                }
                 switch (httpCode) {
                     case Constants.RESPONSE_404:
                         Log.d(TAG, "failed, alerting user");
@@ -267,6 +273,17 @@ public class LoginActivity extends Activity {
                         break;
 
                     case Constants.RESPONSE_200:
+
+                        try {
+                            String responseStr = response.getString("data");
+                            JSONObject responseObj = new JSONObject(responseStr);
+                            Globals.msToken = responseObj.getString("id");
+                            Log.d(TAG, "Received token: " + Globals.msToken);
+                        } catch (Exception e) {
+                            showUIMessage("Error parsing response, plese try again");
+                            e.printStackTrace();
+                            return;
+                        }
                         // Start the location service so other users can see you on their radars
                         Log.d(TAG, "NEW starting location service");
                         Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocationService.class);
@@ -279,7 +296,12 @@ public class LoginActivity extends Activity {
                         break;
 
                     default:
-                        String message = response.getEntity().toString();
+                        String message = "";
+                        try {
+                            message = response.getString("data");
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                         showUIMessage(message);
                         break;
                 }

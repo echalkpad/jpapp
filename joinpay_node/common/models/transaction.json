@@ -1,0 +1,41 @@
+{
+  "name": "transaction",
+  "plural": "transactions",
+  "hidden": ["_rev"],
+  "properties": {
+    "toUser": {
+      "type": "string",
+      "required": true
+    },
+    "fromUser": {
+      "type": "string",
+      "required": true
+    },
+    "amount": {
+      "type": "number",
+      "required": true,
+      "default": 10
+    },
+    "description": {
+      "type": "string"
+    },
+    "timestamp": {
+      "type": "number",
+      "required": true
+    },
+    "status": {
+      "type": "string",
+      "default": "PENDING"
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [
+    {
+      "principalType": "ROLE",
+      "principalId": "$everyone",
+      "permission": "ALLOW"
+    }
+  ],
+  "methods": {}
+}

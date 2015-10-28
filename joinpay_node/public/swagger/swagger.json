@@ -1,0 +1,1218 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "1.0.0",
+        "title": "joinpay"
+    },
+    "basePath": "/api",
+    "consumes": [
+        "application/json",
+        "application/x-www-form-urlencoded",
+        "application/xml",
+        "text/xml"
+    ],
+    "produces": [
+        "application/json",
+        "application/xml",
+        "text/xml",
+        "application/javascript",
+        "text/javascript"
+    ],
+    "paths": {
+        "/users/{id}/credits/{fk}": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Find a related item by id for credits.",
+                "operationId": "user.prototype.__findById__credits",
+                "parameters": [
+                    {
+                        "name": "fk",
+                        "in": "path",
+                        "description": "Foreign key for credits",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/transaction"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete a related item by id for credits.",
+                "operationId": "user.prototype.__destroyById__credits",
+                "parameters": [
+                    {
+                        "name": "fk",
+                        "in": "path",
+                        "description": "Foreign key for credits",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/debits/{fk}": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Find a related item by id for debits.",
+                "operationId": "user.prototype.__findById__debits",
+                "parameters": [
+                    {
+                        "name": "fk",
+                        "in": "path",
+                        "description": "Foreign key for debits",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/transaction"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Delete a related item by id for debits.",
+                "operationId": "user.prototype.__destroyById__debits",
+                "parameters": [
+                    {
+                        "name": "fk",
+                        "in": "path",
+                        "description": "Foreign key for debits",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            },
+            "put": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Approve or deny a debit",
+                "operationId": "user.prototype.__updateById__debits",
+                "parameters": [
+                    {
+                        "name": "fk",
+                        "in": "path",
+                        "description": "Foreign key for debits",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/approve"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/transaction"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/location": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Fetches hasOne relation location.",
+                "operationId": "user.prototype.__get__location",
+                "parameters": [
+                    {
+                        "name": "refresh",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/location"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "put": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update location of this model.",
+                "operationId": "user.prototype.__update__location",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/put_location"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/location"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Deletes location of this model.",
+                "operationId": "user.prototype.__destroy__location",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/citibank": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Fetches hasOne relation citibank.",
+                "operationId": "user.prototype.__get__citibank",
+                "parameters": [
+                    {
+                        "name": "refresh",
+                        "in": "query",
+                        "required": false,
+                        "type": "boolean"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/citibank"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "put": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update citibank of this model.",
+                "operationId": "user.prototype.__update__citibank",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/reg_citibank"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/citibank"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Deletes citibank of this model.",
+                "operationId": "user.prototype.__destroy__citibank",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/credits": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Queries credits of user.",
+                "operationId": "user.prototype.__get__credits",
+                "parameters": [
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/transaction"
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Creates a transaction to this user",
+                "operationId": "user.prototype.__create__credits",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/post_transaction"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/transaction"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Deletes all credits of this model.",
+                "operationId": "user.prototype.__delete__credits",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/credits/count": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Counts credits of user.",
+                "operationId": "user.prototype.__count__credits",
+                "parameters": [
+                    {
+                        "name": "where",
+                        "in": "query",
+                        "description": "Criteria to match model instances",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/debits": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Queries debits of user.",
+                "operationId": "user.prototype.__get__debits",
+                "parameters": [
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/transaction"
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "delete": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Deletes all debits of this model.",
+                "operationId": "user.prototype.__delete__debits",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/debits/count": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Counts debits of user.",
+                "operationId": "user.prototype.__count__debits",
+                "parameters": [
+                    {
+                        "name": "where",
+                        "in": "query",
+                        "description": "Criteria to match model instances",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Create a new instance of the model and persist it into the data source.",
+                "operationId": "user.create",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "description": "Model instance data",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/post_user"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/user"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Find all instances of the model matched by filter from the data source.",
+                "operationId": "user.find",
+                "parameters": [
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "Filter defining fields, where, include, order, offset, and limit",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/user"
+                            }
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/exists": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Check whether a model instance exists in the data source.",
+                "operationId": "user.exists",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Model id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}": {
+            "head": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Check whether a model instance exists in the data source.",
+                "operationId": "user.exists",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Model id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Find a model instance by id from the data source.",
+                "operationId": "user.findById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Model id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    },
+                    {
+                        "name": "filter",
+                        "in": "query",
+                        "description": "Filter defining fields and include",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/user"
+                        }
+                    }
+                },
+                "deprecated": false
+            },
+            "put": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Update attributes for a model instance and persist it into the data source.",
+                "operationId": "user.prototype.updateAttributes",
+                "parameters": [
+                    {
+                        "name": "data",
+                        "in": "body",
+                        "description": "An object of model property name/value pairs",
+                        "required": false,
+                        "schema": {
+                            "$ref": "#/definitions/user"
+                        }
+                    },
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "User id",
+                        "required": true,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "$ref": "#/definitions/user"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/login": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Login a user with username/email and password.",
+                "operationId": "user.login",
+                "parameters": [
+                    {
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/login"
+                        }
+                    },
+                    {
+                        "name": "include",
+                        "in": "query",
+                        "description": "Related objects to include in the response. See the description of return value for more details.",
+                        "required": false,
+                        "type": "string",
+                        "format": "JSON"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "description": "The response body contains properties of the AccessToken created on login.\nDepending on the value of `include` parameter, the body may contain additional properties:\n\n  - `user` - `{User}` - Data of the currently logged in user. (`include=user`)\n\n",
+                            "$ref": "#/definitions/AccessToken"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/logout": {
+            "post": {
+                "tags": [
+                    "user"
+                ],
+                "summary": "Logout a user with access token.",
+                "operationId": "user.logout",
+                "parameters": [],
+                "responses": {
+                    "204": {
+                        "description": "Request was successful"
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/location/friends": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "operationId": "user.nearby",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        },
+        "/users/{id}/citibank/details": {
+            "get": {
+                "tags": [
+                    "user"
+                ],
+                "operationId": "user.citibank",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Request was successful",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                },
+                "deprecated": false
+            }
+        }
+    },
+    "definitions": {
+        "x-any": {
+            "properties": {}
+        },
+        "AccessToken": {
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "this is the access token"
+                },
+                "ttl": {
+                    "default": 1209600,
+                    "description": "time to live in seconds (2 weeks by default)",
+                    "type": "number",
+                    "format": "double"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "userId": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "id"
+            ],
+            "additionalProperties": false
+        },
+        "User": {
+            "properties": {
+                "realm": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                },
+                "credentials": {
+                    "type": "object"
+                },
+                "challenges": {
+                    "type": "object"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "emailVerified": {
+                    "type": "boolean"
+                },
+                "verificationToken": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "lastUpdated": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "email"
+            ],
+            "additionalProperties": false
+        },
+        "RoleMapping": {
+            "description": "Map principals to roles",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "principalType": {
+                    "description": "The principal type, such as user, application, or role",
+                    "type": "string"
+                },
+                "principalId": {
+                    "type": "string"
+                },
+                "roleId": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "Role": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "modified": {
+                    "type": "string",
+                    "format": "date"
+                }
+            },
+            "required": [
+                "name"
+            ],
+            "additionalProperties": false
+        },
+        "approve": {
+            "properties": {
+                "status": {
+                    "default": "APPROVED",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "status"
+            ],
+            "additionalProperties": false
+        },
+        "transaction": {
+            "properties": {
+                "toUser": {
+                    "type": "string"
+                },
+                "fromUser": {
+                    "type": "string"
+                },
+                "amount": {
+                    "default": 10,
+                    "type": "number",
+                    "format": "double"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "timestamp": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "status": {
+                    "default": "PENDING",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "toUser",
+                "fromUser",
+                "amount",
+                "timestamp"
+            ],
+            "additionalProperties": false
+        },
+        "post_transaction": {
+            "properties": {
+                "toUser": {
+                    "type": "string"
+                },
+                "fromUser": {
+                    "type": "string"
+                },
+                "amount": {
+                    "default": 10,
+                    "type": "number",
+                    "format": "double"
+                },
+                "description": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "toUser",
+                "fromUser",
+                "amount"
+            ],
+            "additionalProperties": false
+        },
+        "location": {
+            "properties": {
+                "latitude": {
+                    "default": 35.904628,
+                    "type": "number",
+                    "format": "double"
+                },
+                "longitude": {
+                    "default": -78.8501887,
+                    "type": "number",
+                    "format": "double"
+                },
+                "timestamp": {
+                    "type": "number",
+                    "format": "double"
+                },
+                "username": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "latitude",
+                "longitude",
+                "username"
+            ],
+            "additionalProperties": false
+        },
+        "put_location": {
+            "properties": {
+                "latitude": {
+                    "default": 35.904628,
+                    "type": "number",
+                    "format": "double"
+                },
+                "longitude": {
+                    "default": -78.8501887,
+                    "type": "number",
+                    "format": "double"
+                },
+                "timestamp": {
+                    "type": "number",
+                    "format": "double"
+                }
+            },
+            "required": [
+                "latitude",
+                "longitude"
+            ],
+            "additionalProperties": false
+        },
+        "citibank": {
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "citi_account": {
+                    "default": " ",
+                    "type": "string"
+                }
+            },
+            "required": [
+                "username",
+                "citi_account"
+            ],
+            "additionalProperties": false
+        },
+        "reg_citibank": {
+            "properties": {
+                "citi_password": {
+                    "type": "string"
+                },
+                "citi_account": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "citi_account",
+                "citi_password"
+            ],
+            "additionalProperties": false
+        },
+        "user": {
+            "properties": {
+                "img": {
+                    "default": "https://join-pay.bluemix.net/imgs/dummy_user.png",
+                    "type": "string"
+                },
+                "created": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "id": {
+                    "type": "string"
+                }
+            },
+            "additionalProperties": false
+        },
+        "post_user": {
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "default": "password"
+                }
+            },
+            "required": [
+                "password",
+                "id"
+            ],
+            "additionalProperties": false
+        },
+        "login": {
+            "properties": {
+                "username": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "default": "password"
+                }
+            },
+            "required": [
+                "password",
+                "username"
+            ],
+            "additionalProperties": false
+        }
+    },
+    "tags": [
+        {
+            "name": "user"
+        }
+    ]
+}
