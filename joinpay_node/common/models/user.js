@@ -107,11 +107,12 @@ module.exports = function(User) {
 		app.models.citibank.find({where: {username: username}}, cb_got_citibank);
 			
 		function cb_got_citibank(err, account){
+			console.log('!', err, account);
 			if(err != null){
 				e = {name: "error", status:500, message:e};
 				cb(e, null);
 			}
-			else if(account.length == 0){
+			else if(account.length == 0 || account[0].citi_account.trim() == ''){
 				e = {name: "no citi account", status:404, message:"cannot find citi account"};
 				cb(e, null);
 			}
