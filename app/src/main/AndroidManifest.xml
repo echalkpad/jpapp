@@ -54,12 +54,13 @@
         <activity
             android:name=".activities.RegisterActivity"
             android:label="@string/app_name"
-            android:screenOrientation="portrait" >
-        </activity>
-        <activity
-            android:name=".PointBalance"
-            android:label="@string/app_name"
-            android:screenOrientation="portrait" >
+            android:screenOrientation="portrait"
+            android:parentActivityName=".activities.LoginActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.LoginActivity" />
+            >
         </activity>
         <activity
             android:name=".activities.MainActivity"
@@ -76,7 +77,13 @@
             android:name=".activities.RadarViewActivity"
             android:label="@string/title_activity_radar_view"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustResize" >
+            android:windowSoftInputMode="adjustResize"
+            android:parentActivityName=".activities.LoginActivity" >
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.LoginActivity" />
+            >
         </activity>
         <activity
             android:name=".activities.ContactListActivity"
@@ -103,11 +110,7 @@
             android:screenOrientation="portrait" >
         </service>
         <service
-            android:name=".helpers.RESTCalls"
-            android:exported="false" >
-        </service>
-        <service
-            android:name=".helpers.SendLocation"
+            android:name=".helpers.SendLocationService"
             android:exported="false" >
         </service>
         <service

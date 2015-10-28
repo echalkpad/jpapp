@@ -405,7 +405,14 @@ public class Transaction {
      * @return The amount of the transaction.
      */
     public final String getPrettyAmount() {
-        double amt = Double.parseDouble(amount);
+        String tempString = amount;
+        if(amount.startsWith("$ ")) {
+            tempString = amount.replace("$ ", "");
+        } else if(amount.startsWith("$")) {
+            tempString = amount.replace("$", "");
+        }
+
+        double amt = Double.parseDouble(tempString);
         NumberFormat formatter = NumberFormat.getCurrencyInstance();
         String money = formatter.format(amt);
         return money;

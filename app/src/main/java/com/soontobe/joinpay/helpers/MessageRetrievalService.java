@@ -41,7 +41,7 @@ public class MessageRetrievalService extends Service {
 		NotificationManager notiMgr = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
 		
 		Intent recvIntent = new Intent(this, RadarViewActivity.class);
-		recvIntent.putExtra(RadarViewActivity.JUMP_KEY, RadarViewActivity.historyRequestCode);
+		recvIntent.putExtra(RadarViewActivity.JUMP_KEY, RadarViewActivity.HISTORY_REQUEST_CODE);
 		PendingIntent pIntent = PendingIntent.getActivity(this, 0, recvIntent, 0);
 		
 

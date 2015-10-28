@@ -16,9 +16,12 @@ import java.util.ArrayList;
 public class Constants {
 
 	public static final int RESPONSE_200 = 200;
+	public static final int RESPONSE_400 = 400;
 	public static final int RESPONSE_401 = 401;
 	public static final int RESPONSE_403 = 403;
 	public static final int RESPONSE_404 = 404;
+	public static final int RESPONSE_500 = 500;
+	public static final int RESPONSE_502 = 502;
 
 	public static final int TOP_X_OFFSET = 0;
 	public static final int TOP_Y_OFFSET = 150;
@@ -28,6 +31,7 @@ public class Constants {
 
 	public static String DemoMyName = "Lirong";
 	public static String userName = "no_user";
+	public static String password = "";
 	public static String transactionBeginTag = "<TransactionRecordBegin>";
 	public static String transactionEndTag = "<TransactionRecordEnd>";
 	public static String transactionIntiatorTag = "TheTransactionInitiatorIs";
@@ -47,7 +51,6 @@ public class Constants {
 
 	public static final String PUSH_TAG = "push";
 	
-	public static final String RESTRESP = "com.soontobe.RESTRESP";  // used to filter REST responses to this application
 	public static String loginToken;
 	//public static String baseURL = "http://j-pay.mybluemix.net";
 	public static String baseURL = "http://join-pay.mybluemix.net";

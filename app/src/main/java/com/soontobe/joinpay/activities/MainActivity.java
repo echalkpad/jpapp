@@ -16,7 +16,7 @@ import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.Globals;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.helpers.IBMPushService;
-import com.soontobe.joinpay.helpers.SendLocation;
+import com.soontobe.joinpay.helpers.SendLocationService;
 
 import java.io.File;
 import java.util.Date;
@@ -27,13 +27,25 @@ import java.util.Date;
  */
 public class MainActivity extends Activity {
 
+    /**
+     * Debug tag for this activity.
+     */
     private static final String TAG = "main_screen";
+
+    /**
+     * Context for this activity.
+     */
     private static Context mContext;
 
     // UI variables
-    // Citi Sign up test view
+    /**
+     * Sign up text view.
+     */
     private TextView mtvLink;
-    // Welcome username
+
+    /**
+     * Welcome username text view.
+     */
     private TextView mtvUserView;
 
     @Override
@@ -74,7 +86,7 @@ public class MainActivity extends Activity {
     protected final void onDestroy() {
         super.onDestroy();
         // Updates to the user's location should stop when they log out
-        Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
+        Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocationService.class);
         stopService(locationServiceIntent);
 
         // Push notification service should stop when user logs out

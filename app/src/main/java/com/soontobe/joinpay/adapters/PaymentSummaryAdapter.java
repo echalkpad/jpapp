@@ -2,7 +2,6 @@ package com.soontobe.joinpay.adapters;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +14,7 @@ import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.helpers.RESTCalls;
+import com.soontobe.joinpay.helpers.Rest;
 import com.soontobe.joinpay.model.Transaction;
 
 import org.json.JSONException;
@@ -32,21 +31,25 @@ public class PaymentSummaryAdapter extends BaseAdapter {
 
     private static final String TAG = "transaction_adapter";
     private Context context;
-	private ArrayList<Transaction> values;
-	private LayoutInflater mInflater;
+    private ArrayList<Transaction> values;
+    private LayoutInflater mInflater;
+    private Rest.httpResponseHandler mApprovalResponseHandler;
 
     /**
      * Constructs a new PaymentSummaryAdapter with the given data.
-     * @param context The context in which the PaymentSummaryAdapter is operating.
-     * @param values The transactions that the adapter will beautify.
+     *
+     * @param context  The context in which the PaymentSummaryAdapter is operating.
+     * @param values   The transactions that the adapter will beautify.
      * @param inflater The inflater used to inflate layouts for transactions.
      */
-	public PaymentSummaryAdapter(Context context, Collection<Transaction> values,
-                                 LayoutInflater inflater) {
-		this.context = context;
-		this.values = new ArrayList<>(values);
-		this.mInflater = inflater;
-	}
+    public PaymentSummaryAdapter(Context context, Collection<Transaction> values,
+                                 LayoutInflater inflater, Rest.httpResponseHandler approvalResponseHandler) {
+        Log.d(TAG, "Constructor");
+        this.context = context;
+        this.values = new ArrayList<>(values);
+        this.mInflater = inflater;
+        this.mApprovalResponseHandler = approvalResponseHandler;
+    }
 
     @Override
     public Object getItem(int position) {
@@ -59,104 +62,102 @@ public class PaymentSummaryAdapter extends BaseAdapter {
     }
 
     @Override
-	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder;
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
 
-		// check if the view already exists
-		// if so, no need to inflate and findViewById again!
-		if (convertView == null) {
+        Log.d(TAG, "GetView called");
+        // check if the view already exists
+        // if so, no need to inflate and findViewById again!
+        if (convertView == null) {
             Log.d(TAG, "convertView doesn't exist, inflating layout");
-			// Inflate the custom row layout from your XML.
-			convertView = mInflater.inflate(R.layout.confirm_page_item, null);
+            // Inflate the custom row layout from your XML.
+            convertView = mInflater.inflate(R.layout.confirm_page_item, null);
 
-			// create a new "Holder" with subviews
-			holder = new ViewHolder();
-			holder.groupNoteview = (TextView) convertView.findViewById(R.id.confirm_personal_note_normal2);
-			holder.decNeeded = (TextView) convertView.findViewById(R.id.decisionNeeded);
-			holder.payerView = (TextView) convertView.findViewById(R.id.activity_confirm_payer);
-			holder.payeeView = (TextView) convertView.findViewById(R.id.activity_confirm_payee);
-			holder.amountView = (TextView) convertView.findViewById(R.id.amount_confirm3);
-			holder.transId = (TextView) convertView.findViewById(R.id.transacation_id);
-			holder.statusView = (TextView) convertView.findViewById(R.id.payment_status);
+            // create a new "Holder" with subviews
+            holder = new ViewHolder();
+            holder.groupNoteview = (TextView) convertView.findViewById(R.id.confirm_personal_note_normal2);
+            holder.decNeeded = (TextView) convertView.findViewById(R.id.decisionNeeded);
+            holder.payerView = (TextView) convertView.findViewById(R.id.activity_confirm_payer);
+            holder.payeeView = (TextView) convertView.findViewById(R.id.activity_confirm_payee);
+            holder.amountView = (TextView) convertView.findViewById(R.id.amount_confirm3);
+            holder.transId = (TextView) convertView.findViewById(R.id.transacation_id);
+            holder.statusView = (TextView) convertView.findViewById(R.id.payment_status);
             holder.date = (TextView) convertView.findViewById(R.id.trans_date);
 
-			// hang onto this holder for future recyclage
-			convertView.setTag(holder);
-		} else {
+            // hang onto this holder for future recyclage
+            convertView.setTag(holder);
+        } else {
 
-			// skip all the expensive inflation/findViewById
-			// and just get the holder you already made
+            // skip all the expensive inflation/findViewById
+            // and just get the holder you already made
             Log.d(TAG, "convertView already exists, collecting ViewHolder");
-			holder = (ViewHolder) convertView.getTag();
-		}
+            holder = (ViewHolder) convertView.getTag();
+        }
 
         // Collect the data to adapt to this View
         Transaction trans = (Transaction) getItem(position);
-		Log.d(TAG, String.format("Building view for Transaction: %s", trans));
+        Log.d(TAG, String.format("Building view for Transaction: %s", trans));
 
         // Update view to reflect transaction
         Log.d(TAG, "Updating view to match transaction");
-		holder.transId.setText(trans.getId());
-		holder.amountView.setText(trans.getPrettyAmount());
-		holder.payerView.setText(trans.getFromUser());
-		holder.payeeView.setText(trans.getToUser());
-		holder.groupNoteview.setText(trans.getDescription());
+        holder.transId.setText(trans.getId());
+        holder.amountView.setText(trans.getPrettyAmount());
+        holder.payerView.setText(trans.getFromUser());
+        holder.payeeView.setText(trans.getToUser());
+        holder.groupNoteview.setText(trans.getDescription());
         holder.date.setText(trans.prettyDate().toString());
 
         // Attempt to identify and show the status of the transaction
-		if (trans.getStatus().equals(Transaction.STATUS.PENDING)) {
-			holder.statusView.setText(context.getText(R.string.trans_pending));
-			holder.statusView.setVisibility(View.VISIBLE);
-		}
-		else if (trans.getStatus().equals(Transaction.STATUS.DENIED)) {
-			holder.statusView.setText(context.getText(R.string.trans_denied));
-			holder.statusView.setVisibility(View.VISIBLE);
-		}
-		else if (trans.getStatus().equals(Transaction.STATUS.APPROVED)) {
-			holder.statusView.setText(context.getText(R.string.trans_approved));
-			holder.statusView.setVisibility(View.VISIBLE);
-		}
-		else {
+        if (trans.getStatus().equals(Transaction.STATUS.PENDING)) {
+            holder.statusView.setText(context.getText(R.string.trans_pending));
+            holder.statusView.setVisibility(View.VISIBLE);
+        } else if (trans.getStatus().equals(Transaction.STATUS.DENIED)) {
+            holder.statusView.setText(context.getText(R.string.trans_denied));
+            holder.statusView.setVisibility(View.VISIBLE);
+        } else if (trans.getStatus().equals(Transaction.STATUS.APPROVED)) {
+            holder.statusView.setText(context.getText(R.string.trans_approved));
+            holder.statusView.setVisibility(View.VISIBLE);
+        } else {
             Log.e(TAG, String.format("Transaction status \'%s\' could not be identified",
                     trans.getStatus()));
-			holder.statusView.setText("");
-			holder.statusView.setVisibility(View.GONE);
-		}
+            holder.statusView.setText("");
+            holder.statusView.setVisibility(View.GONE);
+        }
 
         // Outgoing transactions should be approvable/deniable
-		if(trans.getStatus().equals(Transaction.STATUS.PENDING) &&
-                trans.getType().equals(Transaction.TYPE.SENDING)){
-			Log.d(TAG, "It's a sending transaction, attaching listener");
+        if (trans.getStatus().equals(Transaction.STATUS.PENDING) &&
+                trans.getType().equals(Transaction.TYPE.SENDING)) {
+            Log.d(TAG, "It's a sending transaction, attaching listener");
             ViewListener listener = new ViewListener(context, trans.getId());
-			holder.decNeeded.setVisibility(View.VISIBLE); // Mark the transaction for the user
-			convertView.setOnClickListener(listener);
-		}
-		else {
+            holder.decNeeded.setVisibility(View.VISIBLE); // Mark the transaction for the user
+            convertView.setOnClickListener(listener);
+        } else {
             // Other transactions don't need to be marked
-			Log.d(TAG, "It's not a sending transaction");
-			holder.decNeeded.setVisibility(View.GONE);
-		}
-		return convertView;
-	}
-	
-	@Override
-	public int getCount() {
-	    return values.size();
-	}
+            Log.d(TAG, "It's not a sending transaction");
+            holder.decNeeded.setVisibility(View.GONE);
+        }
+        return convertView;
+    }
 
-	/**
-	 * This inner class helps collect Views for the getView() method above.
-	 */
-	private class ViewHolder {
-		public TextView groupNoteview;
-		public TextView decNeeded;
-		public TextView payerView;
-		public TextView payeeView;
-		public TextView amountView;
-		public TextView transId;
-		public TextView statusView;
+    @Override
+    public int getCount() {
+        Log.d(TAG, "Get Count: " + values.size());
+        return values.size();
+    }
+
+    /**
+     * This inner class helps collect Views for the getView() method above.
+     */
+    private class ViewHolder {
+        public TextView groupNoteview;
+        public TextView decNeeded;
+        public TextView payerView;
+        public TextView payeeView;
+        public TextView amountView;
+        public TextView transId;
+        public TextView statusView;
         public TextView date;
-	}
+    }
 
     /**
      * This helper class handles when a user clicks on a transaction
@@ -177,8 +178,8 @@ public class PaymentSummaryAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
-            String transId = (((TextView)  v.findViewById(R.id.transacation_id)).getText()).toString();
-            if(!transId.equals(transactionID)) {
+            String transId = (((TextView) v.findViewById(R.id.transacation_id)).getText()).toString();
+            if (!transId.equals(transactionID)) {
                 Log.e(TAG, String.format("Transaction ID mismatch: ListenerID: %s | TransID: %s",
                         transactionID, transId));
                 return;
@@ -186,7 +187,7 @@ public class PaymentSummaryAdapter extends BaseAdapter {
             Log.d(TAG, "Clicked on transaction: " + transId);
 
             ///////////////// Open Approve / Deny Dialog /////////////////
-            try{
+            try {
                 Log.d(TAG, "Creating dialog for transaction: " + transactionID);
                 final Dialog dialog = new Dialog(mContext);
                 dialog.setContentView(R.layout.dialog);
@@ -199,7 +200,7 @@ public class PaymentSummaryAdapter extends BaseAdapter {
                 Button buttonDis = (Button) dialog.findViewById(R.id.dialogButtonCancel);
 
                 // Communicate to user that transaction is processing
-                String payee = (((TextView)  v.findViewById(R.id.activity_confirm_payee)).getText()).toString();
+                String payee = (((TextView) v.findViewById(R.id.activity_confirm_payee)).getText()).toString();
                 text.setText(String.format(mContext.getResources().getString(R.string.trans_dialog_msg), payee));
 
                 // Create listeners to handle the dialog buttons
@@ -233,8 +234,7 @@ public class PaymentSummaryAdapter extends BaseAdapter {
                 });
 
                 dialog.show();
-            }
-            catch(Exception e){
+            } catch (Exception e) {
                 Log.e(TAG, String.format("Transaction dialog error: %s", e.getMessage()));
                 e.printStackTrace();
             }
@@ -242,12 +242,13 @@ public class PaymentSummaryAdapter extends BaseAdapter {
 
         /**
          * Generates an intent to approve or deny a transaction using push messages.
+         *
          * @param approve True if the action is approval, false otherwise.
-         * @param id The id of the transaction to act upon.
+         * @param id      The id of the transaction to act upon.
          */
-        public void approveTransaction(boolean approve, String id){
+        public void approveTransaction(boolean approve, String id) {
             final String serviceContext = "approveTransaction";
-            Intent intent = new Intent(mContext, RESTCalls.class);
+//            Intent intent = new Intent(mContext, RESTCalls.class);
             JSONObject obj = new JSONObject();
             try {
                 obj.put("username", Constants.userName);
@@ -262,7 +263,17 @@ public class PaymentSummaryAdapter extends BaseAdapter {
                     (approve ? "approve" : "deny"),
                     id);
 
-            // Construct the parameters of the REST request
+            JSONObject auth = new JSONObject();
+            try {
+                auth.put("type", "basic");
+                auth.put("username", Constants.userName);
+                auth.put("password", Constants.password);
+                Rest.post(url, auth, null, obj.toString(), mApprovalResponseHandler);
+            } catch (JSONException e) {
+
+            }
+
+/*            // Construct the parameters of the REST request
             intent.putExtra("method","put");
             intent.putExtra("url",url);
             intent.putExtra("body", obj.toString());
@@ -271,6 +282,8 @@ public class PaymentSummaryAdapter extends BaseAdapter {
                     (approve ? "approve" : "deny"), id);
             Log.d("approve_transaction", msg);
             mContext.startService(intent);
+            */
         }
     }
-} 
+
+}

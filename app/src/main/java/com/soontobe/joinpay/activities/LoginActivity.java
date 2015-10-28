@@ -1,11 +1,9 @@
 package com.soontobe.joinpay.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -19,17 +17,15 @@ import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-import android.util.Base64;
 
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.helpers.RESTCalls;
-import com.soontobe.joinpay.helpers.SendLocation;
+import com.soontobe.joinpay.helpers.Rest;
+import com.soontobe.joinpay.helpers.SendLocationService;
 
+import org.apache.http.HttpResponse;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 
 /**
  * This is the first activity that a user sees when they start the application.  It is a
@@ -38,19 +34,41 @@ import java.io.UnsupportedEncodingException;
  */
 public class LoginActivity extends Activity {
 
-    private final String serviceContext = "LoginActivity";
+    /**
+     * Debug Tag for this class.
+     */
     private static final String TAG = "login_activity";
+
+    /**
+     * Edit text for username.
+     */
     private EditText metUsername;
+
+    /**
+     * Edit text for password.
+     */
     private EditText metPassword;
 
-    // The login and "Need an account?" buttons
+    /**
+     * Login & "need an account?" button.
+     */
     private Button mbtnLogin, mbtnRegister;
+
+    /**
+     * To check if username is changed.
+     */
     private Boolean mbChangedUser = false;
 
+    /**
+     * Save the context of this activity.
+     */
     private Context mContext;
 
     // Used to send our location to other users
-    private SendLocation mLocationService;
+    /**
+     * Location service to keep publishing the location of the user.
+     */
+    private SendLocationService mLocationService;
 
     @Override
     protected final void onCreate(final Bundle savedInstanceState) {
@@ -60,10 +78,6 @@ public class LoginActivity extends Activity {
 
         mContext = this;
         initUI();
-        // This activity sends REST requests in order to log users in.  This sets it up
-        // to receive the results of these requests.
-        IntentFilter restIntentFilter = new IntentFilter(Constants.RESTRESP);
-        registerReceiver(restResponseReceiver, restIntentFilter);
     }
 
     /**
@@ -118,66 +132,8 @@ public class LoginActivity extends Activity {
 
     @Override
     protected final void onDestroy() {
-        try {
-            // remove the receiver
-            unregisterReceiver(restResponseReceiver);
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to unregister receiver: " + e.getMessage());
-        }
         super.onDestroy();
     }
-
-    /**
-     * Rest calls response receiver.
-     */
-    private BroadcastReceiver restResponseReceiver = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(final Context context, final Intent intent) {
-            String receivedServiceContext = intent.getStringExtra("context");
-
-            // Check that the response is actually intended for us.
-            if (serviceContext.equals(receivedServiceContext)) {
-                String response = intent.getStringExtra("response");
-                int httpCode = intent.getIntExtra("code", Constants.RESPONSE_403);
-                Log.d(TAG, String.format("Received %d Response: %s", httpCode, response));
-
-                findViewById(R.id.button_login).setEnabled(true);  // It's OK to send another request now
-                String message = "";
-                try {
-                    // Extract the message from the JSON
-                    JSONObject obj = new JSONObject(response);
-                    message = obj.optString("message", "error");
-                } catch (JSONException e) {
-                    Log.e(TAG, "Error parsing JSON response");
-                }
-
-                //// Http Codes ////
-                if (httpCode == Constants.RESPONSE_404) {
-                    Log.d(TAG, "failed, alerting user");
-                    Toast.makeText(getApplicationContext(), "Problem with server, try again later", Toast.LENGTH_SHORT).show();
-                } else if (httpCode == Constants.RESPONSE_401 || httpCode == Constants.RESPONSE_403) {
-                    Log.d(TAG, "invalid credentials, alerting user");
-                    Toast tmp = Toast.makeText(getApplicationContext(), "Invalid credentials", Toast.LENGTH_SHORT);
-                    tmp.setGravity(Gravity.TOP, Constants.TOP_X_OFFSET, Constants.TOP_Y_OFFSET);
-                    tmp.show();
-                } else if (httpCode == Constants.RESPONSE_200) {                                //200 = parse the response
-                    // Start the location service so other users can see you on their radars
-                    Log.d(TAG, "starting location service");
-                    Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocation.class);
-                    mContext.bindService(locationServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
-
-                    // MainActivity is currently the landing screen for the user
-                    Log.d(TAG, "starting main activity");
-                    Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
-                    startActivity(intentApplication);
-                } else {                                                            //??? = error, do nothing
-                    Log.e(TAG, "response not understoood");
-                    Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
-                }
-            }
-        }
-    };
 
     /**
      * This allows us to update the user's location in the database.
@@ -195,7 +151,7 @@ public class LoginActivity extends Activity {
             // interact with the service.  We are communicating with the
             // service using a Messenger, so here we get a client-side
             // representation of that from the raw IBinder object.
-            mLocationService = ((SendLocation.LocalBinder) service).getService();
+            mLocationService = ((SendLocationService.LocalBinder) service).getService();
             mLocationService.updateLocation();
             if (mLocationService != null) {
                 mContext.unbindService(mConnection);
@@ -219,8 +175,6 @@ public class LoginActivity extends Activity {
 
         @Override
         public void onClick(final View v) {
-            Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-
             JSONObject obj = new JSONObject();
             String usernameStr = metUsername.getText().toString().trim();
             String passStr = metPassword.getText().toString().trim();
@@ -246,38 +200,16 @@ public class LoginActivity extends Activity {
                 Log.d(tag, "Credentials validated locally. Beginning login process.");
                 findViewById(R.id.button_login).setEnabled(false);  // Don't want two of these processes firing off
                 Constants.userName = usernameStr; // Store current user name globally
-
-                // Pack user and password into a JSON object for the REST request.
+                Constants.password = passStr;
+                JSONObject auth = new JSONObject();
                 try {
-                    obj.put("username", Constants.userName);
-                    obj.put("password", passStr);
+                    auth.put("type", "basic");
+                    auth.put("username", Constants.userName);
+                    auth.put("password", passStr);
+                    Rest.post(Constants.baseURL + "/login", auth, null, auth.toString(), loginResponseHandler);
                 } catch (JSONException e) {
-                    Log.e(tag, "Failed to create user credential JSON: " + e.getMessage());
-                    Toast.makeText(getApplicationContext(), "Error creating JSON", Toast.LENGTH_SHORT).show();
+
                 }
-
-                ///// Basic Auth Stuff /////
-                byte[] data = null;
-                String encoding = "UTF-8";
-                try {
-                    data = (Constants.userName + ":" + passStr).getBytes(encoding);                  //convert to byte array
-                } catch (UnsupportedEncodingException e1) {
-                    Log.e(tag, "Failed to encode user credentials to " + encoding);
-                }
-                String base64 = Base64.encodeToString(data, Base64.DEFAULT).trim();                  //convert to base64 encoding
-                String[] header = {"Authorization", "Basic " + base64};
-
-                //// Build Req ////
-                String url = Constants.baseURL + "/login";
-                intent.putExtra("method", "post");
-                intent.putExtra("headers", header);
-                intent.putExtra("url", url);
-                intent.putExtra("body", obj.toString());
-                intent.putExtra("context", serviceContext);
-
-                Log.d(tag, "starting REST service");
-                startService(intent);
-
             }
         }
     };
@@ -294,4 +226,66 @@ public class LoginActivity extends Activity {
         }
     };
 
+    /**
+     * Shows a toast on the screen for short interval.
+     *
+     * @param message The message to be displayed on the screen
+     */
+    private void showUIMessage(final String message) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    /**
+     * Response handler for login http call.
+     */
+    private Rest.httpResponseHandler loginResponseHandler = new Rest.httpResponseHandler() {
+        @Override
+        public void handleResponse(final HttpResponse response, final boolean error) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    findViewById(R.id.button_login).setEnabled(true);  // It's OK to send another request now
+                }
+            });
+            if (!error) {
+                int httpCode = response.getStatusLine().getStatusCode();
+                switch (httpCode) {
+                    case Constants.RESPONSE_404:
+                        Log.d(TAG, "failed, alerting user");
+                        showUIMessage("Problem with server, try again later");
+                        break;
+
+                    case Constants.RESPONSE_401:
+                    case Constants.RESPONSE_403:
+                        Log.d(TAG, "invalid credentials, alerting user");
+                        showUIMessage("Invalid credentials");
+                        break;
+
+                    case Constants.RESPONSE_200:
+                        // Start the location service so other users can see you on their radars
+                        Log.d(TAG, "NEW starting location service");
+                        Intent locationServiceIntent = new Intent(getApplicationContext(), SendLocationService.class);
+                        mContext.bindService(locationServiceIntent, mConnection, Context.BIND_AUTO_CREATE);
+
+                        // MainActivity is currently the landing screen for the user
+                        Log.d(TAG, "NEW starting main activity");
+                        Intent intentApplication = new Intent(getApplicationContext(), MainActivity.class);
+                        startActivity(intentApplication);
+                        break;
+
+                    default:
+                        String message = response.getEntity().toString();
+                        showUIMessage(message);
+                        break;
+                }
+            } else {
+                showUIMessage("Error connecting to server. Check internet?");
+            }
+        }
+    };
 }

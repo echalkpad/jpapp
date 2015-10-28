@@ -34,14 +34,24 @@ import java.util.Set;
 */
 public class ContactListActivity extends ListActivity {
 
-	private final Set<String> nameSelected = new HashSet<>();
+	/**
+	 * List of selected usernames.
+	 */
+	private final Set<String> mNameSelected = new HashSet<>();
 
-	private ListView lv;
+	/**
+	 * List view showing the list of usernames.
+	 */
+	private ListView mListView;
 
-	// Listview Adapter
-	private ArrayAdapter<String> adapter;
+	/**
+	 * Adapter supporting the list view.
+	 */
+	private ArrayAdapter<String> mLVAdapter;
 
-	// Search EditText
+	/**
+	 * Edit text to search user.
+	 */
 	private EditText inputSearch;
 
 	@Override
@@ -86,21 +96,21 @@ public class ContactListActivity extends ListActivity {
 	private void setContactListView() {
 		// Setup the list view
 		int layoutType = android.R.layout.simple_list_item_multiple_choice;
-		lv = getListView();
+		mListView = getListView();
 		// Enable multiple choices
-		lv.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+		mListView.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
 
-		adapter = new ArrayAdapter<>(this, layoutType, Constants.contactNameList);
-		setListAdapter(adapter);
+		mLVAdapter = new ArrayAdapter<>(this, layoutType, Constants.contactNameList);
+		setListAdapter(mLVAdapter);
 
 		// When an item is clicked, flip the checkbox
-		lv.setOnItemClickListener(new OnItemClickListener() {
+		mListView.setOnItemClickListener(new OnItemClickListener() {
 			public void onItemClick(final AdapterView<?> myAdapter, final View myView, final int position, final long mylng) {
-				String name = (String) (lv.getItemAtPosition(position));
-				if (lv.isItemChecked(position)) {
-					nameSelected.add(name);
+				String name = (String) (mListView.getItemAtPosition(position));
+				if (mListView.isItemChecked(position)) {
+					mNameSelected.add(name);
 				} else {
-					nameSelected.remove(name);
+					mNameSelected.remove(name);
 				}
 			}
 		});
@@ -122,14 +132,14 @@ public class ContactListActivity extends ListActivity {
 					clearButton.setVisibility(View.VISIBLE);
 				}
 				// When user changed the Text, filter the users
-				adapter.getFilter().filter(cs, new FilterListener() {
+				mLVAdapter.getFilter().filter(cs, new FilterListener() {
 					@Override
 					public void onFilterComplete(final int count) {
-						for (int i = 0; i < adapter.getCount(); i++) {
-							if (nameSelected.contains(adapter.getItem(i))) {
-								lv.setItemChecked(i, true);
+						for (int i = 0; i < mLVAdapter.getCount(); i++) {
+							if (mNameSelected.contains(mLVAdapter.getItem(i))) {
+								mListView.setItemChecked(i, true);
 							} else {
-								lv.setItemChecked(i, false);
+								mListView.setItemChecked(i, false);
 							}
 						}
 					}
@@ -166,9 +176,9 @@ public class ContactListActivity extends ListActivity {
 	 */
 	public final void addContactAndBackToMain(final View v) {
 		Intent data = new Intent();
-		String strArray[] = nameSelected.toArray(new String[nameSelected.size()]);
+		String strArray[] = mNameSelected.toArray(new String[mNameSelected.size()]);
 		data.putExtra("name", strArray);
-		data.setData(Uri.parse(nameSelected.toString()));
+		data.setData(Uri.parse(mNameSelected.toString()));
 		setResult(RESULT_OK, data);
 		finish();
 	}

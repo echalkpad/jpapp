@@ -1,10 +1,7 @@
 package com.soontobe.joinpay.activities;
 
 import android.app.Activity;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -20,8 +17,10 @@ import android.widget.Toast;
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.adapters.AccountJSONAdapter;
-import com.soontobe.joinpay.helpers.RESTCalls;
+import com.soontobe.joinpay.helpers.Rest;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,41 +31,70 @@ import org.json.JSONObject;
  */
 public class CitiAccountActivity extends Activity {
 
-	/** For navigating the JSONs from the Citi API. */
+	/**
+	 * "accounts" key For navigating the JSONs from the Citi API.
+	 */
 	private static final String TAG_ACCOUNTS = "accounts";
-    private static final String TAG_FIRST_NAME = "first_name";
-    private static final String TAG_LAST_NAME = "last_name";
 
-	private static final String CONTEXT_STRING = "CitiAccountActivity";
-    private static final String TAG = "citi";
+	/**
+	 * "first_name" key For navigating the JSONs from the Citi API.
+	 */
+	private static final String TAG_FIRST_NAME = "first_name";
+
+	/**
+	 * "last_name" key For navigating the JSONs from the Citi API.
+	 */
+	private static final String TAG_LAST_NAME = "last_name";
+
+	/**
+	 * Debug tag for this class.
+	 */
+	private static final String TAG = "citi";
+
+	/**
+	 * To store the context when in this activity.
+	 */
 	private Context mContext;
+
+	/**
+	 * To store the username edit text object.
+	 */
 	private EditText metUsername;
+
+	/**
+	 * To store the password edit text object.
+	 */
 	private EditText metPassword;
 
-	// For displaying the list of accounts.
+	/**
+	 * Listview to display the list of accounts.
+	 */
 	private ListView mlvAccounts;
+
+	/**
+	 * Adapter supporting the accounts list view.
+	 */
 	private AccountJSONAdapter mAdapter;
+
+	/**
+	 * The wait spinner when accounts are being loaded.
+	 */
 	private ProgressBar mpbSpinner;
 
 	@Override
 	protected final void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-        Log.d(TAG, "Creating CitiAccountActivity");
-		setContentView(R.layout.layout_citi_account);
+		Log.d(TAG, "Creating CitiAccountActivity");
 
 		//No Title Bar
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
+		setContentView(R.layout.layout_citi_account);
 
 		// Get application context
 		mContext = getApplicationContext();
 
 		// Init UI
 		initUI();
-
-		// Set receiver on REST Calls
-		IntentFilter restIntentFilter = new IntentFilter(
-				Constants.RESTRESP);
-		registerReceiver(bcReceiver, restIntentFilter);
 
 		// Get account info
 		getAccountInfo(Constants.userName);
@@ -89,82 +117,22 @@ public class CitiAccountActivity extends Activity {
 
 	@Override
 	protected final void onDestroy() {
-		try {
-			//remove the receiver
-			unregisterReceiver(bcReceiver);
-		} catch (Exception e) {
-
-		}
-	    super.onDestroy();
+		super.onDestroy();
 	}
 
 	/**
 	 * Shows a toast on the screen for short interval.
+	 *
 	 * @param message The message to be displayed on the screen
 	 */
 	private void showUIMessage(final String message) {
-		Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
-	}
-
-	private BroadcastReceiver bcReceiver = new BroadcastReceiver() {
-		@Override
-		public void onReceive(final Context context,
-							  final Intent intent) {
-			String receivedServiceContext =
-					intent.getStringExtra("context");
-			String url = intent.getStringExtra("url");
-			int responseCode = intent.getIntExtra("code", 0);
-
-			if (CONTEXT_STRING.equals(receivedServiceContext)) {
-				// If the response if for get my account
-				if (url.equals(Constants.baseURL
-						+ "/myAccount")) {
-					if (responseCode == Constants.RESPONSE_404) {
-						// If there is not citi account linked,
-						// Ask to link a citi account
-						runOnUiThread(mrHandleAccountNotFound);
-					} else if (responseCode == Constants.RESPONSE_200) {
-						// If we get the details,
-						// show the account details on the screen
-						String response = intent.getStringExtra("response");
-						JSONObject obj;
-						try {
-							obj = new JSONObject(response);
-						} catch (JSONException e) {
-							showUIMessage("Unable to get the info. Please try again.");
-							e.printStackTrace();
-							return;
-						}
-						showAccount(obj);
-					} else {
-						// If there is any other response,
-						// show error on screen
-						showUIMessage("Error: Server Error");
-					}
-				} else if (url.equals(Constants.baseURL + "/registerAccount")) {
-					// If we are registering a new account
-					if (responseCode == Constants.RESPONSE_200) {
-						// The account is registered,
-						// show details on screen
-						String response = intent.getStringExtra("response");
-						JSONObject obj;
-						try {
-							obj = new JSONObject(response);
-						} catch (JSONException e) {
-							showUIMessage("Unable to get the info. Please try again.");
-							e.printStackTrace();
-							return;
-						}
-						showAccount(obj);
-					} else if (responseCode == Constants.RESPONSE_403) {
-						showUIMessage("Invalid username/password");
-					} else {
-						showUIMessage("Error: Server Error");
-					}
-				}
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				Toast.makeText(mContext, message, Toast.LENGTH_SHORT).show();
 			}
-		}
-	};
+		});
+	}
 
 	/**
 	 * To handle account not found response.
@@ -186,13 +154,15 @@ public class CitiAccountActivity extends Activity {
 
 	/**
 	 * Parses a JSON object containing user account information and populates it to the screen.
+	 *
 	 * @param accountDetails The account information to be parsed.
 	 */
 	protected final void showAccount(final JSONObject accountDetails) {
 
+
 		// Attempt to pull the users accounts from the given JSON
 		Log.d(TAG, "Parsing account details.");
-        JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
+		JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
 		if (accounts == null) {
 			Log.e(TAG, "Tag:\"" + TAG_ACCOUNTS + "\" yielded no account information.");
 			mpbSpinner.setVisibility(View.GONE);
@@ -200,15 +170,16 @@ public class CitiAccountActivity extends Activity {
 			return;
 		}
 
-        // Parse out the users name from the JSON
-        String first = accountDetails.optString(TAG_FIRST_NAME);
-        String last = accountDetails.optString(TAG_LAST_NAME);
-        String name = first + " " + last;
-        if (first == null || last == null) {
-            Log.e(TAG, "Tags:\"" + TAG_FIRST_NAME + "\" and \"" + TAG_LAST_NAME
+		Log.d("AccountDetails", accountDetails.toString());
+		// Parse out the users name from the JSON
+		String first = accountDetails.optString(TAG_FIRST_NAME);
+		String last = accountDetails.optString(TAG_LAST_NAME);
+		String name = first + " " + last;
+		if (first == null || last == null) {
+			Log.e(TAG, "Tags:\"" + TAG_FIRST_NAME + "\" and \"" + TAG_LAST_NAME
 					+ "\" yielded \"" + name + "\"");
-            name = "@string/citi_fallback_holder";
-        }
+			name = "@string/citi_fallback_holder";
+		}
 
 		// Update the adapter's dataset
 		mAdapter.updateData(accounts, name);
@@ -224,44 +195,128 @@ public class CitiAccountActivity extends Activity {
 		public void onClick(final View v) {
 			String username = metUsername.getText().toString();
 			String password = metPassword.getText().toString();
-			JSONObject authpair = new JSONObject();
+			JSONObject auth = new JSONObject();
 			try {
-				authpair.put("username", username);
-				authpair.put("password", password);
+				auth.put("type", "basic");
+				auth.put("username", username);
+				auth.put("password", password);
+				Rest.post(Constants.baseURL + "/registerAccount", auth, null, auth.toString(), registerAccountResponseHandler);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+
 			}
-
-//			Log.d("citi", authpair.toString());
-			String url = Constants.baseURL + "/registerAccount";
-			Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-			intent.putExtra("method", "post");
-			intent.putExtra("body", authpair.toString());
-			intent.putExtra("url", url);
-			intent.putExtra("context", CONTEXT_STRING);
-
-			Log.d("Citi Account Login", "starting Service");
-			startService(intent);
 		}
 	};
 
 	/**
 	 * HTTP get performed to get the account info for the username.
+	 *
 	 * @param username The username of the account of which the details are requested
 	 */
 	private void getAccountInfo(final String username) {
-		String url = Constants.baseURL + "/myAccount";
-		Intent intent = new Intent(getApplicationContext(), RESTCalls.class);
-		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		intent.putExtra("method", "get");
-		intent.putExtra("url", url);
-//		intent.putExtra("body", );
-		intent.putExtra("context", CONTEXT_STRING);
+		JSONObject auth = new JSONObject();
+		try {
+			auth.put("type", "basic");
+			auth.put("username", Constants.userName);
+			auth.put("password", Constants.password);
+			Rest.get(Constants.baseURL + "/myAccount", auth, null, getAccountResponseHandler);
+		} catch (JSONException e) {
 
-		Log.d("Get myAccount", "starting Service");
-		startService(intent);
+		}
 	}
 
-}
+	/**
+	 * Response handler for get accounts http call.
+	 */
+	private Rest.httpResponseHandler getAccountResponseHandler = new Rest.httpResponseHandler() {
+		@Override
+		public void handleResponse(final HttpResponse response, final boolean error) {
+			runOnUiThread(new Runnable() {
+				@Override
+				public void run() {
+					Button btn = (Button) findViewById(R.id.button_login);
+					if (btn != null) {
+						btn.setEnabled(true);  // It's OK to send another request now
+					}
+				}
+			});
+			if (!error) {
+				int responseCode = response.getStatusLine().getStatusCode();
+				switch (responseCode) {
+					case Constants.RESPONSE_404:
+						runOnUiThread(mrHandleAccountNotFound);
+						break;
 
+					case Constants.RESPONSE_200:
+						// If we get the details,
+						// show the account details on the screen
+						String responseStr = "";
+						final JSONObject obj;
+						try {
+							responseStr = EntityUtils.toString(response.getEntity());
+							obj = new JSONObject(responseStr);
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									showAccount(obj);
+								}
+							});
+						} catch (Exception e) {
+							e.printStackTrace();
+							showUIMessage("Unable to get the info. Please try again.");
+							e.printStackTrace();
+							return;
+						}
+						break;
+
+					default:
+						showUIMessage("Error: Server Error");
+						break;
+
+				}
+			} else {
+				showUIMessage("Error: Server Error");
+			}
+		}
+	};
+
+	/**
+	 * Response handler for register account http call
+	 */
+	private Rest.httpResponseHandler registerAccountResponseHandler = new Rest.httpResponseHandler() {
+		@Override
+		public void handleResponse(final HttpResponse response, final boolean error) {
+			if (!error) {
+				int responseCode = response.getStatusLine().getStatusCode();
+				switch (responseCode) {
+					case Constants.RESPONSE_200:
+						final JSONObject obj;
+						try {
+							String responseStr = EntityUtils.toString(response.getEntity());
+							obj = new JSONObject(responseStr);
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									showAccount(obj);
+								}
+							});
+						} catch (Exception e) {
+							showUIMessage("Unable to get the info. Please try again.");
+							e.printStackTrace();
+							return;
+						}
+						break;
+
+					case Constants.RESPONSE_403:
+						showUIMessage("Invalid username/password");
+						break;
+
+					default:
+						showUIMessage("Error: Server Error");
+						break;
+				}
+			} else {
+				showUIMessage("Error: Server Error. Please try again.");
+			}
+		}
+	};
+}
