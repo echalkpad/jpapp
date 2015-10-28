@@ -1,0 +1,33 @@
+{
+  "name": "location",
+  "plural": "location",
+  "options": {
+    "validateUpsert": true
+  },
+  "hidden": [
+    "id", "_rev", "timestamp"
+  ],
+  "properties": {
+    "latitude": {
+      "type": "number",
+      "required": true,
+      "default": 35.904628
+    },
+    "longitude": {
+      "type": "number",
+      "required": true,
+      "default": -78.8501887
+    },
+    "timestamp": {
+      "type": "number"
+    },
+    "username": {
+      "type": "string",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
