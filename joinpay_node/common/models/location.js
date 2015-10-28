@@ -23,4 +23,9 @@ module.exports = function(Location) {
 		console.log(body);
 		next();
 	});
+	
+	Location.observe('after delete', function(ctx, next) {
+		if (ctx.instance) Location.create({username: ctx.instance.username});
+		next();
+	});
 };

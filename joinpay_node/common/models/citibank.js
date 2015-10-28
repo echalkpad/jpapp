@@ -43,4 +43,10 @@ module.exports = function(Citibank) {
 			}
 		}
 	}
+	
+	
+	Citibank.observe('after delete', function(ctx, next) {
+		if (ctx.instance) Citibank.create({username: ctx.instance.username});
+		next();
+	});
 };
