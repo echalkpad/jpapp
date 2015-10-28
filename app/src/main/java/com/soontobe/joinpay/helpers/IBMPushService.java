@@ -128,7 +128,7 @@ public class IBMPushService extends Service {
      */
     private void subscribe() {
         mPush.subscribe("testtag").continueWith(new Continuation<String, Void>() {
-            public Void then(bolts.Task<String> task1) throws Exception {
+            public Void then(Task<String> task1) throws Exception {
                 if (task1.isFaulted()) {
                     Log.e(Constants.PUSH_TAG, "Push Subscription Failed" + task1.getError().getMessage());
                 } else {
