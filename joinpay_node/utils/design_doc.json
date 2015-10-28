@@ -1,0 +1,17 @@
+{
+  "_id": "_design/joinpay",
+  "views": {
+    "users": {
+      "map": "function (doc) { if (doc.loopbackModel == 'user') return emit(doc.loopbackModel, null); }"
+    },
+    "citibanks": {
+      "map": "function (doc) { if (doc.loopbackModel == 'citibank') return emit(doc.loopbackModel, null); }"
+    },
+    "locations": {
+      "map": "function (doc) { if (doc.loopbackModel == 'location') return emit(doc.loopbackModel, null); }"
+    },
+	"transactions": {
+      "map": "function (doc) { if (doc.loopbackModel == 'transaction') return emit(doc.loopbackModel, null); }"
+    }
+  }
+}
