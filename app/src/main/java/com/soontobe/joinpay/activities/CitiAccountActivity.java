@@ -15,12 +15,11 @@ import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.Globals;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.adapters.AccountJSONAdapter;
 import com.soontobe.joinpay.helpers.Rest;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,7 +96,7 @@ public class CitiAccountActivity extends Activity {
 		initUI();
 
 		// Get account info
-		getAccountInfo(Constants.userName);
+		getAccountInfo();
 	}
 
 	/**
@@ -160,9 +159,10 @@ public class CitiAccountActivity extends Activity {
 	protected final void showAccount(final JSONObject accountDetails) {
 
 
+		JSONObject citibank = accountDetails.optJSONObject("citibank");
 		// Attempt to pull the users accounts from the given JSON
 		Log.d(TAG, "Parsing account details.");
-		JSONArray accounts = accountDetails.optJSONArray(TAG_ACCOUNTS);
+		JSONArray accounts = citibank.optJSONArray(TAG_ACCOUNTS);
 		if (accounts == null) {
 			Log.e(TAG, "Tag:\"" + TAG_ACCOUNTS + "\" yielded no account information.");
 			mpbSpinner.setVisibility(View.GONE);
@@ -172,8 +172,8 @@ public class CitiAccountActivity extends Activity {
 
 		Log.d("AccountDetails", accountDetails.toString());
 		// Parse out the users name from the JSON
-		String first = accountDetails.optString(TAG_FIRST_NAME);
-		String last = accountDetails.optString(TAG_LAST_NAME);
+		String first = citibank.optString(TAG_FIRST_NAME);
+		String last = citibank.optString(TAG_LAST_NAME);
 		String name = first + " " + last;
 		if (first == null || last == null) {
 			Log.e(TAG, "Tags:\"" + TAG_FIRST_NAME + "\" and \"" + TAG_LAST_NAME
@@ -195,12 +195,14 @@ public class CitiAccountActivity extends Activity {
 		public void onClick(final View v) {
 			String username = metUsername.getText().toString();
 			String password = metPassword.getText().toString();
-			JSONObject auth = new JSONObject();
+			JSONObject body = new JSONObject();
 			try {
-				auth.put("type", "basic");
-				auth.put("username", username);
-				auth.put("password", password);
-				Rest.post(Constants.baseURL + "/registerAccount", auth, null, auth.toString(), registerAccountResponseHandler);
+				body.put("type", "basic");
+				body.put("citi_account", username);
+				body.put("citi_password", password);
+				String url = Constants.baseURL + "/users/" + Constants.userName + "/citibank?"
+						+ "access_token=" + Globals.msToken;
+				Rest.put(url, null, null, body.toString(), registerAccountResponseHandler);
 			} catch (JSONException e) {
 
 			}
@@ -209,27 +211,19 @@ public class CitiAccountActivity extends Activity {
 
 	/**
 	 * HTTP get performed to get the account info for the username.
-	 *
-	 * @param username The username of the account of which the details are requested
 	 */
-	private void getAccountInfo(final String username) {
-		JSONObject auth = new JSONObject();
-		try {
-			auth.put("type", "basic");
-			auth.put("username", Constants.userName);
-			auth.put("password", Constants.password);
-			Rest.get(Constants.baseURL + "/myAccount", auth, null, getAccountResponseHandler);
-		} catch (JSONException e) {
-
-		}
+	private void getAccountInfo() {
+		String url = Constants.baseURL + "/users/" + Constants.userName + "/citibank/details?" + "access_token=" + Globals.msToken
+				+ "&username=" + Constants.userName;
+		Rest.get(url, null, null, getAccountsResponseHandler);
 	}
 
 	/**
 	 * Response handler for get accounts http call.
 	 */
-	private Rest.httpResponseHandler getAccountResponseHandler = new Rest.httpResponseHandler() {
+	private Rest.httpResponseHandler getAccountsResponseHandler = new Rest.httpResponseHandler() {
 		@Override
-		public void handleResponse(final HttpResponse response, final boolean error) {
+		public void handleResponse(final JSONObject response, final boolean error) {
 			runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
@@ -240,7 +234,14 @@ public class CitiAccountActivity extends Activity {
 				}
 			});
 			if (!error) {
-				int responseCode = response.getStatusLine().getStatusCode();
+				int responseCode = 0;
+				try {
+					responseCode = response.getInt("responseCode");
+				} catch (JSONException e) {
+					e.printStackTrace();
+					showUIMessage("Unable to get the info. Please try again.");
+					return;
+				}
 				switch (responseCode) {
 					case Constants.RESPONSE_404:
 						runOnUiThread(mrHandleAccountNotFound);
@@ -252,7 +253,7 @@ public class CitiAccountActivity extends Activity {
 						String responseStr = "";
 						final JSONObject obj;
 						try {
-							responseStr = EntityUtils.toString(response.getEntity());
+							responseStr = response.getString("data");
 							obj = new JSONObject(responseStr);
 							runOnUiThread(new Runnable() {
 								@Override
@@ -263,7 +264,6 @@ public class CitiAccountActivity extends Activity {
 						} catch (Exception e) {
 							e.printStackTrace();
 							showUIMessage("Unable to get the info. Please try again.");
-							e.printStackTrace();
 							return;
 						}
 						break;
@@ -280,23 +280,31 @@ public class CitiAccountActivity extends Activity {
 	};
 
 	/**
-	 * Response handler for register account http call
+	 * Response handler for register account http call.
 	 */
 	private Rest.httpResponseHandler registerAccountResponseHandler = new Rest.httpResponseHandler() {
 		@Override
-		public void handleResponse(final HttpResponse response, final boolean error) {
+		public void handleResponse(final JSONObject response, final boolean error) {
 			if (!error) {
-				int responseCode = response.getStatusLine().getStatusCode();
+				int responseCode = 0;
+				try {
+					responseCode = response.getInt("responseCode");
+				} catch (JSONException e) {
+					showUIMessage("Unable to get the info. Please try again.");
+					e.printStackTrace();
+					return;
+				}
 				switch (responseCode) {
 					case Constants.RESPONSE_200:
 						final JSONObject obj;
 						try {
-							String responseStr = EntityUtils.toString(response.getEntity());
+							String responseStr = response.getString("data");
 							obj = new JSONObject(responseStr);
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									showAccount(obj);
+									showUIMessage("Account Linked Successfully");
+									finish();
 								}
 							});
 						} catch (Exception e) {

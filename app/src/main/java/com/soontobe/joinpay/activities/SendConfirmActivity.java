@@ -15,18 +15,16 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.soontobe.joinpay.Constants;
+import com.soontobe.joinpay.Globals;
 import com.soontobe.joinpay.R;
 import com.soontobe.joinpay.adapters.PaymentSummaryAdapter;
 import com.soontobe.joinpay.helpers.Rest;
 import com.soontobe.joinpay.model.Transaction;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.util.EntityUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -216,23 +214,33 @@ public class SendConfirmActivity extends ListActivity {
 
 		Constants.debug(users);
 		JSONArray arr = new JSONArray();
+		String url = Constants.baseURL + "/users/" + Constants.userName + "/credits?"
+				+ "access_token=" + Globals.msToken;
 		for (int i = 0; i < users.size(); i++) {
 			JSONObject obj = new JSONObject();
 			try {
-				obj.put("username", users.get(i));
-				obj.put("amount", amount.get(i));
+				obj.put("fromUser", users.get(i));
+				obj.put("toUser", Constants.userName);
+				// Clean up amount due to change in apis
+				String amountStr = amount.get(i);
+				if (amountStr.startsWith("$ ")) {
+					amountStr = amountStr.replace("$ ", "");
+				} else if (amountStr.startsWith("$")) {
+					amountStr = amountStr.replace("$", "");
+				}
+				obj.put("amount", amountStr);
+				obj.put("description", groupNote);
 				arr.put(obj);
+				Rest.post(url, null, null, obj.toString(), chargeResponseHandler);
 			} catch (JSONException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
 
-		try {
+/*		try {
 			objTransaction.put("charges", arr);
 			objTransaction.put("description", groupNote);
 		} catch (JSONException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -249,7 +257,7 @@ public class SendConfirmActivity extends ListActivity {
 		} catch (JSONException e) {
 
 		}
-
+*/
 	}
 
 	/**
@@ -271,14 +279,17 @@ public class SendConfirmActivity extends ListActivity {
 	 */
 	private Rest.httpResponseHandler chargeResponseHandler = new Rest.httpResponseHandler() {
 		@Override
-		public void handleResponse(final HttpResponse response, final boolean error) {
+		public void handleResponse(final JSONObject response, final boolean error) {
 			if (!error) {
-				int responseCode = response.getStatusLine().getStatusCode();
+				int responseCode = 0;
 				String responseStr = "";
 				try {
-					responseStr = EntityUtils.toString(response.getEntity());
-				} catch (IOException e) {
+					responseStr = response.getString("data");
+					responseCode = response.getInt("responseCode");
+				} catch (JSONException e) {
 					e.printStackTrace();
+					showUIMessage("Invalid response from server, please try again.");
+					return;
 				}
 				switch (responseCode) {
 					case Constants.RESPONSE_200:                                                //200 = return the UI control
@@ -299,26 +310,14 @@ public class SendConfirmActivity extends ListActivity {
 						break;
 
 					case Constants.RESPONSE_502: // Retry
-						Log.d("confirm", "Received 502, trying again");
-						Log.d("confirm", objTransaction.toString());
+						String message1 = "Unknown issue with server, try again later";
+						showUIMessage(message1);
 						runOnUiThread(new Runnable() {
 							@Override
 							public void run() {
-								findViewById(R.id.transaction_confirm_button).setEnabled(false);
+								findViewById(R.id.transaction_confirm_button).setEnabled(true);
 							}
 						});
-
-						JSONObject auth = new JSONObject();
-						JSONObject headers = new JSONObject();
-						try {
-							auth.put("type", "basic");
-							auth.put("username", Constants.userName);
-							auth.put("password", Constants.password);
-							headers.put("Content-Type", "application/json");
-							Rest.post(Constants.baseURL + "/charge", auth, headers, objTransaction.toString(), chargeResponseHandler);
-						} catch (JSONException e) {
-
-						}
 						break;
 
 					default: // Let user try again

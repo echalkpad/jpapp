@@ -15,6 +15,9 @@ import static com.ibm.mobile.services.data.internal.CLClientManager.runOnUiThrea
  * Created by mrshah on 10/26/2015.
  */
 public class Globals {
+
+    public static String msToken;
+
     public static BroadcastReceiver onPushNotificationReceived = new BroadcastReceiver() {
         @Override
         public void onReceive(final Context context, Intent intent) {
