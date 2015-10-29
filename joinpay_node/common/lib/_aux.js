@@ -8,11 +8,12 @@
  *   David Huffman - Initial implementation
  *******************************************************************************/
  
- var rest = require('../../utils/rest');
+var rest = require('../../utils/rest');
 
 //get account data from citi bank APIs
 module.exports.get_citi_account = function (username, next, cb){
 	console.log('citi account:', username);
+
 	var options = 	{
 						host: "citi-online-banking.mybluemix.net",
 						path: "/api/account/" + username,
