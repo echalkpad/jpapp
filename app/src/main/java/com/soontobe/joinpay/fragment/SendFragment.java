@@ -29,10 +29,10 @@ public class SendFragment extends TransactionFragment {
     public final ArrayList<String[]> getPaymentInfo() {
         ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
         Log.d(TAG, "sending from: " + Constants.userName);
-        for (UserInfo info : mUserInfoList) {
-            if (info.isSelecetd()) {
+        for (UserInfo info : mUserBubbles.keySet()) {
+            if (info.isSelected()) {
                 if (!info.getUserName().equals(Constants.userName)) {
-                    String[] item = {"normal", info.getPersonalNote(),
+                    String[] item = {"normal", "", // No personal notes
                             myUserInfo.getUserName(), info.getUserName(),
                             "$ " + String.format("%.2f", info
                                     .getAmountOfMoney()),
@@ -56,7 +56,7 @@ public class SendFragment extends TransactionFragment {
         String strDate = sdf.format(c.getTime());
 
         String[] summary = {"summary", strDate,
-                String.valueOf(getSelectedUserSize()),
+                String.valueOf(keeper.selectedUsers()),
                 "$ " + mTotalAmount.getText().toString()};
         paymentInfo.add(summary);
         return paymentInfo;

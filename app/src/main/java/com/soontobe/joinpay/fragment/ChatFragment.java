@@ -20,6 +20,11 @@ import com.soontobe.joinpay.R;
 public class ChatFragment extends Fragment {
 
     /**
+     * For tagging logs from this Fragment.
+     */
+    private static final String TAG = "chat";
+
+    /**
      * The View that is created by the inflater in OnCreateView.
      */
     private View mCurrentView;
@@ -69,12 +74,26 @@ public class ChatFragment extends Fragment {
 
         // Connect the WebView to our online BusinessHub chat client
         mWebView = (WebView) mCurrentView.findViewById(R.id.webView);
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-        Log.d("chat", "connecting chat to url");
-        mWebView.loadUrl(getResources().getString(R.string.test_chat_url));
-        mWebView.setWebViewClient(new WebViewClient());
+
+        // Initialize the UI
+        initUI();
 
         return mCurrentView;
+    }
+
+    /**
+     * Configures the WebView for and connects the WebView to the
+     * online chat client.
+     */
+    private void initUI() {
+
+        // Javascript is needed to for the online chat to work.
+        WebSettings settings = mWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
+
+        // Load the chat page.
+        Log.d(TAG, "connecting chat to url");
+        mWebView.loadUrl(getResources().getString(R.string.test_chat_url));
+        mWebView.setWebViewClient(new WebViewClient());
     }
 }

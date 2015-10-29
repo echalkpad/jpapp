@@ -323,7 +323,7 @@ HistoryFragment.OnFragmentInteractionListener {
 		if (TAG_REQUEST.equals(tabId)) {
 			Log.d("tab", "changing tab to request");
 			mFragmentInitState[1] = true;
-			mRequestFragment.setMyName(Constants.userName);
+			//mRequestFragment.setMyName(Constants.userName);
 			//start nearby task again if its dead
 			if (mAsyncTaskNearby == null) {
 				mAsyncTaskNearby = new NearbyUsersAsyncTask();
@@ -342,8 +342,6 @@ HistoryFragment.OnFragmentInteractionListener {
 			}
 			fm.beginTransaction().replace(R.id.tab_history, mHistoryFragment, TAG_HISTORY).commit();
 
-			//Reset selected users and amounts
-			onClickClearButton(mTabHost);
 		} else if (TAG_CHAT.equals(tabId)) {
 			Log.d("tab", "changing tab to chat");
 
@@ -357,16 +355,6 @@ HistoryFragment.OnFragmentInteractionListener {
 		} else {
 			Log.w("RadViewAct_onTabChanged", "Cannot find tab id=" + tabId);
 		}
-
-		/*// change history tab color. Should be refactored later.
-		if (tabId.equals("tab_history")) {
-			mTabHost.getTabWidget().getChildAt(mTabHost.getCurrentTab()).setBackgroundColor(Color.parseColor("#2F5687"));//light navy blue
-		} else {
-			//TabWidget tabWidget = mTabHost.getTabWidget();
-			//tabWidget.getChildAt(2).setBackgroundColor(Color.rgb(0xe6, 0xe6, 0xe6));
-		}*/
-
-
 	}
 
 	@Override
@@ -394,7 +382,7 @@ HistoryFragment.OnFragmentInteractionListener {
 						if (!usedPositionsListSendFragment.contains(i)) {
 							Log.d("bubble", "adding user to position: " + i);
 							namesOnScreen.add(name);
-							mRequestFragment.addContactToView(name, i);
+							mRequestFragment.addContactToView(name);
 							usedPositionsListSendFragment.add(i);
 							foundFree = true;
 							break;
@@ -456,21 +444,7 @@ HistoryFragment.OnFragmentInteractionListener {
 	 * @param v View of the back button
 	 */
 	public final void onClickBackButton(final View v) {
-//		Intent i = new Intent(this, MainActivity.class);
-//		startActivity(i);
 		finish();
-	}
-
-	/**
-	 * On click listener for the clear button.
-	 * @param v View of the clear button
-	 */
-	public final void onClickClearButton(final View v) {
-		TransactionFragment.clearUserMoneyAmount();
-
-		//Clear total lock state
-		lockInfo.put("total", false);
-		findViewById(R.id.edit_text_total_amount).setEnabled(false);
 	}
 
 	@Override
@@ -559,7 +533,7 @@ HistoryFragment.OnFragmentInteractionListener {
 										}
 										if (!usedPositionsListSendFragment.contains(pos)) {
 											namesOnScreen.add(user);
-											mRequestFragment.addContactToView(user, pos);
+											mRequestFragment.addContactToView(user);
 											usedPositionsListSendFragment.add(pos);
 										} else {
 											i--;
@@ -660,7 +634,7 @@ HistoryFragment.OnFragmentInteractionListener {
 										}
 										if (!usedPositionsListSendFragment.contains(pos)) {
 											namesOnScreen.add(user);
-											mRequestFragment.addContactToView(user, pos);
+											mRequestFragment.addContactToView(user);
 											usedPositionsListSendFragment.add(pos);
 										} else {
 											i--;

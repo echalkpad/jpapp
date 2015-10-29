@@ -4,4 +4,5 @@
     <color name="account_border">#ffffff</color>
     <dimen name="text_title_size">22sp</dimen>
     <color name="push_msg_text">#000</color>
+    <color name="radar_blue_light">#6262FF</color>
 </resources>

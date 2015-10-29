@@ -1,254 +1,117 @@
 package com.soontobe.joinpay.widget;
 
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.PopupWindow;
 import android.widget.TextView;
 
-import com.echo.holographlibrary.PieGraph;
-import com.echo.holographlibrary.PieSlice;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.fragment.TransactionFragment;
 import com.soontobe.joinpay.model.UserInfo;
-
-import java.util.ArrayList;
 
 
 /**
- * Customized PopupWindow 
- * This popupwindow will show when editing the transaction details with someone
- *
+ * This customized popup windows allows users to edit transaction
+ * details for a specific user.
  */
 public class BigBubblePopupWindow extends PopupWindow {
-	final public int LAYOUT_ID = R.id.layout_big_bubble;
-	final public String TAG = "BIG_BUBBLE";
-	private UserInfo mUserInfo;
-	private PieGraph mPieGraph;	  				//Outer torus which will be further developed to show the ratio of different types of transaction
-	private Button mLockButton;   				//Lock button
-	private EditText mEditText;   				//Amount of money
-	//private EditText mEditPersonalNote;  		//Personal note editor
-	private TextView mTextView; 			 	//Name
-	//private TextView mTextPersonalNote;  	 	//Personal note label
-	//private TextView mTextPublicNote;   	 	//Group note label
-	private boolean sysEdit = false;
-	
-	public UserInfo getUserInfo() {
-		return mUserInfo;
-	}
 
-	public void setUserInfo(UserInfo mUserInfo) {
-		this.mUserInfo = mUserInfo;
-	}
+    /**
+     * For tagging logs from this class.
+     */
+    public static final String TAG = "big_bubble";
 
-	public BigBubblePopupWindow(View contentView, UserInfo userInfo){
-		//super(contentView);
-		super(contentView, LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT, true);
-		
-		// Initialize pie graph
-		mPieGraph = (PieGraph)contentView.findViewById(R.id.piegraph_boarder);
-		initDonutChart();
-		mLockButton = (Button)contentView.findViewById(R.id.button_lock_inbubble);
-		mLockButton.setOnClickListener(new LockButtonOnClickListener());
-		mEditText = (EditText)contentView.findViewById(R.id.edittext_inbubble);
-		//mEditText.setOnFocusChangeListener(new AmountOfMoneyFocusChangeListener());
-		mEditText.addTextChangedListener(new TextWatcher() {
-			@Override
-			public void onTextChanged(CharSequence s, int start, int before, int count) {}
-			@Override
-			public void beforeTextChanged(CharSequence s, int start, int count,int after) {}
-			@Override
-			public void afterTextChanged(Editable s) {
-				if(sysEdit) Log.d("money", "sys changed amount");						//the code that populates the amount field will trigger this listener, but this should only run if a USER edited the field
-				else {
-					Log.d("money", "user changed amount");
-					int currentMoney = 0;
-					try{
-						currentMoney = TransactionFragment.stringToPennies(mEditText.getText().toString());
-					} catch (NumberFormatException e){
-						currentMoney = 0;
-					}
-					determineLock(currentMoney);
-				}
-			}
-		});
-		
-		//mEditPersonalNote = (EditText)contentView.findViewById(R.id.edittext_private_note_inbubble);
-		//mEditPersonalNote.setOnFocusChangeListener(new PersonalNoteChangeListener());
+    /**
+     * The user for who this popup window is editing a
+     * transaction.
+     */
+    private UserInfo mUserInfo;
 
-		//mTextPersonalNote = (TextView)contentView.findViewById(R.id.textview_private_note_inbubble);
-		/*mTextPersonalNote.setOnClickListener(new OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//mTextPersonalNote.setVisibility(View.GONE);
-				//mEditPersonalNote.setVisibility(View.VISIBLE);
-				if(null == mUserInfo) return;
-				String personalNote = mUserInfo.getPersonalNote();
-				if (null != personalNote && !personalNote.isEmpty()) mEditPersonalNote.setText(personalNote);
-			}
-		});*/
-		
-		//mTextPublicNote = (TextView)contentView.findViewById(R.id.textview_public_note_inbubble);
-		mTextView = (TextView)contentView.findViewById(R.id.textview_name_inbubble);
+    /**
+     * Users input the amount of money to set for the user here.
+     */
+    private EditText mEditText;
 
-		mUserInfo = userInfo;
-		showUserInfo();
-	}
-	
-	public boolean isPersonalNoteEmpty(){
-		if(null == mUserInfo)
-			return true;
-		String personalNote = mUserInfo.getPersonalNote();
-		if (personalNote == null)
-			return true;
-		else if(personalNote.isEmpty())
-			return true;
-		else
-			return false;
-	}
-	
-	public boolean isPublicNoteEmpty(){
-		if(null == mUserInfo)
-			return true;
-		String publicNote = mUserInfo.getPublicNote();
-		if (publicNote == null)
-			return true;
-		else if(publicNote.isEmpty())
-			return true;
-		else
-			return false;
-	}
-	
-	/**
-	 * Call setUserInfo() beforehand!!
-	 */
-	public void showUserInfo() {
-		if (null == mUserInfo){
-			Log.w(TAG, "Please call setUserInfo first!");
-			return;
-		}
-		
-		UserInfo userInfo = mUserInfo;
-		mTextView.setText(userInfo.getUserName());
-		
-		int moneyAmount = userInfo.getAmountOfMoney();
-		sysEdit = true;
-		if(moneyAmount == 0){
-			mEditText.setText("");
-		} else {
-			mEditText.setText(TransactionFragment.penniesToString(userInfo.getAmountOfMoney()));
-		}
-		sysEdit = false;
-		
-		if(userInfo.isLocked()){
-			mLockButton.setBackgroundResource(R.drawable.locked);
-		}
-		
-		/*if(!isPublicNoteEmpty()){
-			mTextPublicNote.setText(userInfo.getPublicNote());
-		} else {
-			mTextPublicNote.setText("Group note not set yet.");
-		}
-		*/
-		/*if(isPersonalNoteEmpty()){
-			mTextPersonalNote.setVisibility(View.GONE);
-			mEditPersonalNote.setVisibility(View.VISIBLE);
-		} else {
-			mTextPersonalNote.setText(userInfo.getPersonalNote());
-		}*/
-	}
+    /**
+     * Used to display the user's name.
+     */
+    private TextView mTextView;
 
-	private void initDonutChart() {
-		if(null == mPieGraph){
-			Log.e(TAG, "Unable to get mPieGraph");
-			return;
-		}
-		mPieGraph.setInnerCircleRatio(230); //TODO: Set a precise value...
+    /**
+     * @return This window's user.
+     * @see #mUserInfo
+     */
+    public final UserInfo getUserInfo() {
+        return mUserInfo;
+    }
 
-	}
+    /**
+     * Updates the window to display the given user.  NOTE:
+     * this will cause a event to be fired to all TextWatchers for
+     * this popup window.
+     *
+     * @param info The user to display in the window.
+     */
+    public final void setUserInfo(final UserInfo info) {
+        if (info == null) {
+            Log.e(TAG, "Cannot set popup window to NULL user");
+            return;
+        }
 
-	/**
-	 * Set chart data of outer donut chart (border)
-	 * @param values Values 
-	 */
-	public void setDonutChartData(ArrayList<Float> values){
-		mPieGraph.removeSlices(); //Clear all slices first
-		PieSlice pieSlice ;
-		int i = 0;
-		for(Float value: values){
-			Log.d(TAG, "i=" + i);
-			pieSlice = new PieSlice();
-			pieSlice.setValue(value);
-			mPieGraph.addSlice(pieSlice);
-		}
-	}
+        this.mUserInfo = info;
 
-	// Customized listeners below //
+        // The user's name goes at the top of the window
+        mTextView.setText(info.getUserName());
 
-	private class LockButtonOnClickListener implements View.OnClickListener{
+        // The user's amount goes in the EditText
+        mEditText.setText(info.getAmountOfMoney().toString());
 
-		@Override
-		public void onClick(View v) {
-			if (mUserInfo.isLocked()){ 						//Unlock
-				mUserInfo.setLocked(false);
-				mLockButton.setBackgroundResource(R.drawable.unlocked);
-			} else {
-				mUserInfo.setLocked(true);
-				mLockButton.setBackgroundResource(R.drawable.locked);
-			}
-		}
+        Log.d(TAG, String.format("Popup configure for user: %s "
+                        + "| amount: %s",
+                info.getUserName(),
+                info.getAmountOfMoney().toString()));
+    }
 
-	}
+    /**
+     * Constructs a new BigBubblePopupWindow for the given user.
+     *
+     * @param contentView The View in which the popup window is displayed.
+     * @param userInfo    The user that the window was created for.
+     */
+    public BigBubblePopupWindow(final View contentView,
+                                final UserInfo userInfo) {
+        super(contentView, LayoutParams.WRAP_CONTENT,
+                LayoutParams.WRAP_CONTENT, true);
 
-	private void determineLock(int moneyToSet){
-		Log.d("money","----------------- $" + moneyToSet);
-		if (mEditText.getText().toString().equals("")){ 													//unlock if blank
-			mUserInfo.setLocked(false);
-			mLockButton.setBackgroundResource(R.drawable.unlocked);
-			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();
-			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
-			Log.d("money","removing locked amount: " + mUserInfo.getAmountOfMoney());
-		} else {																							//lock
-			mUserInfo.setLocked(true);
-			mLockButton.setBackgroundResource(R.drawable.locked);
-			TransactionFragment.totalLockedAmount -= mUserInfo.getAmountOfMoney();							//remove current amount of locked money
-			if(TransactionFragment.totalLockedAmount < 0) TransactionFragment.totalLockedAmount = 0;
-			TransactionFragment.totalLockedAmount += moneyToSet;											//add new amount of locked money
-			Log.d("money","adding locked amount: " + TransactionFragment.penniesToString(moneyToSet));
-			
-			int total =TransactionFragment.stringToPennies(TransactionFragment.mTotalAmount.getEditableText().toString());		//if locked amount is over total, raise total
-			if(moneyToSet > total){
-				TransactionFragment.mTotalAmount.setText(TransactionFragment.penniesToString(moneyToSet));
-				Log.d("money","raised total to account for locked amount: " + TransactionFragment.penniesToString(moneyToSet));
-			}
-		}
-		mUserInfo.setAmountOfMoney(moneyToSet);
-		Log.d("money","locked total: " + TransactionFragment.totalLockedAmount);
-		TransactionFragment.splitMoney();
-	}
+        Log.d(TAG, "Creating big bubble popup window");
 
-	/*private class PersonalNoteChangeListener implements View.OnFocusChangeListener{
+        // Collect UI elements
+        mEditText = (EditText) contentView
+                .findViewById(R.id.edittext_inbubble);
+        mTextView = (TextView) contentView
+                .findViewById(R.id.textview_name_inbubble);
 
-		@Override
-		public void onFocusChange(View v, boolean hasFocus) {
-			if (hasFocus)
-				return;
+        // Configure UI to display the given user.
+        setUserInfo(userInfo);
+    }
 
-			String currNote = mEditPersonalNote.getText().toString();
-			if (currNote.isEmpty()) {
-				mUserInfo.setPersonalNote("");
-				mTextPersonalNote.setText("");
-			}
-			if (currNote != null && !currNote.isEmpty()){
-				mUserInfo.setPersonalNote(currNote);
-				mEditPersonalNote.setVisibility(View.GONE);
-				mTextPersonalNote.setVisibility(View.VISIBLE);
-				mTextPersonalNote.setText(currNote);
-			}
-		}
-	}*/
+    /**
+     * Adds the given watcher to the EditText's listener list.
+     *
+     * @param watcher The TextWatcher to be added.
+     */
+    public final void addTextChangedListener(final TextWatcher watcher) {
+        mEditText.addTextChangedListener(watcher);
+    }
+
+    /**
+     * Removes the given TextWatcher from the EditText's listener list.
+     *
+     * @param watcher The TextWatcher to be removed.
+     */
+    public final void removeTextChangedListener(final TextWatcher watcher) {
+        mEditText.removeTextChangedListener(watcher);
+    }
 }
