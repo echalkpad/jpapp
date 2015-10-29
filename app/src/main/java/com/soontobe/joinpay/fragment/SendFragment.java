@@ -32,7 +32,7 @@ public class SendFragment extends TransactionFragment {
         for (UserInfo info : mUserBubbles.keySet()) {
             if (info.isSelected()) {
                 if (!info.getUserName().equals(Constants.userName)) {
-                    String[] item = {"normal", info.getPersonalNote(),
+                    String[] item = {"normal", "", // No personal notes
                             myUserInfo.getUserName(), info.getUserName(),
                             "$ " + String.format("%.2f", info
                                     .getAmountOfMoney()),

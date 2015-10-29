@@ -1,10 +1,8 @@
 package com.soontobe.joinpay.fragment;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.app.Fragment;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
@@ -17,7 +15,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.View.OnFocusChangeListener;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -27,24 +24,25 @@ import android.widget.TextView;
 import com.soontobe.joinpay.Constants;
 import com.soontobe.joinpay.PositionHandler;
 import com.soontobe.joinpay.R;
-import com.soontobe.joinpay.activities.RadarViewActivity;
 import com.soontobe.joinpay.Utility;
 import com.soontobe.joinpay.model.TransactionBuilder;
 import com.soontobe.joinpay.model.UserInfo;
 import com.soontobe.joinpay.widget.BigBubblePopupWindow;
-import com.soontobe.joinpay.widget.RadarUserView;
-import com.soontobe.joinpay.widget.RadarUserView
-        .OnCenterButtonClickedListener;
-import com.soontobe.joinpay.widget.RadarUserView
-        .OnDeselectButtonClickedListener;
-import com.soontobe.joinpay.widget.RadarUserView
-        .OnEditButtonClickedListener;
-import com.soontobe.joinpay.widget.RadarUserView
-        .OnLockButtonClickedListener;
+import com.soontobe.joinpay.widget.RadarUserBubble;
+import com.soontobe.joinpay.widget.RadarUserBubble.OnDeselectListener;
+import com.soontobe.joinpay.widget.RadarUserBubble.OnEditListener;
+import com.soontobe.joinpay.widget.RadarUserBubble.OnLockListener;
+import com.soontobe.joinpay.widget.RadarUserBubble.OnSelectListener;
 
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.Random;
 
 /**
@@ -52,7 +50,7 @@ import java.util.Random;
  * and creating a shared transaction.
  */
 public abstract class TransactionFragment extends Fragment
-        implements LoaderCallbacks<Void> {
+        implements LoaderCallbacks<Void>, Observer, OnClickListener {
 
     /**
      * Catches user interactions with fragment.
@@ -72,12 +70,12 @@ public abstract class TransactionFragment extends Fragment
     /**
      * A list of user bubbles.
      */
-    protected static Map<UserInfo, RadarUserView> mUserBubbles;
+    protected static Map<UserInfo, RadarUserBubble> mUserBubbles;
 
     /**
      * The bubble corresponding to the current user.
      */
-    protected static RadarUserView mSelfBubble;
+    protected static RadarUserBubble mSelfBubble;
 
     /**
      * The View in which the activity is displayed.
@@ -93,6 +91,11 @@ public abstract class TransactionFragment extends Fragment
      * Displays the number of selected users.
      */
     protected static TextView mSelectCountText;
+
+    /**
+     * Resets the transaction.
+     */
+    protected Button mResetButton;
 
     /**
      * Field for inputting a total amount for a transaction.
@@ -124,7 +127,7 @@ public abstract class TransactionFragment extends Fragment
      * Constructs a new TransactionFragment.
      */
     public TransactionFragment() {
-        keeper = new TransactionBuilder();
+
     }
 
     @Override
@@ -134,8 +137,18 @@ public abstract class TransactionFragment extends Fragment
 
     @Override
     public void onStop() {
-
         super.onStop();
+    }
+
+    public final void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_radar_view_cross:
+                keeper.resetTransaction();
+                break;
+            default:
+                Log.d(TAG, "Received click from unknown source");
+                break;
+        }
     }
 
     @Override
@@ -158,9 +171,14 @@ public abstract class TransactionFragment extends Fragment
     }
 
     private void initUI() {
+        // Initialize transaction tracking
+        if(keeper == null) {
+            keeper = new TransactionBuilder();
+            keeper.addObserver(this);
+        }
+
         // Acquire the layout that will hold all of our user bubbles.
         mBubbleFrameLayout = (FrameLayout) mCurrentView.findViewById(R.id.layout_send_frag_bubbles);
-        mBubbleFrameLayout.getViewTreeObserver().addOnGlobalLayoutListener(new MyOnGlobalLayoutChgListener());
 
         // Clicking in the blank space on this layout should close the
         // options panel on each bubble
@@ -169,9 +187,13 @@ public abstract class TransactionFragment extends Fragment
             @Override
             public void onClick(View v) {
                 // Un-expand small bubbles
-                for(UserInfo user : keeper) {
-                    RadarUserView view = mUserBubbles.get(user);
-                    view.switchExpandPanel(false);
+                for (UserInfo user : keeper) {
+                    RadarUserBubble view = mUserBubbles.get(user);
+                    if (view != null) {
+                        view.switchExpandPanel(false);
+                    } else {
+                        Log.e(TAG, "No bubble for user: " + user.getUserName());
+                    }
                 }
 
                 // Catch the focus (from TotalAmount EditText)
@@ -180,53 +202,32 @@ public abstract class TransactionFragment extends Fragment
         });
 
         // Find the Views we need to make this UI work.
-        mSelfBubble = (RadarUserView) mCurrentView.findViewById(R.id.user_bubble_myself);
+        mSelfBubble = (RadarUserBubble) mCurrentView.findViewById(R.id.user_bubble_myself);
         mSelectCountText = (TextView) mCurrentView.findViewById(R.id.send_num_of_people);
         mTotalAmount = (EditText) mCurrentView.findViewById(R.id.edit_text_total_amount);
         mSendMoneyButton = (Button) mCurrentView.findViewById(R.id.send_money_next);
         mGroupNote = (EditText) mCurrentView.findViewById(R.id.group_note);
+        mResetButton = (Button) mCurrentView.findViewById(R.id.btn_radar_view_cross);
+
+        // Listen for transaction resets
+        mResetButton.setOnClickListener(this);
 
         // Nobody has their amount locked before a transaction is created.
-        keeper.setTotalInPennies(0);
+        keeper.setTotal(BigDecimal.valueOf(0));
 
         // Create a UserInfo for the current user.
-        myUserInfo = new UserInfo();
+        myUserInfo = new UserInfo(Constants.userName, true);
         myUserInfo.setUserId(new Random().nextInt());
-        myUserInfo.setUserName(Constants.DemoMyName);
-        myUserInfo.setMyself(true);
         keeper.add(myUserInfo);
 
-
         mSelfBubble.setUserInfo(myUserInfo);
-        mSelfBubble.setEditBtnClickedListener(new OnEditButtonClickedListener() {
-            @Override
-            public void OnClick(View v) {
-                // Editing the value means the user should be locked
-                if(!keeper.lockUser(myUserInfo, true)) {
-                    Log.e(TAG, "Failed to lock current user for editting");
-                    return;
-                }
-
-                // Show the bubble that lets you manually change the user's value
-                showBigBubble(myUserInfo);
-            }
-        });
-        mSelfBubble.setCenterBtnClickedListener(new OnCenterButtonClickedListener() {
-            @Override
-            public void OnClick(View v, boolean isSelected) {
-                Log.d(TAG, "selected current user");
-                keeper.selectUser(myUserInfo, true);
-            }
-        });
-        mSelfBubble.setDeselectBtnClickedListener(new OnDeselectButtonClickedListener() {
-            @Override
-            public void OnClick(View v) {
-                Log.d(TAG, "self bubble deselect");
-                myUserInfo.setSelected(false);
-            }
-        });
+        mSelfBubble.setEditListener(new EditButtonHandler());
+        mSelfBubble.setSelectListener(new SelectUserOnClickListener());
+        mSelfBubble.setDeselectListener(new DeselectUserOnClickListener());
+        mSelfBubble.setLockListener(new LockButtonOnClickListener());
 
         mUserBubbles = new HashMap<>();
+        mUserBubbles.put(myUserInfo, mSelfBubble);
         mTotalAmount.setOnFocusChangeListener(new OnTotalMoneyFocusChangeListener());
         mTotalAmount.addTextChangedListener(new TextWatcher() {
 
@@ -240,86 +241,68 @@ public abstract class TransactionFragment extends Fragment
 
             @Override
             public void afterTextChanged(Editable s) {
-                // Should attempt to change the total for the transaction
-                int total = stringToPennies(mTotalAmount.getText().toString());
-                if(!keeper.setTotalInPennies(total)) {
-                    Log.e(TAG, "Total: " + total + " not accepted.");
+                // Create a DecimalFormat that fits your requirements
+                DecimalFormatSymbols symbols = new DecimalFormatSymbols();
+                symbols.setGroupingSeparator(',');
+                symbols.setDecimalSeparator('.');
+                String pattern = "#,##0.0#";
+                DecimalFormat decimalFormat = new DecimalFormat(pattern, symbols);
+                decimalFormat.setParseBigDecimal(true);
+
+                // parse the string
+                String total = mTotalAmount.getText().toString();
+                try {
+                    BigDecimal newTotal = (BigDecimal) decimalFormat.parse(total);
+                    Log.d(TAG, "Parse total: " + newTotal.toString());
+
+                    // Should attempt to change the total for the transaction
+                    if (!keeper.setTotal(newTotal)) {
+                        Log.e(TAG, "Total: " + total + " not accepted.");
+                    }
+                } catch (ParseException e) {
+                    String error = String.format("Could not parse total "
+                                    + "\"%s\":%s", total, e.getMessage());
+                    Log.e(TAG, error);
                 }
 
                 // Display the beautified total to the user.
                 mTotalAmount.setText(keeper.total().toString());
-
-                // TODO their are better ways to parse money strings.
+                // TODO there are better ways to format this string.
             }
         });
 
         mGroupNote.setOnFocusChangeListener(new OnGroupNoteFocusChangeListener());
     }
 
-    //convert string that has dollars and decimal point to integer of pennies
-    public static int stringToPennies(String str) {
-        int pennies = 0;
-        int int_dollars = 0;
-        int int_change = 0;
-        //find decimal position
-        int pos = str.indexOf('.');
-        if (pos >= 0) {                                                                    //input has decimal, ie: $15.10
-            String dollars = str.substring(0, pos);
-            String change = str.substring(pos + 1);
-            try {
-                int_dollars = Integer.parseInt(dollars);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to parse dollars: " + dollars);
-            }
-            if (change.length() <= 1) {
-                //input has 1 decimal... ie: $15.1
-                change += '0';
-            }if (change.length() >= 3) {
-                //only 2 digits allowed... no fractions of a penny
-                change = change.substring(0, 2);
-            }
-            try {
-                int_change = Integer.parseInt(change);
-            } catch (Exception e) {
-            }
-            pennies = int_dollars * 100 + int_change;
+    public final void update(final Observable o, final Object data) {
+        if(o == null) {
+            Log.e(TAG, "Received update from " + o);
+            return;
+        }
+
+        if(!(o instanceof TransactionBuilder)
+                || !((TransactionBuilder)o).equals(keeper)) {
+            Log.e(TAG, "Received update from wrong object: " + o);
+            return;
+        }
+
+        // Amount should only be accessible if user's are selected
+        if(keeper.selectedUsers() > 0) {
+            mTotalAmount.setEnabled(true);
+            Log.d(TAG, "Users selected, enabling total field");
         } else {
-            //input has NO decimal, ie: $15
-            try {
-                int_dollars = Integer.parseInt(str);
-            } catch (Exception e) {
-                Log.e(TAG, "Failed to parse string: " + str);
-            }
+            mTotalAmount.setEnabled(false);
+            Log.d(TAG, "No users selected, disabling and resetting total field");
         }
-        pennies = int_dollars * 100 + int_change;
-        //Log.d("money", "PENNIES: " + pennies);
-        return pennies;
-    }
+        mTotalAmount.setText(keeper.total().toString());
 
-    //convert integer of pennies to string with dollar and decimal point
-    public static String penniesToString(int pennies) {
-        String str = "";
-        String dollars = "0";
-        String change = "0";
-        String str_pennies = Integer.toString(pennies);
-        if (pennies >= 100) {                                                        //there are dollars, ie: 100 = $1.00
-            dollars = str_pennies.substring(0, str_pennies.length() - 2);
-            change = str_pennies.substring(str_pennies.length() - 2);
-        } else if (pennies >= 10) {                                                    //there are NO dollars, 2 digits, ie: 20 = $0.20
-            dollars = "0";
-            change = str_pennies;
-        } else {                                                                    //there are NO dollars, 1 digit, ie: 5 = $0.5
-            dollars = "0";
-            change = "0" + str_pennies;
-        }
-
-        str = dollars + '.' + change;
-        //Log.d("money", "input: " + pennies + ", (dollars): " + dollars + ", (change): " + change);
-        return str;
+        // Update the number of selected users
+        mSelectCountText.setText("" + keeper.selectedUsers());
     }
 
     /**
      * Removes a user's from the radar view.
+     *
      * @param user The user to be removed.
      */
     public void removeUserFromView(UserInfo user) {
@@ -332,6 +315,7 @@ public abstract class TransactionFragment extends Fragment
 
     /**
      * Adds a user to the radar.
+     *
      * @param contactName The name of the user to be added.
      */
     public void addContactToView(String contactName) {
@@ -344,6 +328,7 @@ public abstract class TransactionFragment extends Fragment
 
     /**
      * Creates and displays a bubble for the given user on the radar.
+     *
      * @param username The user to create a bubble for.
      * @return The UserInfo associated with the bubble.
      */
@@ -377,25 +362,22 @@ public abstract class TransactionFragment extends Fragment
         params = new FrameLayout.LayoutParams(mSelfBubble.getLayoutParams());
         params.gravity = Gravity.LEFT | Gravity.TOP;
         params.setMargins((int) pos[0], (int) pos[1], 0, 0);
-        RadarUserView ruv = new RadarUserView(getActivity());
-        mBubbleFrameLayout.addView(ruv, params);
 
         // Generate this bubble's user information and associate it with the user
-        UserInfo info = new UserInfo();
-        info.setUserName(username);
+        UserInfo info = new UserInfo(username, false);
         info.setUserId(random.nextInt());
+        RadarUserBubble ruv = new RadarUserBubble(getActivity(), info);
+        mBubbleFrameLayout.addView(ruv, params);
 
         // Add the user to the transaction keeper
         keeper.add(info);
 
         // Associate the bubble with the current user
-        ruv.setUserInfo(info);
-        ruv.setEditBtnClickedListener(new EditButtonHandler(info));
-        ruv.setLockBtnClickedListener(new LockButtonOnClickListener(info));
-        ruv.setCenterBtnClickedListener(new SelectUserOnClickListener(info));
-        ruv.setDeselectBtnClickedListener(new DeselectUserOnClickListener(info));
+        ruv.setEditListener(new EditButtonHandler());
+        ruv.setLockListener(new LockButtonOnClickListener());
+        ruv.setSelectListener(new SelectUserOnClickListener());
+        ruv.setDeselectListener(new DeselectUserOnClickListener());
         mUserBubbles.put(info, ruv);
-//		mUserBubbles.set(position, ruv);
         return info;
     }
 
@@ -449,6 +431,7 @@ public abstract class TransactionFragment extends Fragment
     /**
      * Displays the popup window which allows the user to edit transaction
      * details specifically for the given user.
+     *
      * @param userInfo The user for this popup window.
      */
     public void showBigBubble(UserInfo userInfo) {
@@ -481,7 +464,7 @@ public abstract class TransactionFragment extends Fragment
             UserInfo userInfo = mBigBubble.getUserInfo();
 
             // Check to make sure user exists
-            if(!keeper.contains(userInfo)) {
+            if (!keeper.contains(userInfo)) {
                 Log.e(TAG, "User not tracked: " + userInfo);
                 return;
             }
@@ -509,74 +492,42 @@ public abstract class TransactionFragment extends Fragment
         }
     }
 
-    private class MyOnGlobalLayoutChgListener implements
-            ViewTreeObserver.OnGlobalLayoutListener {
-
-        @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-        @Override
-        public void onGlobalLayout() {
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN)
-                mBubbleFrameLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-            else
-                mBubbleFrameLayout.getViewTreeObserver().removeGlobalOnLayoutListener(this);
-        }
-
-    }
-
     /**
      * This is a handler for when the user presses the edit button on
      * a user bubble.
      */
-    private class EditButtonHandler implements
-            OnEditButtonClickedListener {
-
-        /**
-         * The user associated with the bubble for this listener.
-         */
-        private UserInfo mUser;
-
-        /**
-         * Constructs a new EditButtonHandler.
-         * @param user The user associate with this listener's bubble.
-         */
-        public EditButtonHandler(final UserInfo user) {
-            mUser = user;
-        }
+    private class EditButtonHandler implements OnEditListener {
 
         @Override
-        public void OnClick(View v) {
+        public void onEdit(UserInfo user) {
             // Display the transaction edit pop up bubble for this user.
-            showBigBubble(mUser);
+            showBigBubble(user);
         }
-
     }
 
     /**
      * Customized OnClickListener listening to the button-click of
      * `LOCK` button in the expanded small bubble of each user.
      */
-    private class LockButtonOnClickListener implements
-            OnLockButtonClickedListener {
-        UserInfo mUser;
-
-        /**
-         * Constructs a new LockButtonOnClickListener.
-         * @param user The user associated with the lock button.
-         */
-        public LockButtonOnClickListener(UserInfo user) {
-            mUser = user;
-        }
+    private class LockButtonOnClickListener implements OnLockListener {
 
         @Override
-        public void OnClick(View v, boolean isLocked) {
-            String locking = (isLocked ? "locking" : "unlocking");
-            Log.d(TAG, locking + " user: " + mUser.getUserName());
-            if(!keeper.lockUser(mUser, isLocked)) {
-                Log.e(TAG, "Failed to lock user: " + mUser.getUserName());
+        public void onLock(UserInfo user) {
+            // Lock the user.
+            String locking;
+            boolean beingLocked;
+            if (user.isLocked()) {
+                locking = "unlocking";
+                beingLocked = false;
+            } else {
+                locking = "locking";
+                beingLocked = true;
             }
 
-            // TODO update state?
+            Log.d(TAG, locking + " user: " + user.getUserName());
+            if (!keeper.lockUser(user, beingLocked)) {
+                Log.e(TAG, "Failed to lock user: " + user.getUserName());
+            }
         }
     }
 
@@ -584,37 +535,24 @@ public abstract class TransactionFragment extends Fragment
      * Customized OnClickListener listening to the button-click of
      * small bubble of each user
      */
-    private class SelectUserOnClickListener implements
-            OnCenterButtonClickedListener {
-
-        /**
-         * Used for tagging logs from this class.
-         */
-        private static final String TAG = "select_user";
-
-        /**
-         * The user associated with this select button.
-         */
-        private UserInfo mUser;
-
-        /**
-         * Constructs a new SelectUserOnClickListener.
-         * @param user The user associated with the small bubble.
-         */
-        public SelectUserOnClickListener(UserInfo user) {
-            mUser = user;
-        }
+    private class SelectUserOnClickListener implements OnSelectListener {
 
         @Override
-        public void OnClick(View v, boolean isSelected) {
-            String selecting = (isSelected ? "selecting" : "deselecting");
-            Log.d(TAG, selecting + " user: " + mUser.getUserName());
-            if(!keeper.selectUser(mUser, isSelected)) {
-                Log.e(TAG, "Failed selection on user: "
-                        + mUser.getUserName());
+        public void onSelect(UserInfo user) {
+            String selecting;
+            boolean beingSelected;
+            if (user.isSelected()) {
+                selecting = "deselecting";
+                beingSelected = false;
+            } else {
+                selecting = "selecting";
+                beingSelected = true;
             }
-
-            // TODO update UI?
+            Log.d(TAG, selecting + " user: " + user.getUserName());
+            if (!keeper.selectUser(user, beingSelected)) {
+                Log.e(TAG, "Failed selection on user: "
+                        + user.getUserName());
+            }
         }
     }
 
@@ -622,35 +560,14 @@ public abstract class TransactionFragment extends Fragment
      * Customized OnClickListener listening to the button-click of
      * user de-selection action
      */
-    private class DeselectUserOnClickListener implements
-            OnDeselectButtonClickedListener {
-
-        /**
-         * Used to tag logs from this class.
-         */
-        private static final String TAG = "deselect";
-
-        /**
-         * The user associated with the bubble.
-         */
-        private UserInfo mUser;
-
-        /**
-         * Constructs a new DeselectUserOnClickListener.
-         * @param user The user to be associated with the bubble.
-         */
-        public DeselectUserOnClickListener(UserInfo user) {
-            mUser = user;
-        }
+    private class DeselectUserOnClickListener implements OnDeselectListener {
 
         @Override
-        public void OnClick(View v) {
-            Log.d(TAG, "deselect bubble for user: " + mUser.getUserName());
-            if(!keeper.selectUser(mUser, false)) {
-                Log.e(TAG, "Failed to deselect user: " + mUser.getUserName());
-                return;
+        public void onDeselect(UserInfo user) {
+            Log.d(TAG, "deselect bubble for user: " + user.getUserName());
+            if (!keeper.selectUser(user, false)) {
+                Log.e(TAG, "Failed to deselect user: " + user.getUserName());
             }
-            // TODO update UI?
         }
     }
 
@@ -659,13 +576,17 @@ public abstract class TransactionFragment extends Fragment
     private class OnTotalMoneyFocusChangeListener implements OnFocusChangeListener {
         @Override
         public void onFocusChange(View v, boolean hasFocus) {
-            if(hasFocus)
+            if (hasFocus)
                 return;
 
             // TODO should update total here
         }
     }
 
+    /**
+     * This helper class handles updating the general message for the
+     * transaction.
+     */
     private class OnGroupNoteFocusChangeListener implements
             OnFocusChangeListener {
 
@@ -674,15 +595,9 @@ public abstract class TransactionFragment extends Fragment
             if (hasFocus)
                 return;
 
-
+            // Update the group message
             String groupNote = mGroupNote.getEditableText().toString();
             keeper.setGeneralMessage(groupNote);
         }
-    }
-
-    public void clearTransaction() {
-        Log.d(TAG, "Clearing transaction");
-        keeper.clear();
-        // TODO update state?
     }
 }

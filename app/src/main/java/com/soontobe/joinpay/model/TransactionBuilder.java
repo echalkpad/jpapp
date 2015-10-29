@@ -6,6 +6,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Observable;
 import java.util.Set;
 
 /**
@@ -14,7 +15,7 @@ import java.util.Set;
  *
  * Created by davery on 10/26/2015.
  */
-public class TransactionBuilder implements Set<UserInfo> {
+public class TransactionBuilder extends Observable implements Set<UserInfo> {
 
     /**
      * The set of users involved in this transaction.
@@ -60,7 +61,7 @@ public class TransactionBuilder implements Set<UserInfo> {
         }
     }
 
-    public final boolean setAmount(UserInfo toSet, int pennies) {
+    public final boolean setAmount(UserInfo toSet, BigDecimal total) {
 
         if(toSet == null) {
             return false;
@@ -77,7 +78,8 @@ public class TransactionBuilder implements Set<UserInfo> {
         }
 
         // Update the amount for the user
-        toSet.setAmountOfMoney(BigDecimal.valueOf(pennies, SCALE_PENNIES));
+        toSet.setAmountOfMoney(total);
+        setChanged();
         return true;
     }
 
@@ -113,6 +115,10 @@ public class TransactionBuilder implements Set<UserInfo> {
         // Selecting or unselecting a user means we need to resplit
         split(total());
 
+        // Update observers
+        setChanged();
+        notifyObservers();
+
         return true;
     }
 
@@ -125,7 +131,6 @@ public class TransactionBuilder implements Set<UserInfo> {
         user.setSelected(false);
         user.setAmountOfMoney(BigDecimal.valueOf(0, SCALE_PENNIES));
         user.setLocked(false);
-        user.setPersonalNote("");
         user.setPublicNote("");
     }
 
@@ -153,15 +158,18 @@ public class TransactionBuilder implements Set<UserInfo> {
             split(total());
         }
 
+        setChanged();
+        notifyObservers();
+
         return true;
     }
 
     /**
      * Sets a new total for the transaction.
-     * @param pennies The new total for the transaction, in pennies.
+     * @param total The new total for the transaction, in pennies.
      * @return True if the total was changed successfully, false otherwise.
      */
-    public final boolean setTotalInPennies(int pennies) {
+    public final boolean setTotal(BigDecimal total) {
 
         // Can't set a transaction total without selecting users
         if(selectedUsers() <= 0) {
@@ -169,9 +177,14 @@ public class TransactionBuilder implements Set<UserInfo> {
         }
 
         // Make sure this value makes sense
-        if(isValidTotal(pennies)) {
+        if(isValidTotal(total)) {
             // Split the transaction amongst unlocked users
-            return split(BigDecimal.valueOf(pennies, 2));
+            boolean success = split(total);
+            if(success) {
+                setChanged();
+                notifyObservers();
+            }
+            return success;
         }
 
         return false;
@@ -220,20 +233,33 @@ public class TransactionBuilder implements Set<UserInfo> {
     }
 
     /**
+     * Resets all users to their default state and clears any existing
+     * transaction data.
+     */
+    public void resetTransaction() {
+        for(UserInfo user: users) {
+            user.setAmountOfMoney(BigDecimal.valueOf(0));
+            user.setLocked(false);
+            user.setSelected(false);
+            user.setPublicNote("");
+        }
+    }
+
+    /**
      * Determines the validity of a given transaction total.
-     * @param pennies The transaction total, in pennies.
+     * @param total The transaction total, in pennies.
      * @return True if the total is valid, false otherwise.
      */
-    private boolean isValidTotal(int pennies) {
+    private boolean isValidTotal(BigDecimal total) {
 
         // Cannot have negative transactions
-        if(pennies < 0) {
+        if(total.compareTo(BigDecimal.valueOf(0)) < 0) {
             return false;
         }
 
 
         // Total cannot be less than locked total
-        if(BigDecimal.valueOf(pennies, SCALE_PENNIES).compareTo(lockedTotal()) < 0) {
+        if(total.compareTo(lockedTotal()) < 0) {
             return false;
         }
 

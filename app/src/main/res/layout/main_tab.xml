@@ -50,12 +50,12 @@
 		              	android:textColor="#fcfcfc"
 		              	android:textSize="36dp" />
 	
-		          	<com.soontobe.joinpay.widget.RadarUserView
+		          	<com.soontobe.joinpay.widget.RadarUserBubble
 		              	android:id="@+id/user_bubble_myself"
 		              	android:layout_width="wrap_content"
 		              	android:layout_height="wrap_content"
 		              	android:layout_gravity="bottom|center">
-		          	</com.soontobe.joinpay.widget.RadarUserView>
+		          	</com.soontobe.joinpay.widget.RadarUserBubble>
 	
 			</FrameLayout>
 		

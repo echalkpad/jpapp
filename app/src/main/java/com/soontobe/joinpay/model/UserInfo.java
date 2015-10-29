@@ -2,13 +2,14 @@ package com.soontobe.joinpay.model;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.util.Observable;
 
 /**
  * User information model for information exchange between RadarView and
  * BigBubble.
  *
  */
-public class UserInfo {
+public class UserInfo extends Observable {
 
 	/**
 	 * The user's ID.
@@ -26,11 +27,6 @@ public class UserInfo {
 	private String publicNote;
 
 	/**
-	 * The personal note that should be sent to this user.
-	 */
-	private String personalNote;
-
-	/**
 	 * The amount of money that has been assigned to the user for the
 	 * current transaction.
 	 */
@@ -39,7 +35,7 @@ public class UserInfo {
 	/**
 	 * True if the user is the currently logged in user, false otherwise.
 	 */
-	private boolean isMyself; // Is this user just myself
+	private boolean isMyself;
 
 	/**
 	 * True if the user is a contact of the currently logged in user,
@@ -66,9 +62,22 @@ public class UserInfo {
 		isContact = false;
 		isMyself = false;
 		amountOfMoney = BigDecimal.valueOf(0);
-		userName = "";
+		userName = "NoName";
 		publicNote = "";
-		personalNote = "";
+	}
+
+	/**
+	 * Constructs a new UserInfo.
+	 * @param name The name of the user.
+	 * @param isSelf True if the user is the currently logged in user,
+	 *               false otherwise.
+	 */
+	public UserInfo(String name, boolean isSelf) {
+		userName = name;
+		isMyself = isSelf;
+		isContact = false;
+		publicNote = "";
+		amountOfMoney = BigDecimal.valueOf(0);
 	}
 
 	/////////////////////////
@@ -81,14 +90,6 @@ public class UserInfo {
 	 */
 	public final boolean isMyself() {
 		return isMyself;
-	}
-
-	/**
-	 * @see #isMyself
-	 * @param myself The new value for myself.
-	 */
-	public final void setMyself(final boolean myself) {
-		this.isMyself = myself;
 	}
 
 	/**
@@ -105,6 +106,8 @@ public class UserInfo {
 	 */
 	public final void setSelected(final boolean selected) {
 		this.isSelected = selected;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -121,6 +124,8 @@ public class UserInfo {
 	 */
 	public final void setContactState(final boolean contactState) {
 		this.isContact = contactState;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -137,22 +142,8 @@ public class UserInfo {
 	 */
 	public final void setPublicNote(final String note) {
 		this.publicNote = note;
-	}
-
-	/**
-	 * @see #personalNote
-	 * @return The value of personalNote.
-	 */
-	public final String getPersonalNote() {
-		return personalNote;
-	}
-
-	/**
-	 * @see #personalNote
-	 * @param note The new value of note.
-	 */
-	public final void setPersonalNote(final String note) {
-		this.personalNote = note;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -169,6 +160,8 @@ public class UserInfo {
 	 */
 	public final void setLocked(final boolean locked) {
 		this.isLocked = locked;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -185,6 +178,8 @@ public class UserInfo {
 	 */
 	public final void setUserId(final int id) {
 		this.userId = id;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**
@@ -193,14 +188,6 @@ public class UserInfo {
 	 */
 	public final String getUserName() {
 		return userName;
-	}
-
-	/**
-	 * @see #userName
-	 * @param name The new value of name.
-	 */
-	public final void setUserName(final String name) {
-		this.userName = name;
 	}
 
 	/**
@@ -217,6 +204,8 @@ public class UserInfo {
 	 */
 	public final void setAmountOfMoney(final BigDecimal amount) {
 		this.amountOfMoney = amount;
+		setChanged();
+		notifyObservers();
 	}
 
 	/**

@@ -43,7 +43,7 @@ public class RequestFragment extends TransactionFragment {
                 // shouldn't be possible, just double check
                 if (!info.getUserName().equals(Constants.userName)) {
                     if (info.getAmountOfMoney().doubleValue() > 0) {
-                        String[] item = {"normal", info.getPersonalNote(),
+                        String[] item = {"normal", "", // No personal notes
                                 info.getUserName(),
                                 myUserInfo.getUserName(),
                                 info.getPrettyAmount(),
