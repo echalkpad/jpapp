@@ -420,6 +420,7 @@ Citi also has many [API partners](http://www.citimobilechallenge.com/apis/) such
 Our [Uber tutorial](./uber.md) can show you how to get started with their transportation network.
 
 The time saving efforts were largely possible with <a href="http://bluemix.net">Bluemix</a> because:
+
 1. We never had to configure a host machine to run our code.
 2. We never have to figure out how to load balance our code instances.
 3. We got starter code to hit the ground running for our Node.js apps and Push Notification
