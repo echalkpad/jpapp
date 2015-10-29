@@ -144,6 +144,7 @@ public abstract class TransactionFragment extends Fragment
         switch (v.getId()) {
             case R.id.btn_radar_view_cross:
                 keeper.resetTransaction();
+                mTotalAmount.setText("");
                 break;
             default:
                 Log.d(TAG, "Received click from unknown source");
@@ -265,8 +266,6 @@ public abstract class TransactionFragment extends Fragment
                     Log.e(TAG, error);
                 }
 
-                // Display the beautified total to the user.
-                mTotalAmount.setText(keeper.total().toString());
                 // TODO there are better ways to format this string.
             }
         });
@@ -286,6 +285,13 @@ public abstract class TransactionFragment extends Fragment
             return;
         }
 
+        String debug = String.format("Selected Users: %d | Total: %s", keeper.selectedUsers(),
+                keeper.total().toString());
+        Log.d(TAG, debug);
+        for(UserInfo user: mUserBubbles.keySet()) {
+            Log.d(TAG, user.getUserName() + " has " + user.getAmountOfMoney());
+        }
+
         // Amount should only be accessible if user's are selected
         if(keeper.selectedUsers() > 0) {
             mTotalAmount.setEnabled(true);
@@ -294,10 +300,21 @@ public abstract class TransactionFragment extends Fragment
             mTotalAmount.setEnabled(false);
             Log.d(TAG, "No users selected, disabling and resetting total field");
         }
-        mTotalAmount.setText(keeper.total().toString());
 
         // Update the number of selected users
         mSelectCountText.setText("" + keeper.selectedUsers());
+
+        // Enable the next button if a valid transaction has been created
+        String enabled;
+        Log.d(TAG, "keeper total comparison: " + keeper.total().compareTo(BigDecimal.valueOf(0)));
+        if(keeper.selectedUsers() > 0 && keeper.total().compareTo(BigDecimal.valueOf(0)) > 0) {
+            mSendMoneyButton.setEnabled(true);
+            enabled = "enabled";
+        } else {
+            mSendMoneyButton.setEnabled(false);
+            enabled = "disabled";
+        }
+        Log.d(TAG, "Next button " + enabled);
     }
 
     /**

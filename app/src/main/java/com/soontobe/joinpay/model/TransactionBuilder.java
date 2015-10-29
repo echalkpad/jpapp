@@ -1,6 +1,7 @@
 package com.soontobe.joinpay.model;
 
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -80,6 +81,7 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
         // Update the amount for the user
         toSet.setAmountOfMoney(total);
         setChanged();
+        notifyObservers();
         return true;
     }
 
@@ -159,7 +161,6 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
         }
 
         setChanged();
-        notifyObservers();
 
         return true;
     }
@@ -205,7 +206,9 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
         // Get the total remaining to be split amongst unlocked users
         // and how many ways it needs to be split
         BigDecimal totalToSplit = total.subtract(lockedTotal());
-        BigDecimal ways = BigDecimal.valueOf(size() - lockedUsers(), 0);
+        BigDecimal ways = BigDecimal.valueOf(selectedUsers() - lockedUsers(), 0);
+
+        Log.d("Split", "Splitting " + totalToSplit.toString() + " " + ways.toString() + " ways.");
 
 
         // How much each user will get, at least
@@ -218,7 +221,7 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
             // Determine if user will share split charge.
             if(!user.isLocked() && user.isSelected()) {
                 // User will cover the 'at least' amount.
-                BigDecimal amt = BigDecimal.valueOf(each.unscaledValue().longValue(), 2);
+                BigDecimal amt = BigDecimal.valueOf(each.unscaledValue().longValue(), each.scale());
 
                 // Add portion of remainder, if any is available.
                 if(rem.compareTo(BigDecimal.valueOf(0)) > 0) {
@@ -243,6 +246,8 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
             user.setSelected(false);
             user.setPublicNote("");
         }
+        setChanged();
+        notifyObservers();
     }
 
     /**
@@ -321,7 +326,9 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
     public BigDecimal total() {
         BigDecimal amt = BigDecimal.valueOf(0);
         for(UserInfo user: users) {
-            amt.add(user.getAmountOfMoney());
+            if(user.isSelected()) {
+                amt = amt.add(user.getAmountOfMoney());
+            }
         }
         return amt;
     }
