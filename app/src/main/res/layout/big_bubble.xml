@@ -3,13 +3,12 @@
     android:id="@+id/layout_big_bubble"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@drawable/big_bubble_circle">
     
     <FrameLayout 
         android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:background="@drawable/big_bubble_circle"
-        >
+        android:layout_height="200dp">
 
 
         <TextView

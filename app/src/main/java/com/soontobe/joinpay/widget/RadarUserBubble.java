@@ -33,12 +33,25 @@ import java.util.Observer;
  * </br>
  * -->see layout file for detail.
  */
-public class RadarUserBubble extends FrameLayout implements Observer, View.OnClickListener {
+public class RadarUserBubble extends FrameLayout
+        implements Observer, View.OnClickListener {
 
     /**
      * Used for tagging logs from this class.
      */
     private static final String TAG = "user_bubble";
+
+    /**
+     * The size that the user name will shrink to when a money
+     * value is present.
+     */
+    private static final float TEXT_SIZE_SMALL = 14.0f;
+
+    /**
+     * The size that the user name will grow to when no amount
+     * is present.
+     */
+    private static final float TEXT_SIZE_BIG = 18.0f;
 
     /**
      * The user represented by this bubble.
@@ -110,7 +123,11 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
      */
     private OnDeselectListener deselectListener;
 
-    public RadarUserBubble(Context context) {
+    /**
+     * @param context The context in which the bubble is inflated.
+     * @see #RadarUserBubble(Context, AttributeSet, int)
+     */
+    public RadarUserBubble(final Context context) {
         super(context);
         LayoutInflater.from(context).inflate(R.layout.radar_user_bubble, this);
 
@@ -118,7 +135,12 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
         init();
     }
 
-    public RadarUserBubble(Context context, AttributeSet attrs) {
+    /**
+     * @param context The context in which the bubble is inflated.
+     * @param attrs   Not used.
+     * @see #RadarUserBubble(Context, AttributeSet, int)
+     */
+    public RadarUserBubble(final Context context, final AttributeSet attrs) {
         super(context, attrs);
         LayoutInflater.from(context).inflate(R.layout.radar_user_bubble, this);
 
@@ -126,7 +148,16 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
         init();
     }
 
-    public RadarUserBubble(Context context, AttributeSet attrs, int defStyleAttr) {
+    /**
+     * Constructs a new RadarUserBubble.  Only present so that a layouts with
+     * bubbles in them can be inflated.
+     *
+     * @param context      The context in which the bubble is inflated.
+     * @param attrs        Not used.
+     * @param defStyleAttr Not used.
+     */
+    public RadarUserBubble(final Context context, final AttributeSet attrs,
+                           final int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         LayoutInflater.from(context).inflate(R.layout.radar_user_bubble, this);
 
@@ -134,6 +165,23 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
         init();
     }
 
+    /**
+     * Constructs a new RadarUserView.
+     *
+     * @param context The context in which the bubble is being created.
+     * @param info    The user to associate with the bubble.
+     */
+    public RadarUserBubble(final Context context, final UserInfo info) {
+        super(context);
+        LayoutInflater.from(context).inflate(R.layout.radar_user_bubble, this);
+
+        // Associate this bubble with the given user
+        myUserInfo = info;
+        info.addObserver(this);
+
+        // Initialize the UI
+        init();
+    }
 
     /**
      * @param listener The new lock listener.
@@ -165,24 +213,6 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
      */
     public final void setDeselectListener(final OnDeselectListener listener) {
         this.deselectListener = listener;
-    }
-
-    /**
-     * Constructs a new RadarUserView.
-     *
-     * @param context The context in which the bubble is being created.
-     * @param info    The user to associate with the bubble.
-     */
-    public RadarUserBubble(final Context context, final UserInfo info) {
-        super(context);
-        LayoutInflater.from(context).inflate(R.layout.radar_user_bubble, this);
-
-        // Associate this bubble with the given user
-        myUserInfo = info;
-        info.addObserver(this);
-
-        // Initialize the UI
-        init();
     }
 
     /**
@@ -257,7 +287,7 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
             mMoneyText.setVisibility(View.GONE);
 
             // Username gets larger if value is not present.
-            mNameText.setTextSize(18.0f);
+            mNameText.setTextSize(TEXT_SIZE_BIG);
 
             // Reset the username's layout so it rewraps the text.
             FrameLayout.LayoutParams params =
@@ -271,7 +301,7 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
 
             //Restore default layout with money amount
             mMoneyText.setVisibility(View.VISIBLE);
-            mNameText.setTextSize(14.0f);
+            mNameText.setTextSize(TEXT_SIZE_SMALL);
             mNameText.setLayoutParams(nameTextParams);
         }
 
@@ -374,6 +404,12 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
         // Update my selected state of the button
         setSelectState(myUserInfo.isSelected());
 
+        // Make sure the option panel is not visible if user is
+        // not selected.
+        if (!myUserInfo.isSelected()) {
+            switchExpandPanel(false);
+        }
+
         // Update my locked state
         changeLockState(myUserInfo.isLocked());
 
@@ -454,8 +490,11 @@ public class RadarUserBubble extends FrameLayout implements Observer, View.OnCli
     }
 
     @Override
-    public void onClick(View v) {
-        switch(v.getId()) {
+    public final void onClick(final View v) {
+        // Allows the view to route the click events from its
+        // own buttons instead of passing them along to its
+        // containing activity
+        switch (v.getId()) {
             case R.id.user_bubble_button:
                 onSelect(v);
                 break;

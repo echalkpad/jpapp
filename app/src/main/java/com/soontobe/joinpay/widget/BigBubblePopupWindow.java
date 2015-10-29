@@ -1,6 +1,5 @@
 package com.soontobe.joinpay.widget;
 
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup.LayoutParams;
@@ -21,7 +20,7 @@ public class BigBubblePopupWindow extends PopupWindow {
     /**
      * For tagging logs from this class.
      */
-    public static final String TAG = "big_bubble";
+    public static final String TAG = "popup";
 
     /**
      * The user for who this popup window is editing a
@@ -85,6 +84,10 @@ public class BigBubblePopupWindow extends PopupWindow {
         super(contentView, LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT, true);
 
+        // Get the attached view's background so that the user
+        // can click outside of the popup to close it
+        this.setBackgroundDrawable(contentView.getBackground());
+
         Log.d(TAG, "Creating big bubble popup window");
 
         // Collect UI elements
@@ -98,20 +101,23 @@ public class BigBubblePopupWindow extends PopupWindow {
     }
 
     /**
-     * Adds the given watcher to the EditText's listener list.
+     * Sets the text fields focus listener.
      *
-     * @param watcher The TextWatcher to be added.
+     * @param listener The listener to assign to the amount text field.
      */
-    public final void addTextChangedListener(final TextWatcher watcher) {
-        mEditText.addTextChangedListener(watcher);
+    public final void setFocusListener(
+            final View.OnFocusChangeListener listener) {
+        mEditText.setOnFocusChangeListener(listener);
     }
 
     /**
-     * Removes the given TextWatcher from the EditText's listener list.
+     * Sets the OnEditorActionListener of the popup window's amount
+     * field.
      *
-     * @param watcher The TextWatcher to be removed.
+     * @param listener The listener for the amount field.
      */
-    public final void removeTextChangedListener(final TextWatcher watcher) {
-        mEditText.removeTextChangedListener(watcher);
+    public final void setEditorListener(
+            final TextView.OnEditorActionListener listener) {
+        mEditText.setOnEditorActionListener(listener);
     }
 }

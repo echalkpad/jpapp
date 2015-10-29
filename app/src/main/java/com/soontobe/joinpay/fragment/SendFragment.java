@@ -29,11 +29,12 @@ public class SendFragment extends TransactionFragment {
     public final ArrayList<String[]> getPaymentInfo() {
         ArrayList<String[]> paymentInfo = new ArrayList<String[]>();
         Log.d(TAG, "sending from: " + Constants.userName);
-        for (UserInfo info : mUserBubbles.keySet()) {
+        for (UserInfo info : getmUserBubbles().keySet()) {
             if (info.isSelected()) {
                 if (!info.getUserName().equals(Constants.userName)) {
                     String[] item = {"normal", "", // No personal notes
-                            myUserInfo.getUserName(), info.getUserName(),
+                            getMyUserInfo().getUserName(),
+                            info.getUserName(),
                             "$ " + String.format("%.2f", info
                                     .getAmountOfMoney()),
                             "notPending", "sending"};
@@ -45,7 +46,8 @@ public class SendFragment extends TransactionFragment {
             }
         }
 
-        String[] groupNote = {"group_note", mGroupNote.getText().toString()};
+        String[] groupNote = {"group_note",
+                getmGroupNote().getText().toString()};
         if (groupNote[1].length() > 0) {
             paymentInfo.add(groupNote);
         }
@@ -56,8 +58,8 @@ public class SendFragment extends TransactionFragment {
         String strDate = sdf.format(c.getTime());
 
         String[] summary = {"summary", strDate,
-                String.valueOf(keeper.selectedUsers()),
-                "$ " + mTotalAmount.getText().toString()};
+                String.valueOf(getKeeper().selectedUsers()),
+                "$ " + getmTotalAmount().getText().toString()};
         paymentInfo.add(summary);
         return paymentInfo;
     }

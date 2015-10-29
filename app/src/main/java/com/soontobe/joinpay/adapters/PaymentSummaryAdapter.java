@@ -30,6 +30,9 @@ import java.util.Collection;
  */
 public class PaymentSummaryAdapter extends BaseAdapter {
 
+    /**
+     * Used for tagging logs from this class.
+     */
     private static final String TAG = "transaction_adapter";
     private Context context;
     private ArrayList<Transaction> values;

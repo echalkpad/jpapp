@@ -32,20 +32,21 @@ public class RequestFragment extends TransactionFragment {
         Log.d(TAG, "requesting to: " + Constants.userName);
 
 
-        String[] groupNote = {"group_note", mGroupNote.getText().toString()};
+        String[] groupNote = {"group_note", getmGroupNote()
+                .getText().toString()};
         if (groupNote[1].length() > 0) {
             Log.d(TAG, "adding the group note: " + groupNote[1]);
             paymentInfo.add(groupNote);
         }
 
-        for (UserInfo info : mUserBubbles.keySet()) {
+        for (UserInfo info : getmUserBubbles().keySet()) {
             if (info.isSelected()) {
                 // shouldn't be possible, just double check
                 if (!info.getUserName().equals(Constants.userName)) {
                     if (info.getAmountOfMoney().doubleValue() > 0) {
                         String[] item = {"normal", "", // No personal notes
                                 info.getUserName(),
-                                myUserInfo.getUserName(),
+                                getMyUserInfo().getUserName(),
                                 info.getPrettyAmount(),
                                 "isPending", "requesting"};
                         paymentInfo.add(item);
@@ -63,8 +64,8 @@ public class RequestFragment extends TransactionFragment {
         String strDate = sdf.format(c.getTime());
 
         String[] summary = {"summary", strDate,
-                String.valueOf(keeper.selectedUsers()),
-                keeper.total().toString()};
+                String.valueOf(getKeeper().selectedUsers()),
+                getKeeper().total().toString()};
         paymentInfo.add(summary);
         return paymentInfo;
     }

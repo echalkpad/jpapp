@@ -71,7 +71,7 @@ public class Transaction {
     /**
      * Key for the creation date of the transaction.
      */
-    private static final String KEY_CREATED = "created";
+    private static final String KEY_CREATED = "timestamp";
 
     /**
      * Key for the status of the transaction.
@@ -406,9 +406,9 @@ public class Transaction {
      */
     public final String getPrettyAmount() {
         String tempString = amount;
-        if(amount.startsWith("$ ")) {
+        if (amount.startsWith("$ ")) {
             tempString = amount.replace("$ ", "");
-        } else if(amount.startsWith("$")) {
+        } else if (amount.startsWith("$")) {
             tempString = amount.replace("$", "");
         }
 
