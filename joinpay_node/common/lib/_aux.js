@@ -59,10 +59,6 @@ module.exports.send_push_notification = function (username, msg, cb){
 				};
 	options.success = function(statusCode, data){
 		console.log("POST Push - success", data);
-		try{
-			data = JSON.parse(data);
-		}
-		catch(e){}
 		if(cb) cb(null, data);
 	};
 	options.failure = function(statusCode, e){

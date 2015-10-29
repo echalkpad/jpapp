@@ -7,13 +7,12 @@ module.exports = function(Citibank) {
 	/////////////////////////////////////////////////////
 	var body = {};
 	Citibank.observe('before save', function(ctx, next) {
-		if (ctx.instance) {					//creating new one
+		if (ctx.instance) {															//creating new one
 			body = ctx.instance;
 		}
-		else {								//editing existing
+		else {																		//editing existing
 			body = ctx.data;
 		}
-		//console.log(ctx);
 		
 		if(body.citi_account != ' ') register_citi(body.citi_account, next);		//blank is a placeholder, just create the model
 		else next();
@@ -33,12 +32,12 @@ module.exports = function(Citibank) {
 			next(e, null);
 		}
 		else {
-			if(profile.password != body.citi_password){				//error with password
+			if(profile.password != body.citi_password){								//error with password
 				console.log('password does not match');
 				e = {name: "no auth", status:401, message:"password or username does not match"};
 				next(e, null);
 			}
-			else{													//all good, continue with save
+			else{																	//all good, continue with save
 				next();
 			}
 		}

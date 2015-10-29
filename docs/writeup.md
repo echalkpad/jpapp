@@ -16,7 +16,7 @@ We were able to do this by using the plethora of services and applications that 
 Citibank is taking full advantage of the unique opportunities offered in the world of cloud development by crowd-sourcing their technology innovations.
 They have staged a hackathon called the <a href="http://www.citimobilechallenge.com/index.php">Citi Mobile Challenge</a>,
 in which they gave developers access to a set of mocked-up APIs that allowed programmatic access to Citi's banking services.
-They also encourge use of their [API Partners](http://www.citimobilechallenge.com/apis/).
+They also encourage use of their [API Partners](http://www.citimobilechallenge.com/apis/).
 Developers compete to produce the most innovative mobile app using these APIs.
 JoinPay started its life as the winner of the 2014 Citi Mobile Challenge.
 The idea behind JoinPay was to allow Citi account holders to split a bill at a restaurant by authorizing transfers between Citi accounts using their mobile devices.
@@ -36,7 +36,7 @@ The features we needed JoinPay to deliver can be summarized as the following:
 This type of architecture boils down to what has been dubbed "Two speed IT".
 In two speed IT a large cog (Citi) is powering a smaller faster cog (JoinPay).
 The two companies intersect via APIs to deliver a compelling product.
-In our specific case the large cog will expose restful APIs which Joinpay will leverage to implement their bill splitting application.
+In our specific case the large cog will expose restful APIs which JoinPay will leverage to implement their bill splitting application.
 The small cog is able to iterate quickly and focus on specific functionality.
 Their quick speed is in part due to their small size (employee wise), but also their focused scope of a UI driven product.
 The large cog is able to concentrate on the slower moving parts such as DB compliance, availability and privacy.
@@ -46,7 +46,7 @@ An architecture that implements the features we need is in the figure below:
 ![Architecture](./imgs/arch_img.png)
 	
 ##User Story
-Lets first flush out the particualr user story we want to fulfill:
+Let’s first flush out the particular user story we want to fulfill:
 
 A user, let's call him Bob, goes out for dinner with some friends including Alice.
 Bob picks up the tab and now wants to receive payment from Alice.
@@ -71,173 +71,265 @@ For example, why does Alice need to know Bob's location?  She really just needs 
 The API can provide this safer level of abstraction.
 <br/>
 <br/>
-Utilizing a REST API also allows us to separate development to multiple developers (everybody grab an API and go!).
-First, we established an agreement between developers on what the specifications for the API will look like.
-The specs identify aspects of the api such as what URLs provide which information, what parameters are required for each endpoint, and the format of each.
-We used a representation framework for REST APIs called <a href="http://swagger.io">Swagger</a> to communicate and broadcast the specifications for each API to each other.
-Swagger allowed us to focus on the inputs and outputs of the API rather than the implementation details.
-We authored our swagger specification, using version control to track and share it.
-One we agreed on a final form of the spec, the backend team could focus on implementing the API, and the UI team could focus on integrating the story-based UI with the backend.
-We agreed on the following specification:
 
-## API Documentation (Swagger)
-![swagger](./imgs/swagger_img.png)
-After that we chose how to structure our backend, we need to choose how to implement it.
-We chose to use <a href="https://nodejs.org/">Node.js</a> within <a href="http://bluemix.net">Bluemix</a>.
-<a href="https://nodejs.org/">Node.js</a> with <a href="http://expressjs.com/">Express</a> is a great platform for developing REST APIs quickly and easily.
+##Enter LoopBack
+![loopback](./imgs/strongloop.png) ![loopback](./imgs/loopback.png) 
+
+Creating APIs in Node.js is simple enough, but a framework such as [LoopBack](http://loopback.io/) can make it even faster and more organized.
+LoopBack uses a model driven approach to generate APIs (runnable node.js code) and even [Swagger](http://swagger.io/) (REST API documentation).
+LoopBack is a great fit for this project since we can describe all entities of the project with data models.
+Models are descriptions/schemas of the data objects your system will contain.  Our project will have the following models:
+###Models
+1. Users
+2. Transactions
+3. Locations
+4. Citi Accounts
+
+LoopBack has a simple CLI wizard, called slc, to help generate the models. 
+Before we create models we should create the base project.
+
+	> npm install -g strongloop
+	> slc loopback
+	
+	[?] Enter a directory name where to create the project: joinpay
+	[?] What's the name of your application? joinpay
+	
+Now we can create our first model "user".
+We will take advantage of the base model "User" which will give us many fields such as:
+
+- username
+- password
+- email
+- emailVerified
+- verificationToken
+- status
+- created
+- lastUpdated
+
+The base "User" model also give us powerful [permissions/roles](https://docs.strongloop.com/display/public/LB/Controlling+data+access) to help restrict access to the model and even fields.
+We will explore these later.
+
+Let’s create the model now. The only field we need to add is a field to contain the URL of a profile image.
+	
+	> cd joinpay
+	> slc loopback:model
+	
+	[?] Enter the model name: user
+	[?] Select the data-source to attach person to: db (memory)
+	[?] Select the model's base class
+	> User
+	[?] Expose person via the REST API? Yes
+	[?] Custom plural form (used to build REST URL): users
+	Let's add some person properties now.
+	
+	Enter an empty property name when done.
+	[?] Property name: img
+	[?] Property type:
+	> string
+	[?] Required? (y/N) y
+
+That’s it.
+You can view/edit the generate files in "joinpay\common\models".
+We can start the app and view the StrongLoop API Explorer to see the generated [swagger](http://swagger.io/) and even test the REST API calls for "users".
+
+	> node ./	
+If you used default config settings it will be expose on [http://localhost:3000/explorer/](http://localhost:3000/explorer/)
+
+<br/>
+
+## JoinPay Swagger
+Now lets fast forward and show you what we created for JoinPay.
+
+![LoopBack](./imgs/swagger_img.png)
+
+The swagger above shows the CRUD for each of the models we needed exposed.
+I'd recommend viewing our models in our repo at "joinpay\common\models" to see the modifications we made to the generated files.
+
+<br/>
+
+##Model Relations
+Setting up a relation is helpful because it will generate the corresponding REST API methods.
+For example "user" has a "hasOne" relation with "location".
+With this setup LoopBack will create CRUD endpoints for /users/{id}/location.
+
+![relations](./imgs/relations.png)
+
+LoopBack allows you to [relate models](https://docs.strongloop.com/display/public/LB/Creating+model+relations) by creating an entry in the "relations" field of the parent.
+Below is a subset of our user.json file for our "users" model.
+In it you will see 4 entries which represent our models.
+Each of the relations follow this format:
+
+	"DESIRED_REST_NAME": {
+							"type": "hasMany OR hasOne, OR belongsTo OR hasManyThrough",
+							"model": "MODEL_NAME",
+							"foreignKey": "NAME_OF_FIELD_FOUND_IN_MODEL_NAME"
+						}
+The "foreignKey" field should be the name of the field that exist in the child model that relates to the parent.
+For example our User's ID field will exist in the Location's username field.
+FYI LoopBack supports other more complicated relations with the [HasManyThrough](https://docs.strongloop.com/display/public/LB/HasManyThrough+relations) key type.
+
+
+Abbreviated /joinpay/common/user.json :
+
+	{
+		"name": "user",
+		"plural": "users",
+		"base": "User",
+		"idInjection": true,
+		"properties": {
+			...
+		},
+		"validations": [],
+		"relations": {
+			"credits": {
+				"type": "hasMany",
+				"model": "transaction",
+				"foreignKey": "toUser"
+			},
+			"debits": {
+				"type": "hasMany",
+				"model": "transaction",
+				"foreignKey": "fromUser"
+			},
+			"location": {
+				"type": "hasOne",
+				"model": "location",
+				"foreignKey": "username"
+			},
+			"citibank": {
+				"type": "hasOne",
+				"model": "citibank",
+				"foreignKey": "username"
+			}
+		},
+		"acls": [
+			{
+			"principalType": "ROLE",
+			"principalId": "$owner",
+			"permission": "ALLOW",
+			"property": "__create__credits"
+			},
+			{
+			"principalType": "ROLE",
+			"principalId": "$owner",
+			"permission": "ALLOW",
+			"property": "__get__credits"
+			},
+			{
+			"principalType": "ROLE",
+			"principalId": "$owner",
+			"permission": "ALLOW",
+			"property": "__findById__credits"
+			},
+			{
+			"principalType": "ROLE",
+			"principalId": "$owner",
+			"permission": "ALLOW",
+			"property": "__updateById__credits"
+			}
+			...
+		],
+		"methods": {}
+	}
+One thing that should stand out is that we cosmetically renamed the transaction model to "credits" and "debits".
+This allows us to use LoopBack's built in CRUD generation to get transactions from either perspective.
+If we only had one model the generated CRUD APIs will only allow us to look up transactions from either the "fromUser" or "toUser field.
+
+
+###Authentication and Permissions
+One of the greatest features of LoopBack is its built in user authentication and permission system.
+Since we choose "User" as a base class for "users" we already have log in and restrictive access features.
+Also note that all of our models are related to the "user" model.
+Therefore access to each model can also be protected.
+LoopBack has a really granular level of permissions.
+I recommend reading their documentation on permissions before attempting to manipulate them.
+- [LoopBack Permissions](https://docs.strongloop.com/display/public/LB/Authentication%2C+authorization%2C+and+permissions)
+
+In our abbreviated example above you can see we have allowed the "$owner" to create/edit/find/update "credits".
+Also note that the base model "User" has its own set of "acls" that can be found in LoopBack's core module.
+- \joinpay\node_modules\loopback\common\models\user.json
+
+####Login
+The login endpoint accepts the following body:
+
+	{
+		"username": "bob",
+		"password": "password"	
+	}
+	
+If successful it will then return with an access_token. 
+This is a model that is related to the base "User" class.
+The access_token's ID should be provided in an Authorization header like so:
+
+	Authorization: ACCESS_TOKEN
+	
+Any API endpoints that are protected with $authorized or $owner will need this header.
+In JoinPay almost everything is protected at the $owner level.
+
+###Datasources
+Something you may notice is we changed the data source of our models to "cloudant" from "db (memory)".
+[Cloudant](https://cloudant.com/) is couchDB based, which is not supported natively by LoopBack.
+You will need to install the connector [loopback-connector-couch](https://www.npmjs.com/package/loopback-connector-couch).
+Then you should add an entry to your datasources.json file like below:
+
+/joinpay/server/datasources.json
+
+	{
+		"db": {
+			"name": "db",
+			"connector": "memory"
+		},
+		"cloudant": {
+			"host": "YOUR-INSTANCE-bluemix.cloudant.com",
+			"port": 443,
+			"name": "cloudant",
+			"connector": "couch",
+			"db": "records",
+			"protocol": "https",
+			"auth": {
+			"admin": {
+				"username": "YOUR-INSTANCE-USER",
+				"password": "YOUR-INSTANCE-PASSWORD"
+			},
+			"reader": {
+				"username": "YOUR-INSTANCE-USER",
+				"password": "YOUR-INSTANCE-PASSWORD"
+			},
+			"writer": {
+				"username": "YOUR-INSTANCE-USER",
+				"password": "YOUR-INSTANCE-PASSWORD"
+			}
+			},
+			"views": [
+			{
+				"ddoc": "_design/all",
+				"name": "new-view"
+			}
+			]
+		}
+	}
+	
+Now if you change the model's entry in /joinpay/server/model-config.json from "db" to "cloudant" it will search Cloudant for the data object.
+
+
+<br/>
+
+##Bluemix
+Now that we have the project working locally we need to choose how to host it.
+We chose to host our <a href="https://nodejs.org/">Node.js</a> code with <a href="http://bluemix.net">Bluemix</a>.
 <a href="http://bluemix.net">Bluemix</a> is a IBM's PaaS Solution that allows us to host our running Node.js code without us having to setup a host machine/VM.
 The <a href="https://github.com/cloudfoundry/nodejs-buildpack">Node.js buildpack</a> allowed us to simply push our Node.js code along with a package.json file and end up with a running API in the cloud.
 <a href="http://bluemix.net">Bluemix</a> also enables our app to scale at the literal push of a button.
 By simply increasing the number of app instances it will deploy a load-balanced environment to meet our user demand.
 Not only that, but when it comes to databases selection we have several options that are already integrated in <a href="http://bluemix.net">Bluemix</a>.
-We choose to use <a href="https://www.ng.bluemix.net/docs/#services/Cloudant/index.html#Cloudant">Cloudant</a> as our database solution because of its great high availability, and ease of use.
-Now that all of the structure is decided let's see the architecture diagram:
+
 <br/>
-
-We will not bore you with every API endpoint in detail, but its probably worth it to examine one or two.
-Our APIs are secured by requiring a session ID that is only achieved after the user has logged in.
-The Login API is listed below:
-
-- POST /login
-	- This api expects the username and password to be in the body of the message.  It should be formatted as JSON.
-	- A small bit of code is needed to enforce HTTPS in our Node.js application.  This will encrypt our request and keep it's body hidden from prying eyes.
-
-	
-<br/>
-
-###Login Code###
-	app.post('/login', function (req, res){
-		res.set("Content-Type", "application/json")
-		var db = new PouchDB(dbConnectionString + "/users")
-		
-		/**
-		* You'got to at least send user a username and password.
-		*/
-		if (! req.body.hasOwnProperty('username') ||
-			! req.body.hasOwnProperty('password'))
-		{
-			res.status(400).end(JSON.stringify({"message":"Incorrect request. Please specify a username and password."}))
-		}
-		else //correctly formed request.
-		{
-			/**
-			* Access the user database to check and see if they sent the right password.
-			*/
-			db.get(req.body.username, function(err, doc) {
-				if (err && err.status != 404)
-				{
-					res.status(500).end(JSON.stringify({
-						"message":	"There was a problem communicating with the database while logging in.",
-						"error"	 :	err
-						}))
-				}
-				
-				/**
-				* Is the user even IN the database?
-				*/
-				if (typeof doc == 'undefined')
-				{
-					res.status(403).end(JSON.stringify({"message":"Incorrect username or password"}))
-				} 
-				else //Yeah, user's in the database
-				{
-					/**
-					* Did they have the right password?
-					*/
-					if (req.body.password === doc.password)
-					{
-						/**
-						* They did, so set the session object to be this user, and
-						* reply with OK.  The session cookie will be set automatically
-						* by the middleware.
-						*/
-						req.session.user = doc
-						res.end(JSON.stringify({"message":"OK"}))
-					}
-					else //Wrong password.
-					{
-						/**
-						* Make it indistinguishable whether the username or password was incorrect.
-						*/
-						res.status(403).end(JSON.stringify({"message":"Incorrect username or password"}))
-					}
-				}
-			})
-		}
-	})
-	
-<br/>
-
-- GET /transactions
-	- This api expects nothing!  Since all API calls are secured with a unique session ID the backend will know who is calling and can look up the requester's known transactions.
-	- Transactions in this context are pending/approved/denied payment transfers.  Each is stored as its own document in a 'transactions' database within Cloudant.
-	- It will respond with a JSON payload containing an array of transaction details.
-	
-###Transactions Code
-	app.get('/transactions', function(req, res) {
-		res.set("Content-Type", "application/json")
-		var transdb = new PouchDB(dbConnectionString + "/transactions")
-		transdb.allDocs({include_docs: true}, function (err, response) {
-			/**
-			* There may be some problem loading the documents.
-			*/
-			if (err)
-			{
-				res.status(500).end(JSON.stringify({
-					"message":"An error occurred while looking up transactions.",
-					"error": err
-						}))
-			}
-			else
-			{
-				/**
-				* We'll return an empty object if there's nothing in the table
-				* for this particular user.
-				*/
-				var toRet = {
-						moneyIn: [],
-						moneyOut: []
-				}
-				/**
-				* Iterate through the things in the table; if the logged in user
-				* is either the FROM user or the TO user, add the doc to the list
-				* in the appropriate part of the data structure.
-				*/
-				response.rows.forEach(function (element, index, array) {
-					/**
-					* Money in is if he is the TO user,
-					* Money out is if he is the FROM user.
-					*/
-					if (element.doc.toUser === req.session.user._id)
-					{
-						toRet.moneyIn.push(element.doc)
-					}
-					else if (element.doc.fromUser === req.session.user._id)
-					{
-						toRet.moneyOut.push(element.doc)
-					}
-				})
-				
-				/**
-				* If there were no errors, go ahead and send the response.
-				*/
-				res.end(JSON.stringify(toRet))
-			} //else the databse lookup was OK
-		})
-	})
-
-
-All the other APIs were created in a similar manner.
-Since most APIs are independent they can be divvied up to speed up development.
-
-
-
-Now that our first 2 tasks are taken care of let's look at how we would implement Push Notifications.
-Well, just like before, <a href="http://bluemix.net">Bluemix</a> comes to save the day with its built-in <a href="https://www.ng.bluemix.net/docs/#services/push/index.html#gettingstarted">Push Service</a>.
 
 ##IBM Push
 ![IBM Push](./imgs/push_img.png)
-<br/>
+
+Let's examine how we implemented Push Notifications.
+Luckily enough <a href="http://bluemix.net">Bluemix</a> has a registered service just for this: <a href="https://www.ng.bluemix.net/docs/#services/push/index.html#gettingstarted">Push Service</a>.
 
 Great, so once we add the tile we can configure it to work with our Google Developer Account (it can also do iOS if you're into that kind of thing).
 If you open the Push tile there will be a link to starter code that shows how to integrate the reception of a Push Notification.
@@ -247,150 +339,77 @@ From here we can send push to specific devices, device users, device categories,
 
 On the initiating side of things we have a JS function to trigger the push notification seen below.
 
-###Trigger Push Notification Code
-	function sendPushNotification(sendTo, messageToSend) {
-		var options = { 
-			host: "mobile.ng.bluemix.net",
-			path: "push/v1/apps/[our app key here]/messages",
-			method: "POST",
-			headers: {
-				'Content-Type': 'application/json',
-				'IBM-Application-Secret': '[our app secret here]'
-			}
+Push Notification Code:
+
+	//send push notification with IBM push service
+	module.exports.send_push_notification = function (username, msg, cb){
+		console.log('send_push_notification() - fired:', username, ":", msg);
+		var options = 	{
+							host: "mobile.ng.bluemix.net",
+							path: "push/v1/apps/3fdaeee4-d711-4ffe-9681-6afee65a120a/messages",
+							headers: {
+								'Content-Type': 'application/json',
+								'IBM-Application-Secret': '8c55c943843f34c14672d6f36cfe4fe3f6961d1d'
+							}
+						};
+		var body = {
+						"message": {
+										"alert": msg
+									},
+						"target": {
+									"consumerIds":[ {"consumerId": username }]
+						}
+					};
+		options.success = function(statusCode, data){
+			console.log("POST Push - success", data);
+			if(cb) cb(null, data);
 		};
-	
-		var myReq = https.request(options, function(myRes) {
-			var responseString = '';
-	
-			myRes.on('data', function(data) {
-				responseString += data;
-			});
-	
-			myRes.on('end', function() {
-				try
-				{
-					responseObject2 = JSON.parse(responseString)
-					console.log("Sent push notification and got response: " + JSON.stringify(responseObject2))
-				}
-				catch (err)
-				{
-					console.log("Error while sending push notification: " + err)
-				}
-			});
-		});
-		var notification = 
-		{
-				"message": 
-				{
-					"alert": messageToSend
-				},
-				"target":
-				{
-					"consumerIds":
-						[ 
-							{"consumerId": sendTo } 
-						]
-				}
-		}
-		console.log("Sending push notification: " + JSON.stringify(notification))
-		myReq.write(JSON.stringify(notification))
-		myReq.end()
-	}
+		options.failure = function(statusCode, e){
+			console.log("POST Push - failure", e);
+			if(cb) cb(statusCode, e);
+		};
+		rest.post(options, '', body);
+	};
 
-It's simply another RESTFUL endpoint.  
+It's simply another RESTFUL endpoint. 
 It's actually a rather straightforward REST call using Node.js's "request" module.
-First an "options" object is set up that contains critical fields for describing the HTTP request such as "host", "path", "method", and 'headers".
-The payload of the request is setup with the line myReq.write(JSON.stringify(notification)); where notification is an object containing the text of the notification.
-Then it's just a matter of implementing the "requests" module's way of receiving the data, and finally initiating the call itself with myReq.end().
+First an "options" object is set up that contains critical fields for describing the HTTP request such as "host", "path", and 'headers".
+The payload of the request is setup in the "body" variable.
 
+<br/>
+
+##Location
 Next on our list is to find nearby users.
-We decided to implement this in our Node.js APIs with two simiple endpoints:
-- PUT /currentLocation
+This is implemented in our Node.js APIs with two endpoints:
+- PUT /users/{id}/location
 	- This api expects the location to be in the body of the message.  Formatted as JSON with the fields "latitude" and "longitude".
-- GET /nearby/users
-	- This api expects nothing!  Since all API calls are secured with a unique session ID the backend will know who is calling and can look up the requester's last known location.
+- GET /users/{id}/locatioin/friends
 	- It will respond with a JSON payload containing an array of usernames and their distances to the requester's location.
+	- This is a non-CRUD API and requies uses LoopBack's [Remote Method](https://docs.strongloop.com/display/public/LB/Remote+methods)
+	- Our code for the remote method can be found in /joinpay/models/common/user.js
 
 
 Some basic Android code is needed to periodically talk to the device's GPS and receive latitude and longitude coordinates. 
 Then its just a matter of invoking the API to update the user's location, and periodically call GET /nearby/users to update the user map.
 
+<br/>
+
+##Money
 Nearly there now.  This may be the most important part of the whole application. 
 It's time to interact with Citi Bank's APIs to move money!
 Unfortunately they do not exist in a usable form for this application.
 This may seem like a major deal-breaker, but's actually quite common of a problem.
 By leveraging a rapid development model, you may often find yourself ahead of the development of other projects that yours depends on.
 Waiting is one option, but that's boring.
+
 When the road runs out our group's preference is to start building the road our self.
 Therefore we spin up another Node.js app, and start writing our own implementation of the Citi Bank APIs.
 Obviously we do not have real money to move around, so from a money perspective these APIs are fake.
 In every other regard these APIs are very real.  They know about users, accounts, balances, transactions, and security elements (authorization).
 Ideally we built these APIs as close to the real thing as possible, such that flipping to the real ones involves only changing the endpoint's URL.
 After all from JoinPay's perspective the Citi APIs are just a black box.
-Below is one example of calling our Citi APIs.
-In particular this one deals with getting the user's Citi account information.
 
-###Citi Account Balance Code
-	app.get('/myAccount', function(req, res) {
-		res.set('Content-Type', 'application/json')
-		if (req.session.user.default_account == "")
-		{
-			res.status(404).end(JSON.stringify({"message":"You do not currently have an associated account."}))
-		}
-		else //don't do any of this without an associated account
-		{
-			var options = { 
-				host: "[url to citi apis here]",
-				path: "/api/account/" + req.session.user.default_account,
-				method: "GET",
-				headers: {
-					'Content-Type': 'application/json',
-					'API-Auth-Token': '[token here]'
-				}
-			};
-		
-		var myReq = http.request(options, function(myRes) {
-			var responseString = '';
-		
-			myRes.on('data', function(data) {
-				responseString += data;
-			});
-		
-			myRes.on('end', function() {
-				try
-				{
-					console.log(responseString)
-					responseObject2 = JSON.parse(responseString)
-					console.log("Communicated with Citi backend and received response: " + JSON.stringify(responseObject2))
-					res.send(responseObject2)
-				}
-				catch (err)
-				{
-					res.status(500).end(JSON.stringify({
-						"message":"An error occurred while communicating with the Citi APIs",
-						"error": JSON.stringify(err)}))
-				} //catch
-			}) //myres.on
-		}) //myreq
-		console.log("Sending request for account information")
-		myReq.end()
-		} //else they have an associated account
-	}) //put approve/deny
-
-It's another straightforward REST call using Node.js's "request" module.
-The very first thing we do is inspect the user's session to see if there is currently a known Citi account id.
-This would have been populated when the user logged in.
-Next an "options" object is set up that contains critical fields for describing the HTTP request such as "host", "path", "method", and 'headers" (same as before).
-Then it's just a matter of implementing the "requests" module's way of receiving the data, and finally initiating the call itself with myReq.end().
-When the request is successful it will attempt to parse the result from Citi (looking for JSON format) and if that's also successful it will send the JSON back to the app that made the original call.
-
-Finally we come to the last task which was to build it as fast as possible.
-The time saving efforts were largely possible with <a href="http://bluemix.net">Bluemix</a> because:
-1. We never had to configure a host machine to run our code.
-2. We never have to figure out how to load balance our code instances.
-3. We got starter code to hit the ground running for our Node.js apps and Push Notification
-4. We never had to hardcode/protect our database credentials
-5. We never had to build a monitoring service to keep our service up should it crash
+<br/>
 
 ##Final Words
 Development at lightning speed can have its pitfalls and limitations, but if you plan accordingly and leverage tool sets such as those found in <a href="http://bluemix.net">Bluemix</a> its quite possible.
@@ -398,6 +417,13 @@ The end result of our endeavor is quite positive.
 If we did this again we would like to use some of the other services found in the Bluemix catalog such as the debugging service for mobile apps: 
 <a href="https://mqedg.mybluemix.net/MQEHelp.jsp#">Mobile Quality Extension</a>.
 Citi also has many [API partners](http://www.citimobilechallenge.com/apis/) such as [Uber](https://uber.com).
-Our [Uber tutorial](./uber.md) can show you how to get started with their transporation network.
+Our [Uber tutorial](./uber.md) can show you how to get started with their transportation network.
 
+The time saving efforts were largely possible with <a href="http://bluemix.net">Bluemix</a> because:
+
+1. We never had to configure a host machine to run our code.
+2. We never have to figure out how to load balance our code instances.
+3. We got starter code to hit the ground running for our Node.js apps and Push Notification
+4. We never had to hardcode/protect our database credentials
+5. We never had to build a monitoring service to keep our service up should it crash
 
