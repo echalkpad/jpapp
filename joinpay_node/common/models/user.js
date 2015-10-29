@@ -3,18 +3,18 @@ var geolib = require('geolib');
 var aux = require('../lib/_aux');
 
 module.exports = function(User) {
-	//User.disableRemoteMethod('find', true);						//removes GET /users
-	User.disableRemoteMethod('upsert', true);					//removes PUT /users
-	User.disableRemoteMethod('findOne', true);						//removes GET /users/findOne
-	User.disableRemoteMethod('count', true);						//removes GET /users/count
+	//User.disableRemoteMethod('find', true);							//removes GET /users
+	User.disableRemoteMethod('upsert', true);							//removes PUT /users
+	User.disableRemoteMethod('findOne', true);							//removes GET /users/findOne
+	User.disableRemoteMethod('count', true);							//removes GET /users/count
 	
-	User.disableRemoteMethod('confirm', true);					//removes PUT /users
+	User.disableRemoteMethod('confirm', true);							//removes PUT /users
 	
-	User.disableRemoteMethod('deleteById', true);				//removes DELETE /users/{id}
-	User.disableRemoteMethod('updateAll', true);				//removes POST /users/update
-	User.disableRemoteMethod('createChangeStream', true);		//removes GET & POST /users/change-stream
-	User.disableRemoteMethod('queryView', true);				//removes GET /users/queryView [from couchdb connector]
-	User.disableRemoteMethod('resetPassword', true);			//removes POST /reset [password reset]
+	User.disableRemoteMethod('deleteById', true);						//removes DELETE /users/{id}
+	User.disableRemoteMethod('updateAll', true);						//removes POST /users/update
+	User.disableRemoteMethod('createChangeStream', true);				//removes GET & POST /users/change-stream
+	User.disableRemoteMethod('queryView', true);						//removes GET /users/queryView [from couchdb connector]
+	User.disableRemoteMethod('resetPassword', true);					//removes POST /reset [password reset]
 	
 	User.disableRemoteMethod('__delete__accessTokens', false); 			// DELETE
 	User.disableRemoteMethod('__destroyById__accessTokens', false); 	// DELETE
@@ -153,9 +153,9 @@ module.exports = function(User) {
 	});
 	
 	
-	/////////////////////////////////////////////
-	//// Init other things /////
-	///////////////////////////////////////////
+	///////////////////////////////
+	////   Init other models  /////
+	///////////////////////////////
 	User.observe('after save', function(ctx, next) {
 		var body = {};
 		if (ctx.instance) {					//creating new one

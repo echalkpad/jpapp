@@ -3,19 +3,19 @@ var rest = require('../../utils/rest');
 var aux = require('../lib/_aux');
 
 module.exports = function(Transaction) {
-	Transaction.disableRemoteMethod('deleteById', true);			//removes DELETE /transactions/{id}
-	Transaction.disableRemoteMethod('updateAll', true);				//removes POST /transactions/update
-	Transaction.disableRemoteMethod('createChangeStream', true);	//removes GET & POST /transactions/change-stream
-	Transaction.disableRemoteMethod('queryView', true);				//removes GET /transactions/queryView [from couchdb connector]
+	Transaction.disableRemoteMethod('deleteById', true);										//removes DELETE /transactions/{id}
+	Transaction.disableRemoteMethod('updateAll', true);											//removes POST /transactions/update
+	Transaction.disableRemoteMethod('createChangeStream', true);								//removes GET & POST /transactions/change-stream
+	Transaction.disableRemoteMethod('queryView', true);											//removes GET /transactions/queryView [from couchdb connector]
 	
 	//happens when editing/creating
 	Transaction.observe('before save', function(ctx, next) {
 		var body = {}, temp = {}, e = {}, msg = "", status ="";
-		if (ctx.instance) {									//creating new one [creating initial thing]
+		if (ctx.instance) {																		//creating new one [creating initial thing]
 			console.log('- creating new trans');
 			body = ctx.instance;
 			if(body.status) body.status = body.status.toUpperCase();
-			body.amount = Number(body.amount);											//NaN will trip vaildator
+			body.amount = Number(body.amount);													//NaN will trip vaildator
 			if(body.amount && body.amount > 0) {
 				body.amount = body.amount.toFixed(2);
 				msg = body.toUser + " has charged you $" + body.amount;
@@ -27,24 +27,24 @@ module.exports = function(Transaction) {
 			console.log('next 0');
 			next();
 		}
-		else {												//editing existing [approv or deny]
+		else {																					//editing existing [approv or deny]
 			console.log('- editing trans');
 			body = ctx.data;
 			
 			if(body.status){
-				status = body.status.toUpperCase();										//store temp desired status
-				delete body.amount;														//there is a default value here, remove it
+				status = body.status.toUpperCase();												//store temp desired status
+				delete body.amount;																//there is a default value here, remove it
 				if(ctx.currentInstance.status.toUpperCase() != 'PENDING'){
 					e = {name: "invalid state", status:400, message:"the transaction is no longer pending"};
 					console.log('next 1');
 					console.log(e);
 					next(e, null);
 				}
-				else if(body.status == 'APPROVED'){													//approving
+				else if(body.status == 'APPROVED'){												//approving
 					console.log(' - approving transaction', ctx);
 					if(ctx.currentInstance.amount) ctx.currentInstance.amount = ctx.currentInstance.amount.toFixed(2);
 					msg = ctx.currentInstance.fromUser + " has approved your request of $" + ctx.currentInstance.amount;
-					aux.send_push_notification(ctx.currentInstance.toUser, msg, cb_sent_push);		//send push first
+					aux.send_push_notification(ctx.currentInstance.toUser, msg, cb_sent_push);	//send push first
 				}
 				else{
 					body.status = 'DENIED';														//denying
@@ -56,7 +56,7 @@ module.exports = function(Transaction) {
 					next();
 				}
 			}
-			else {											//error will be caught by vaildator
+			else {																				//error will be caught by vaildator
 				console.log('next 7');
 				next();
 			}
@@ -65,7 +65,7 @@ module.exports = function(Transaction) {
 		//got TO user profile
 		function cb_sent_push(err, data){
 			console.log('cb_sent_push() - fired');
-			app.models.citibank.find({where: {username: ctx.currentInstance.toUser}}, cb_got_profile);			//we already have it in currentInstance
+			app.models.citibank.find({where: {username: ctx.currentInstance.toUser}}, cb_got_profile);	//we already have it in currentInstance
 		}
 	
 		//got TO user profile
