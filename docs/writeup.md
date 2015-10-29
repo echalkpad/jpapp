@@ -73,6 +73,8 @@ The API can provide this safer level of abstraction.
 <br/>
 
 ##Enter LoopBack
+![loopback](./imgs/strongloop.png) ![loopback](./imgs/loopback.png) 
+
 Creating APIs in Node.js is simple enough, but a framework such as [LoopBack](http://loopback.io/) can make it even faster and more organized.
 LoopBack uses a model driven approach to generate APIs (runnable node.js code) and even [Swagger](http://swagger.io/) (REST API documentation).
 LoopBack is a great fit for this project since we can describe all entities of the project with data models.
@@ -128,14 +130,14 @@ Let’s create the model now. The only field we need to add is a field to contai
 
 That’s it.
 You can view/edit the generate files in "joinpay\common\models".
-We can start the app and view the StrongLoop API Explorer to see the generated swagger and even test the REST API calls for "users".
+We can start the app and view the StrongLoop API Explorer to see the generated [swagger](http://swagger.io/) and even test the REST API calls for "users".
 
 	> node ./	
 If you used default config settings it will be expose on [http://localhost:3000/explorer/](http://localhost:3000/explorer/)
 
 <br/>
 
-## StrongLoop
+## JoinPay Swagger
 Now lets fast forward and show you what we created for JoinPay.
 
 ![LoopBack](./imgs/swagger_img.png)
@@ -143,19 +145,31 @@ Now lets fast forward and show you what we created for JoinPay.
 The swagger above shows the CRUD for each of the models we needed exposed.
 I'd recommend viewing our models in our repo at "joinpay\common\models" to see the modifications we made to the generated files.
 
-###Model Relations
+<br/>
+
+##Model Relations
+Setting up a relation is helpful because it will generate the corresponding REST API methods.
+For example "user" has a "hasOne" relation with "location".
+With this setup LoopBack will create CRUD endpoints for /users/{id}/location.
+
+![relations](./imgs/relations.png)
+
 LoopBack allows you to [relate models](https://docs.strongloop.com/display/public/LB/Creating+model+relations) by creating an entry in the "relations" field of the parent.
 Below is a subset of our user.json file for our "users" model.
-In it you will see 4 entries in the relations field.
+In it you will see 4 entries which represent our models.
 Each of the relations follow this format:
 
 	"DESIRED_REST_NAME": {
-				"type": "hasMany OR hasOne, OR belongsTo OR hasManyThrough",
-				"model": "MODEL_NAME",
-				"foreignKey": "NAME_OF_FIELD_FOUND_IN_MODEL_NAME"
-			}
-			
-Abbreviated /joinpay/common/user.json 
+							"type": "hasMany OR hasOne, OR belongsTo OR hasManyThrough",
+							"model": "MODEL_NAME",
+							"foreignKey": "NAME_OF_FIELD_FOUND_IN_MODEL_NAME"
+						}
+The "foreignKey" field should be the name of the field that exist in the child model that relates to the parent.
+For example our User's ID field will exist in the Location's username field.
+FYI LoopBack supports other more complicated relations with the [HasManyThrough](https://docs.strongloop.com/display/public/LB/HasManyThrough+relations) key type.
+
+
+Abbreviated /joinpay/common/user.json :
 
 	{
 		"name": "user",
@@ -220,6 +234,7 @@ Abbreviated /joinpay/common/user.json
 One thing that should stand out is that we cosmetically renamed the transaction model to "credits" and "debits".
 This allows us to use LoopBack's built in CRUD generation to get transactions from either perspective.
 If we only had one model the generated CRUD APIs will only allow us to look up transactions from either the "fromUser" or "toUser field.
+
 
 ###Authentication and Permissions
 One of the greatest features of LoopBack is its built in user authentication and permission system.
