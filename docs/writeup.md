@@ -246,7 +246,7 @@ I recommend reading their documentation on permissions before attempting to mani
 - [LoopBack Permissions](https://docs.strongloop.com/display/public/LB/Authentication%2C+authorization%2C+and+permissions)
 
 In our abbreviated example above you can see we have allowed the "$owner" to create/edit/find/update "credits".
-Also note that the base model "User" has its own set of "acls" that can be found found in loopback.
+Also note that the base model "User" has its own set of "acls" that can be found in LoopBack's core module.
 - \joinpay\node_modules\loopback\common\models\user.json
 
 ####Login
@@ -263,14 +263,16 @@ The access_token's ID should be provided in an Authorization header like so:
 
 	Authorization: ACCESS_TOKEN
 	
-Any API endpoint that are protected with $authorized or $owner will need this header.
+Any API endpoints that are protected with $authorized or $owner will need this header.
 In JoinPay almost everything is protected at the $owner level.
 
 ###Datasources
 Something you may notice is we changed the data source of our models to "cloudant" from "db (memory)".
 [Cloudant](https://cloudant.com/) is couchDB based, which is not supported natively by LoopBack.
 You will need to install the connector [loopback-connector-couch](https://www.npmjs.com/package/loopback-connector-couch).
-// Then you should add an entry to your /joinpay/server/datasources.json file like below:
+Then you should add an entry to your datasources.json file like below:
+
+/joinpay/server/datasources.json
 
 	{
 		"db": {
@@ -337,7 +339,8 @@ From here we can send push to specific devices, device users, device categories,
 
 On the initiating side of things we have a JS function to trigger the push notification seen below.
 
-###Trigger Push Notification Code
+Push Notification Code:
+
 	//send push notification with IBM push service
 	module.exports.send_push_notification = function (username, msg, cb){
 		console.log('send_push_notification() - fired:', username, ":", msg);
@@ -368,7 +371,7 @@ On the initiating side of things we have a JS function to trigger the push notif
 		rest.post(options, '', body);
 	};
 
-It's simply another RESTFUL endpoint.  
+It's simply another RESTFUL endpoint. 
 It's actually a rather straightforward REST call using Node.js's "request" module.
 First an "options" object is set up that contains critical fields for describing the HTTP request such as "host", "path", and 'headers".
 The payload of the request is setup in the "body" variable.
@@ -382,6 +385,8 @@ This is implemented in our Node.js APIs with two endpoints:
 	- This api expects the location to be in the body of the message.  Formatted as JSON with the fields "latitude" and "longitude".
 - GET /users/{id}/locatioin/friends
 	- It will respond with a JSON payload containing an array of usernames and their distances to the requester's location.
+	- This is a non-CRUD API and requies uses LoopBack's [Remote Method](https://docs.strongloop.com/display/public/LB/Remote+methods)
+	- Our code for the remote method can be found in /joinpay/models/common/user.js
 
 
 Some basic Android code is needed to periodically talk to the device's GPS and receive latitude and longitude coordinates. 
@@ -396,6 +401,7 @@ Unfortunately they do not exist in a usable form for this application.
 This may seem like a major deal-breaker, but's actually quite common of a problem.
 By leveraging a rapid development model, you may often find yourself ahead of the development of other projects that yours depends on.
 Waiting is one option, but that's boring.
+
 When the road runs out our group's preference is to start building the road our self.
 Therefore we spin up another Node.js app, and start writing our own implementation of the Citi Bank APIs.
 Obviously we do not have real money to move around, so from a money perspective these APIs are fake.
