@@ -138,6 +138,10 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
             return false;
         }
 
+        // Total will need to be resplit
+        BigDecimal total = total();
+        Log.d(TAG, "Saving total for resplit: " + total.toString());
+
         // Set the selection state of the user.
         toSelect.setSelected(selected);
 
@@ -151,7 +155,8 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
         }
 
         // Selecting or unselecting a user means we need to resplit
-        split(total());
+        Log.d(TAG, "Resplitting " + total.toString());
+        split(total);
 
         // Update observers
         setChanged();
@@ -284,15 +289,16 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
         Log.d("Split", "Splitting " + totalToSplit.toString()
                 + " " + ways.toString() + " ways.");
 
-        // TODO handling of the remainder is wrong.
         // How much each user will get, at least
         BigDecimal each = totalToSplit.divide(ways, 2, RoundingMode.FLOOR);
 
         // Remainder to be divided amongst users until it runs out
-        BigDecimal rem = totalToSplit.remainder(ways);
+        BigDecimal newTotal = each.multiply(ways);
+        BigDecimal remaining = totalToSplit.subtract(newTotal);
 
-        String debug = "Giving %s to each user, with a shared remainder of %s";
-        Log.d("Split", String.format(debug, each.toString(), rem.toString()));
+        String debug = "Giving %s to each user and dividing out remaining %s";
+        Log.d(TAG, String.format(debug, each.toString(),
+                remaining.toString()));
 
         for (UserInfo user : users) {
             // Determine if user will share split charge.
@@ -302,21 +308,25 @@ public class TransactionBuilder extends Observable implements Set<UserInfo> {
                         .valueOf(each.unscaledValue().longValue(),
                                 each.scale());
 
-                // Add portion of remainder, if any is available.
-                if (rem.compareTo(BigDecimal.valueOf(0)) > 0) {
-                    // Add penny to amount
-                    amt = amt.add(BigDecimal.valueOf(1, 2));
-                    // Sub penny from remainder
-                    rem = rem.subtract(BigDecimal.valueOf(1));
+                // Divide out the remainder
+                BigDecimal change = BigDecimal.valueOf(1, SCALE_PENNIES);
+                if (remaining.compareTo(BigDecimal.valueOf(0)) > 0) {
+                    // Need to give a little more
+                    amt = amt.add(change);
+                    remaining = remaining.subtract(change);
+                } else if (remaining.compareTo(BigDecimal.valueOf(0)) < 0) {
+                    // Need to take some back
+                    remaining = remaining.add(change);
+                    amt = amt.subtract(change);
                 }
                 user.setAmountOfMoney(amt);
             }
         }
 
         // Sanity check: make sure total matches given
-        if (!total.equals(total())) {
+        if (total.compareTo(total()) != 0) {
             debug = "Given total %s does not match final total %s";
-            Log.e("Split", String.format(debug, total, total()));
+            Log.e(TAG, String.format(debug, total, total()));
         }
 
         return true;

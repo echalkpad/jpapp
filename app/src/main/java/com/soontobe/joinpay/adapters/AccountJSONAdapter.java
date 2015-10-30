@@ -15,15 +15,20 @@ import org.json.JSONObject;
 import java.text.DecimalFormat;
 
 /**
- * AccountJSONAdapter translates the data retrieved from the Citi bank APIs into a row_account
- * layout.
+ * AccountJSONAdapter translates the data retrieved from the
+ * Citi bank APIs into a row_account layout.
  *
  * Created by Dale Avery on 9/29/2015.
  */
 public class AccountJSONAdapter extends BaseAdapter {
 
     // Tags for pulling the appropriate data out of the JSON
+    /**
+     * The key for extracting the account name.
+     */
     private static final String TAG_NAME = "account_name";
+
+    
     private static final String TAG_NUMBER = "account_number";
     private static final String TAG_BALANCE = "balance";
     private static final String TAG_FIRST_NAME = "first_name";
@@ -133,7 +138,7 @@ public class AccountJSONAdapter extends BaseAdapter {
 
     /**
      * This is used so you only ever have to do inflation and finding by ID
-     * one per View.
+     * once per View.
      */
     private static class ViewHolder {
         public TextView accNameTextView;
